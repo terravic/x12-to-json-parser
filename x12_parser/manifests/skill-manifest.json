@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "name": "x12-healthcare-parser",
+  "name_for_model": "X12_Healthcare_Parser",
+  "display_name": "EDI X12 Healthcare Transaction & Clinical C-CDA Parser",
+  "description": "Production-ready EDI X12 (5010) and C-CDA XML parser for health plans, clearinghouses, and provider systems.",
+  "description_for_model": "Use this skill when the user provides raw EDI X12 healthcare transaction text (such as 270, 271, 277, 275, 278, 837, 835) or embedded C-CDA XML clinical documents, and needs them translated into human-readable or machine-processable structured JSON format.",
+  "category": "Healthcare Interoperability",
+  "version": "1.0.0",
+  "endpoints": [
+    {
+      "path": "/v1/parse/x12",
+      "method": "POST",
+      "summary": "Parse raw EDI X12 text and return structured JSON",
+      "description": "Takes raw EDI X12 content string in request body and returns hierarchically grouped JSON with mapped business entities, claim details, payment breakdowns, attachment flags (277), and parsed C-CDA clinical documents (275).",
+      "parameters": {
+        "raw_x12": {
+          "type": "string",
+          "required": true,
+          "description": "The complete raw EDI X12 string (e.g., starting with ISA*...)"
+        },
+        "context": {
+          "type": "string",
+          "required": false,
+          "description": "Optional background or workflow context about the transaction"
+        }
+      },
+      "routing_keywords": [
+        "x12",
+        "edi",
+        "837",
+        "835",
+        "270",
+        "271",
+        "277",
+        "275",
+        "278",
+        "ccda",
+        "c-cda",
+        "claim",
+        "remittance",
+        "prior auth",
+        "eligibility",
+        "attachment"
+      ]
+    }
+  ]
+}

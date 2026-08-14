@@ -1,0 +1,8 @@
+# Zero mandatory external dependencies for core parser and HTTP server (uses Python 3.8+ Standard Library)
+# Optional developer and enterprise framework dependencies:
+pytest>=8.0.0
+fastapi>=0.110.0
+uvicorn>=0.28.0
+pydantic>=2.6.0
+pyyaml>=6.0.1
+requests>=2.31.0

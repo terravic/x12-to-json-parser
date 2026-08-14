@@ -1,0 +1,89 @@
+openapi: 3.1.0
+info:
+  title: X12 Healthcare EDI & Clinical C-CDA Parser API
+  version: 1.0.0
+  description: Enterprise EDI X12 (Version 5010) to structured JSON parser with automated C-CDA XML clinical payload extraction and attachment loop correlation.
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+paths:
+  /v1/parse/x12:
+    post:
+      summary: Parse raw EDI X12 healthcare transaction text
+      description: Accepts raw EDI X12 transaction strings (270, 271, 277, 275, 278, 837, 835) and returns fully structured JSON including hierarchical loops, semantic key mappings, and parsed C-CDA clinical documents.
+      operationId: parseX12Transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParseRequest'
+          text/plain:
+            schema:
+              type: string
+              description: Raw EDI X12 text content
+      responses:
+        '200':
+          description: Successfully parsed X12 transaction set into structured JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParseResponse'
+        '400':
+          description: Invalid X12 transaction structure or malformed payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/health:
+    get:
+      summary: Health check endpoint
+      description: Returns status of the X12 Parser service.
+      operationId: getHealthStatus
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  version:
+                    type: string
+                    example: 1.0.0
+components:
+  schemas:
+    ParseRequest:
+      type: object
+      required:
+        - raw_x12
+      properties:
+        raw_x12:
+          type: string
+          description: The raw EDI X12 transaction string to parse.
+        context:
+          type: string
+          description: Optional metadata or context description from user/caller.
+    ParseResponse:
+      type: object
+      properties:
+        delimiters:
+          type: object
+        interchange_header:
+          type: object
+        functional_groups:
+          type: array
+          items:
+            type: object
+        summary:
+          type: object
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        details:
+          type: string

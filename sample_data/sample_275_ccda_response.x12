@@ -1,0 +1,382 @@
+ISA*00*          *00*          *ZZ*SUBMITTER123   *ZZ*BLUEHORIZON    *260814*1600*^*00501*000000004*0*P*:~
+GS*PI*SUBMITTER123*BLUEHORIZON*20260814*1600*4*X*005010X210~
+ST*275*0001*005010X210~
+BGN*00*ATT-TRANS-20260814*20260814*1600~
+NM1*41*2*METROPOLITAN MEDICAL CENTER*****XX*1234567890~
+NM1*40*2*BLUE HORIZON HEALTH PLAN*****PI*BH999~
+HL*1**20*1~
+NM1*PR*2*BLUE HORIZON HEALTH PLAN*****PI*BH999~
+HL*2*1*21*1~
+NM1*1P*2*METROPOLITAN MEDICAL CENTER*****XX*1234567890~
+HL*3*2*PT*0~
+NM1*QC*1*DOE*JOHN*M***MI*W1234567890~
+N3*742 EVERGREEN TERRACE~
+N4*METROPOLIS*NY*10001~
+DMG*D8*19750412*M~
+CAT*TI*09*ATT-REF-99214-CCDA~
+PID*F****PROGRESS REPORT AND MEDICAL NECESSITY EVALUATION~
+BDS*XML*0*<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:sdtc="urn:hl7-org:sdtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <realmCode code="US"/>
+  <typeId root="2.16.840.1.113883.1.3" extension="POCD_HD000040"/>
+  <templateId root="2.16.840.1.113883.10.20.22.1.1"/>
+  <templateId root="2.16.840.1.113883.10.20.22.1.2"/>
+  <id root="2.16.840.1.113883.19.5.99999.1" extension="CCDA-DOC-20260814-001"/>
+  <code code="34133-9" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Summarization of Episode Note"/>
+  <title>Metropolitan Medical Center - Clinical Progress Note &amp; Medical Necessity Evaluation</title>
+  <effectiveTime value="20260814154500-0500"/>
+  <confidentialityCode code="N" codeSystem="2.16.840.1.113883.5.25" displayName="Normal"/>
+  <languageCode code="en-US"/>
+  <recordTarget>
+    <patientRole>
+      <id root="2.16.840.1.113883.19.5" extension="MRN-DOE-78901"/>
+      <addr>
+        <streetAddressLine>742 Evergreen Terrace</streetAddressLine>
+        <city>Metropolis</city>
+        <state>NY</state>
+        <postalCode>10001</postalCode>
+        <country>USA</country>
+      </addr>
+      <telecom value="tel:+1-555-867-5309" use="HP"/>
+      <patient>
+        <name>
+          <given>John</given>
+          <given>M</given>
+          <family>Doe</family>
+        </name>
+        <administrativeGenderCode code="M" codeSystem="2.16.840.1.113883.5.1" displayName="Male"/>
+        <birthTime value="19750412"/>
+        <maritalStatusCode code="M" codeSystem="2.16.840.1.113883.5.2" displayName="Married"/>
+        <raceCode code="2106-3" codeSystem="2.16.840.1.113883.6.238" displayName="White"/>
+        <ethnicGroupCode code="2186-5" codeSystem="2.16.840.1.113883.6.238" displayName="Not Hispanic or Latino"/>
+      </patient>
+    </patientRole>
+  </recordTarget>
+  <author>
+    <time value="20260814154500-0500"/>
+    <assignedAuthor>
+      <id root="2.16.840.1.113883.4.6" extension="1987654321"/>
+      <assignedPerson>
+        <name>
+          <prefix>Dr.</prefix>
+          <given>Robert</given>
+          <family>Smith</family>
+          <suffix>MD</suffix>
+        </name>
+      </assignedPerson>
+      <representedOrganization>
+        <name>Metropolitan Medical Center</name>
+      </representedOrganization>
+    </assignedAuthor>
+  </author>
+  <custodian>
+    <assignedCustodian>
+      <representedCustodianOrganization>
+        <name>Metropolitan Medical Center Health System</name>
+        <addr>
+          <streetAddressLine>100 Healthcare Blvd</streetAddressLine>
+          <city>Metropolis</city>
+          <state>NY</state>
+          <postalCode>10001</postalCode>
+        </addr>
+      </representedCustodianOrganization>
+    </assignedCustodian>
+  </custodian>
+  <component>
+    <structuredBody>
+      <!-- ALLERGIES SECTION -->
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.6.1"/>
+          <code code="48765-2" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Allergies and adverse reactions"/>
+          <title>Allergies &amp; Adverse Reactions</title>
+          <text>
+            <table>
+              <thead>
+                <tr><th>Substance</th><th>Reaction</th><th>Severity</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Penicillin G</td><td>Anaphylaxis / Hives</td><td>Severe</td><td>Active</td></tr>
+              </tbody>
+            </table>
+          </text>
+          <entry>
+            <act classCode="ACT" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.30"/>
+              <id root="36e3e930-7b14-11db-9fe1-0800200c9a66"/>
+              <code code="CONC" codeSystem="2.16.840.1.113883.5.6"/>
+              <statusCode code="active"/>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.7"/>
+                  <id root="4ca5edd0-7b14-11db-9fe1-0800200c9a66"/>
+                  <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                  <statusCode code="completed"/>
+                  <value xsi:type="CD" code="419199007" codeSystem="2.16.840.1.113883.6.96" displayName="Allergy to substance"/>
+                  <participant typeCode="CSM">
+                    <participantRole classCode="MANU">
+                      <playingEntity classCode="MMAT">
+                        <code code="70618" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm" displayName="Penicillin G"/>
+                      </playingEntity>
+                    </participantRole>
+                  </participant>
+                  <entryRelationship typeCode="MFST" inversionInd="true">
+                    <observation classCode="OBS" moodCode="EVN">
+                      <templateId root="2.16.840.1.113883.10.20.22.4.9"/>
+                      <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                      <statusCode code="completed"/>
+                      <value xsi:type="CD" code="39579001" codeSystem="2.16.840.1.113883.6.96" displayName="Anaphylaxis"/>
+                    </observation>
+                  </entryRelationship>
+                  <entryRelationship typeCode="SUBJ" inversionInd="true">
+                    <observation classCode="OBS" moodCode="EVN">
+                      <templateId root="2.16.840.1.113883.10.20.22.4.8"/>
+                      <code code="SEV" codeSystem="2.16.840.1.113883.5.4"/>
+                      <statusCode code="completed"/>
+                      <value xsi:type="CD" code="24484000" codeSystem="2.16.840.1.113883.6.96" displayName="Severe"/>
+                    </observation>
+                  </entryRelationship>
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+        </section>
+      </component>
+
+      <!-- MEDICATIONS SECTION -->
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.1.1"/>
+          <code code="10160-0" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="History of medication use"/>
+          <title>Current Medications</title>
+          <text>
+            <table>
+              <thead>
+                <tr><th>Medication</th><th>Instructions</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Lisinopril 20 MG Oral Tablet</td><td>Take 1 tablet (20mg) orally once daily every morning</td><td>Active</td></tr>
+              </tbody>
+            </table>
+          </text>
+          <entry>
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <id root="cdbd33f0-6cde-11db-9fe1-0800200c9a66"/>
+              <text>Take 1 tablet (20mg) orally once daily every morning for hypertension management</text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low value="20240115"/>
+              </effectiveTime>
+              <doseQuantity value="20" unit="mg"/>
+              <routeCode code="C38288" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus" displayName="Oral"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <manufacturedMaterial>
+                    <code code="314076" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm" displayName="Lisinopril 20 MG Oral Tablet"/>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+        </section>
+      </component>
+
+      <!-- PROBLEMS SECTION -->
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.5.1"/>
+          <code code="11450-4" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Problem list"/>
+          <title>Problem List / Diagnoses</title>
+          <text>
+            <table>
+              <thead>
+                <tr><th>Condition</th><th>Code</th><th>Status</th><th>Onset</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Essential (Primary) Hypertension</td><td>ICD-10: I10</td><td>Active</td><td>2022-03-10</td></tr>
+                <tr><td>Chest Pain, Unspecified</td><td>ICD-10: R07.9</td><td>Active</td><td>2026-08-08</td></tr>
+              </tbody>
+            </table>
+          </text>
+          <entry>
+            <act classCode="ACT" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.3"/>
+              <id root="ab1791b0-5f71-11db-b0de-0800200c9a66"/>
+              <code code="CONC" codeSystem="2.16.840.1.113883.5.6"/>
+              <statusCode code="active"/>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
+                  <id root="ab1791b0-5f71-11db-b0de-0800200c9a67"/>
+                  <code code="64572001" codeSystem="2.16.840.1.113883.6.96" displayName="Condition"/>
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+                    <low value="20220310"/>
+                  </effectiveTime>
+                  <value xsi:type="CD" code="I10" codeSystem="2.16.840.1.113883.6.90" codeSystemName="ICD-10-CM" displayName="Essential (Primary) Hypertension"/>
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+          <entry>
+            <act classCode="ACT" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.3"/>
+              <id root="ab1791b0-5f71-11db-b0de-0800200c9a68"/>
+              <code code="CONC" codeSystem="2.16.840.1.113883.5.6"/>
+              <statusCode code="active"/>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
+                  <id root="ab1791b0-5f71-11db-b0de-0800200c9a69"/>
+                  <code code="64572001" codeSystem="2.16.840.1.113883.6.96" displayName="Condition"/>
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+                    <low value="20260808"/>
+                  </effectiveTime>
+                  <value xsi:type="CD" code="R07.9" codeSystem="2.16.840.1.113883.6.90" codeSystemName="ICD-10-CM" displayName="Chest Pain, Unspecified"/>
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+        </section>
+      </component>
+
+      <!-- VITAL SIGNS SECTION -->
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.4.1"/>
+          <code code="8716-3" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Vital signs"/>
+          <title>Vital Signs</title>
+          <text>
+            <table>
+              <thead>
+                <tr><th>Measurement</th><th>Value</th><th>Date</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Systolic Blood Pressure</td><td>138 mm[Hg]</td><td>2026-08-10</td></tr>
+                <tr><td>Diastolic Blood Pressure</td><td>86 mm[Hg]</td><td>2026-08-10</td></tr>
+                <tr><td>Heart Rate</td><td>72 /min</td><td>2026-08-10</td></tr>
+                <tr><td>Oxygen Saturation (SpO2)</td><td>98 %</td><td>2026-08-10</td></tr>
+                <tr><td>Body Mass Index (BMI)</td><td>27.4 kg/m2</td><td>2026-08-10</td></tr>
+              </tbody>
+            </table>
+          </text>
+          <entry>
+            <organizer classCode="CLUSTER" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.26"/>
+              <statusCode code="completed"/>
+              <effectiveTime value="20260810103000"/>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <code code="8480-6" codeSystem="2.16.840.1.113883.6.1" displayName="Systolic Blood Pressure"/>
+                  <effectiveTime value="20260810103000"/>
+                  <value xsi:type="PQ" value="138" unit="mm[Hg]"/>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <code code="8462-4" codeSystem="2.16.840.1.113883.6.1" displayName="Diastolic Blood Pressure"/>
+                  <effectiveTime value="20260810103000"/>
+                  <value xsi:type="PQ" value="86" unit="mm[Hg]"/>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <code code="8867-4" codeSystem="2.16.840.1.113883.6.1" displayName="Heart Rate"/>
+                  <effectiveTime value="20260810103000"/>
+                  <value xsi:type="PQ" value="72" unit="/min"/>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <code code="59408-5" codeSystem="2.16.840.1.113883.6.1" displayName="Oxygen Saturation"/>
+                  <effectiveTime value="20260810103000"/>
+                  <value xsi:type="PQ" value="98" unit="%"/>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <code code="39156-5" codeSystem="2.16.840.1.113883.6.1" displayName="Body Mass Index"/>
+                  <effectiveTime value="20260810103000"/>
+                  <value xsi:type="PQ" value="27.4" unit="kg/m2"/>
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+        </section>
+      </component>
+
+      <!-- ENCOUNTERS SECTION -->
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.22.1"/>
+          <code code="46240-8" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Encounters"/>
+          <title>Encounters</title>
+          <entry>
+            <encounter classCode="ENC" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.49"/>
+              <code code="99214" codeSystem="2.16.840.1.113883.6.12" codeSystemName="CPT-4" displayName="Office or other outpatient visit for the evaluation and management of an established patient (Level 4)"/>
+              <effectiveTime value="20260810100000"/>
+              <performer>
+                <assignedEntity>
+                  <assignedPerson>
+                    <name>
+                      <prefix>Dr.</prefix>
+                      <given>Robert</given>
+                      <family>Smith</family>
+                      <suffix>MD</suffix>
+                    </name>
+                  </assignedPerson>
+                </assignedEntity>
+              </performer>
+            </encounter>
+          </entry>
+        </section>
+      </component>
+
+      <!-- CHIEF COMPLAINT SECTION -->
+      <component>
+        <section>
+          <code code="10154-3" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Chief complaint"/>
+          <title>Chief Complaint</title>
+          <text>Patient presents for evaluation of intermittent substernal chest pressure associated with exertion, and routine follow-up of essential hypertension.</text>
+        </section>
+      </component>
+
+      <!-- ASSESSMENT AND PLAN SECTION -->
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.9"/>
+          <code code="51847-2" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Assessment and Plan"/>
+          <title>Assessment and Plan</title>
+          <text>1. Essential Hypertension (I10): Well controlled on Lisinopril 20mg daily. Continue current regimen.
+2. Atypical Chest Pain (R07.9): 12-lead EKG performed in office (CPT 93000) showing normal sinus rhythm without acute ischemic changes. Low cardiac risk profile. Advised on lifestyle modifications and return precautions.</text>
+        </section>
+      </component>
+
+      <!-- PROGRESS NOTE & MEDICAL NECESSITY EVALUATION SECTION -->
+      <component>
+        <section>
+          <code code="11506-3" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Progress note"/>
+          <title>Clinical Progress Note &amp; Medical Necessity Evaluation</title>
+          <text>CLINICAL EVALUATION &amp; MEDICAL NECESSITY JUSTIFICATION:
+Patient John Doe (DOB 04/12/1975) was evaluated on 2026-08-10 at Metropolitan Medical Center for medical management of essential hypertension and new-onset atypical chest discomfort. 
+Detailed clinical assessment justifies the medical necessity of comprehensive Evaluation &amp; Management (CPT 99214) due to moderate-to-high medical decision making complexity and multi-system chronic disease management. 
+In-office 12-lead diagnostic electrocardiogram (CPT 93000) was medically necessary to rule out acute coronary syndrome and evaluate for hypertensive cardiovascular changes. 
+Adherence to Lisinopril 20mg daily was verified with patient showing favorable hemodynamic stability.
+All diagnostic and therapeutic services rendered meet established clinical guidelines and coverage criteria for claim reimbursement under reference CLM-2026-98124.</text>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>~
+SE*18*0001~
+GE*1*4~
+IEA*1*000000004~

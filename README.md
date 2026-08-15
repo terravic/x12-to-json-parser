@@ -243,3 +243,10 @@ A standalone backup archive is also generated at:
 ```bash
 /tmp/x12-to-json-parser-export.tar.gz
 ```
+
+---
+
+## 8. License
+
+This project is licensed under the Apache License 2.0. See the [LICENSE](file:///usr/local/google/home/rolandmm/Projects/x12-to-json-parser/LICENSE) file for details.
+

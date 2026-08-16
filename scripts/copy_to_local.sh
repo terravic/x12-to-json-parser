@@ -2,8 +2,8 @@
 # Helper script to backup, export, or sync the X12-to-JSON parser codebase.
 set -euo pipefail
 
-DEST_DIR="${1:-/usr/local/google/home/rolandmm/Projects/x12-to-json-parser}"
 SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DEST_DIR="${1:-$SRC_DIR}"
 
 echo "Source Directory:      $SRC_DIR"
 echo "Destination Directory: $DEST_DIR"

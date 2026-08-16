@@ -2,6 +2,10 @@
 
 An enterprise-grade, zero-dependency, modular EDI X12 (Version 5010) to structured JSON parser featuring automated Consolidated Clinical Document Architecture (C-CDA R2.1/R1.1) XML payload extraction, healthcare semantic key mapping, and a Gemini Enterprise / OpenAI Plugin specification.
 
+<p align="center">
+  <img src="docs/images/x12_skill_demo.jpg" alt="EDI X12 Healthcare Parser & C-CDA XML Integration Skill in Action" width="100%">
+</p>
+
 ---
 
 ## 1. Supported EDI X12 Transaction Sets (5010)
@@ -69,10 +73,13 @@ graph TD
 ## 3. Directory Structure
 
 ```
-/usr/local/google/home/rolandmm/Projects/x12-to-json-parser/
+x12-to-json-parser/
 ├── README.md                           # Comprehensive documentation
 ├── requirements.txt                    # Project dependencies
 ├── setup.py                            # Package setup configuration
+├── docs/
+│   └── images/
+│       └── x12_skill_demo.jpg          # Architecture & Skill Demo Visual
 ├── x12_parser/
 │   ├── __init__.py                     # Package exports (X12Parser, CCDAParser)
 │   ├── cli.py                          # CLI tool interface
@@ -232,21 +239,22 @@ Errors:               0
 
 ---
 
-## 7. Local Machine Project Location & Synchronization
+## 7. Project Location & Synchronization
 
-The entire codebase is directly installed in the workspace directory:
-```
-/usr/local/google/home/rolandmm/Projects/x12-to-json-parser
-```
-
-A standalone backup archive is also generated at:
+The entire codebase is located in the root repository directory:
 ```bash
-/tmp/x12-to-json-parser-export.tar.gz
+./x12-to-json-parser
 ```
+
+A standalone backup archive can also be generated via:
+```bash
+./scripts/copy_to_local.sh
+```
+which exports the archive to `/tmp/x12-to-json-parser-export.tar.gz`.
 
 ---
 
 ## 8. License
 
-This project is licensed under the Apache License 2.0. See the [LICENSE](file:///usr/local/google/home/rolandmm/Projects/x12-to-json-parser/LICENSE) file for details.
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
 

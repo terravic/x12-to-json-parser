@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EDI X12 to JSON Semantic Mapping & Clinical Integration Dashboard</title>
+  <!-- Tailwind CSS via allowlisted CDN -->
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    /* Theme color fallbacks and semantic mapping */
+    :root {
+      --app-background: #0f172a;
+      --app-foreground: #f8fafc;
+      --app-card: #1e293b;
+      --app-card-border: #334155;
+      --app-card-foreground: #f8fafc;
+      --app-border: #334155;
+      --app-primary: #3b82f6;
+      --app-primary-foreground: #ffffff;
+      --app-muted: #334155;
+      --app-muted-foreground: #94a3b8;
+      --vscode-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    html.light {
+      --app-background: #f8fafc;
+      --app-foreground: #0f172a;
+      --app-card: #ffffff;
+      --app-card-border: #e2e8f0;
+      --app-card-foreground: #0f172a;
+      --app-border: #e2e8f0;
+      --app-primary: #2563eb;
+      --app-primary-foreground: #ffffff;
+      --app-muted: #f1f5f9;
+      --app-muted-foreground: #64748b;
+    }
+
+    body {
+      background-color: var(--app-background);
+      color: var(--app-foreground);
+      font-family: var(--vscode-font-family);
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.4);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 116, 139, 0.7);
+    }
+
+    .badge-x12 {
+      background-color: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+    html.light .badge-x12 {
+      background-color: #eff6ff;
+      color: #1d4ed8;
+      border-color: #bfdbfe;
+    }
+
+    .badge-json {
+      background-color: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    html.light .badge-json {
+      background-color: #ecfdf5;
+      color: #047857;
+      border-color: #a7f3d0;
+    }
+
+    .badge-clinical {
+      background-color: rgba(168, 85, 247, 0.15);
+      color: #c084fc;
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+    html.light .badge-clinical {
+      background-color: #faf5ff;
+      color: #7e22ce;
+      border-color: #e9d5ff;
+    }
+
+    .code-font {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .transition-all-fast {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  </style>
+</head>
+<body class="min-h-screen p-3 md:p-6 antialiased">
+  <div class="max-w-7xl mx-auto space-y-6">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl p-4 md:p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-xl font-bold text-[var(--app-foreground)] tracking-tight">EDI X12 &rarr; JSON Semantic Mapping Engine</h1>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-medium">5010 Spec & C-CDA</span>
+          </div>
+          <p class="text-xs md:text-sm text-[var(--app-muted-foreground)]">Interactive visual field guide, healthcare business dictionary & transformation inspector</p>
+        </div>
+      </div>
+
+      <!-- Quick Action Controls & Theme Toggle -->
+      <div class="flex items-center space-x-3 self-end md:self-center">
+        <!-- Live Search Input -->
+        <div class="relative">
+          <input type="text" id="searchInput" placeholder="Search segment, field, or tag..." 
+                 class="bg-[var(--app-muted)] text-[var(--app-foreground)] placeholder-[var(--app-muted-foreground)] text-xs md:text-sm rounded-lg px-3 py-1.5 pl-8 border border-[var(--app-border)] focus:outline-none focus:ring-1 focus:ring-blue-500 w-48 md:w-64">
+          <svg class="w-4 h-4 text-[var(--app-muted-foreground)] absolute left-2.5 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+
+        <!-- Light / Dark Theme Toggle Button -->
+        <button id="themeToggle" class="p-2 rounded-lg bg-[var(--app-muted)] text-[var(--app-foreground)] border border-[var(--app-border)] hover:opacity-80 transition-all" title="Toggle Light/Dark Theme">
+          <svg id="sunIcon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+          </svg>
+          <svg id="moonIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Key Metrics & Transaction Stats Bar -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-xl p-3.5 flex flex-col justify-between">
+        <span class="text-xs text-[var(--app-muted-foreground)] font-medium">837 Claims</span>
+        <span class="text-lg font-bold text-blue-400">Professional / Inst</span>
+        <span class="text-[11px] text-[var(--app-muted-foreground)]">CLM &bull; HI &bull; SV1 &bull; SV2</span>
+      </div>
+      <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-xl p-3.5 flex flex-col justify-between">
+        <span class="text-xs text-[var(--app-muted-foreground)] font-medium">835 Remittance</span>
+        <span class="text-lg font-bold text-emerald-400">Payment & ERA</span>
+        <span class="text-[11px] text-[var(--app-muted-foreground)]">BPR &bull; CLP &bull; CAS &bull; SVC</span>
+      </div>
+      <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-xl p-3.5 flex flex-col justify-between">
+        <span class="text-xs text-[var(--app-muted-foreground)] font-medium">270 / 271</span>
+        <span class="text-lg font-bold text-cyan-400">Eligibility</span>
+        <span class="text-[11px] text-[var(--app-muted-foreground)]">EB &bull; EQ &bull; DMG &bull; INS</span>
+      </div>
+      <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-xl p-3.5 flex flex-col justify-between">
+        <span class="text-xs text-[var(--app-muted-foreground)] font-medium">278 Prior Auth</span>
+        <span class="text-lg font-bold text-amber-400">Review & Cert</span>
+        <span class="text-[11px] text-[var(--app-muted-foreground)]">UM &bull; HCR &bull; PWK</span>
+      </div>
+      <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-xl p-3.5 flex flex-col justify-between">
+        <span class="text-xs text-[var(--app-muted-foreground)] font-medium">277 Status</span>
+        <span class="text-lg font-bold text-rose-400">Doc Requests</span>
+        <span class="text-[11px] text-[var(--app-muted-foreground)]">STC &bull; required_attachments</span>
+      </div>
+      <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-xl p-3.5 flex flex-col justify-between">
+        <span class="text-xs text-[var(--app-muted-foreground)] font-medium">275 + C-CDA</span>
+        <span class="text-lg font-bold text-purple-400">Clinical XML</span>
+        <span class="text-[11px] text-[var(--app-muted-foreground)]">BDS &bull; BIN &bull; HL7 C-CDA</span>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="border-b border-[var(--app-border)] flex space-x-2 overflow-x-auto pb-1" id="tabContainer">
+      <button onclick="switchTab('all')" class="tab-btn active px-4 py-2 text-sm font-semibold border-b-2 border-blue-500 text-blue-400 whitespace-nowrap">
+        All Mappings (Complete Reference)
+      </button>
+      <button onclick="switchTab('interactive')" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-[var(--app-muted-foreground)] hover:text-[var(--app-foreground)] whitespace-nowrap">
+        ⚡ Live Interactive Inspector & Converter
+      </button>
+      <button onclick="switchTab('claims_837')" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-[var(--app-muted-foreground)] hover:text-[var(--app-foreground)] whitespace-nowrap">
+        837 Claims
+      </button>
+      <button onclick="switchTab('remittance_835')" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-[var(--app-muted-foreground)] hover:text-[var(--app-foreground)] whitespace-nowrap">
+        835 Remittance
+      </button>
+      <button onclick="switchTab('status_277')" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-[var(--app-muted-foreground)] hover:text-[var(--app-foreground)] whitespace-nowrap">
+        277 Status & Attachments
+      </button>
+      <button onclick="switchTab('ccda_275')" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-[var(--app-muted-foreground)] hover:text-[var(--app-foreground)] whitespace-nowrap">
+        275 & C-CDA Clinical Payload
+      </button>
+      <button onclick="switchTab('eligibility_270')" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-[var(--app-muted-foreground)] hover:text-[var(--app-foreground)] whitespace-nowrap">
+        270/271 & 278
+      </button>
+    </div>
+
+    <!-- MAIN CONTENT SECTIONS -->
+
+    <!-- TAB 1: ALL MAPPINGS (TABLE OF SECTIONS) -->
+    <div id="tab-all" class="space-y-6 tab-content">
+      
+      <!-- Section 1: Envelopes & Control Headers -->
+      <section class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl overflow-hidden shadow-sm mapping-section" data-section="envelopes">
+        <div class="bg-[var(--app-muted)]/50 px-5 py-3.5 border-b border-[var(--app-border)] flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+            <h2 class="font-bold text-sm md:text-base text-[var(--app-foreground)]">1. Control Envelopes & Interchange Headers</h2>
+          </div>
+          <span class="text-xs text-[var(--app-muted-foreground)] font-mono">ISA &bull; GS &bull; ST &bull; SE &bull; GE &bull; IEA</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs md:text-sm">
+            <thead class="bg-[var(--app-muted)]/30 text-[var(--app-muted-foreground)] border-b border-[var(--app-border)] font-medium">
+              <tr>
+                <th class="py-2.5 px-4">EDI Segment / Element</th>
+                <th class="py-2.5 px-4">JSON Key / Path</th>
+                <th class="py-2.5 px-4">Data Type</th>
+                <th class="py-2.5 px-4">Field Explanation & Business Meaning</th>
+                <th class="py-2.5 px-4">Sample Value</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--app-border)] text-[var(--app-foreground)]">
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="isa sender receiver interchange header">
+                <td class="py-3 px-4 font-mono font-semibold text-blue-400">ISA06 / ISA08</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">interchange_sender_id / interchange_receiver_id</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">string(15)</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">Identifies the trading partners exchanging the EDI interchange (clearinghouse, payer ID, or submitter ID).</td>
+                <td class="py-3 px-4 font-mono text-xs">"SUBMITTER123"</td>
+              </tr>
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="isa control number 13">
+                <td class="py-3 px-4 font-mono font-semibold text-blue-400">ISA13</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">interchange_control_number</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">string(9)</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">Unique control number assigned by the sender to track and match the interchange with the IEA trailer.</td>
+                <td class="py-3 px-4 font-mono text-xs">"000000001"</td>
+              </tr>
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="gs functional identifier code 01">
+                <td class="py-3 px-4 font-mono font-semibold text-blue-400">GS01 / GS08</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">functional_identifier_code / version_code</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">string</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">Identifies the functional group type (<code class="badge-x12 px-1 rounded">HC</code>=Health Claim, <code class="badge-x12 px-1 rounded">HP</code>=Remittance, <code class="badge-x12 px-1 rounded">HR</code>=Status) and 5010 version release identifier.</td>
+                <td class="py-3 px-4 font-mono text-xs">"HC", "005010X222A1"</td>
+              </tr>
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="st transaction set identifier 01">
+                <td class="py-3 px-4 font-mono font-semibold text-blue-400">ST01 / ST02</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">transaction_set_identifier / control_number</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">string</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">Transaction set number (e.g. 837, 835, 270, 271, 277, 275) and transaction control number matched in SE02.</td>
+                <td class="py-3 px-4 font-mono text-xs">"837", "0001"</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Section 2: Entities, Names & Demographics -->
+      <section class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl overflow-hidden shadow-sm mapping-section" data-section="entities">
+        <div class="bg-[var(--app-muted)]/50 px-5 py-3.5 border-b border-[var(--app-border)] flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+            <h2 class="font-bold text-sm md:text-base text-[var(--app-foreground)]">2. Business Entities, Providers & Patient Demographics</h2>
+          </div>
+          <span class="text-xs text-[var(--app-muted-foreground)] font-mono">NM1 &bull; N3 &bull; N4 &bull; PER &bull; DMG &bull; SBR &bull; PAT</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs md:text-sm">
+            <thead class="bg-[var(--app-muted)]/30 text-[var(--app-muted-foreground)] border-b border-[var(--app-border)] font-medium">
+              <tr>
+                <th class="py-2.5 px-4">EDI Segment / Element</th>
+                <th class="py-2.5 px-4">JSON Key / Path</th>
+                <th class="py-2.5 px-4">Data Type</th>
+                <th class="py-2.5 px-4">Field Explanation & Business Meaning</th>
+                <th class="py-2.5 px-4">Sample Value</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--app-border)] text-[var(--app-foreground)]">
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="nm1 entity identifier name 41 40 85 il pr qc 82">
+                <td class="py-3 px-4 font-mono font-semibold text-blue-400">NM101 / NM103 / NM104</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">submitter / billing_provider / subscriber / patient / payer</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">object</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">
+                  Identifies organization or individual role:
+                  <div class="mt-1 flex flex-wrap gap-1">
+                    <span class="badge-x12 px-1.5 py-0.5 rounded text-[10px]">85: Billing Provider</span>
+                    <span class="badge-x12 px-1.5 py-0.5 rounded text-[10px]">82: Rendering Provider</span>
+                    <span class="badge-x12 px-1.5 py-0.5 rounded text-[10px]">IL: Insured/Subscriber</span>
+                    <span class="badge-x12 px-1.5 py-0.5 rounded text-[10px]">QC: Patient</span>
+                    <span class="badge-x12 px-1.5 py-0.5 rounded text-[10px]">PR: Payer</span>
+                  </div>
+                </td>
+                <td class="py-3 px-4 font-mono text-xs">{"name_last": "SMITH", "name_first": "JOHN"}</td>
+              </tr>
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="nm108 nm109 npi member id tax id identification code">
+                <td class="py-3 px-4 font-mono font-semibold text-blue-400">NM108 / NM109</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">identification_code_qualifier / identification_code</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">string</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">National Provider Identifier (NPI qualifier <code class="badge-x12 px-1 rounded">XX</code>), Member/Policy ID (<code class="badge-x12 px-1 rounded">MI</code>), or Employer Tax ID (<code class="badge-x12 px-1 rounded">24</code>).</td>
+                <td class="py-3 px-4 font-mono text-xs">"XX", "1982736450"</td>
+              </tr>
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="n3 n4 address city state zip geographic location">
+                <td class="py-3 px-4 font-mono font-semibold text-blue-400">N301 / N401-N403</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">address / geographic_location</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">object</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">Street address line, City name, 2-letter State abbreviation, and ZIP/Postal code.</td>
+                <td class="py-3 px-4 font-mono text-xs">{"city": "AUSTIN", "state": "TX", "postal_code": "78701"}</td>
+              </tr>
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="dmg date of birth gender demographics 02 03">
+                <td class="py-3 px-4 font-mono font-semibold text-blue-400">DMG02 / DMG03</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">demographics.date_of_birth / demographics.gender</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">string</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">Member/patient birth date (YYYYMMDD) and administrative gender code (<code class="badge-x12 px-1 rounded">M</code>=Male, <code class="badge-x12 px-1 rounded">F</code>=Female, <code class="badge-x12 px-1 rounded">U</code>=Unknown).</td>
+                <td class="py-3 px-4 font-mono text-xs">"19800512", "M"</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Section 3: 837 Claims & Service Lines -->
+      <section class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl overflow-hidden shadow-sm mapping-section" data-section="claims">
+        <div class="bg-[var(--app-muted)]/50 px-5 py-3.5 border-b border-[var(--app-border)] flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="w-3 h-3 rounded-full bg-cyan-500"></span>
+            <h2 class="font-bold text-sm md:text-base text-[var(--app-foreground)]">3. Health Care Claims & Line Adjudication (837)</h2>
+          </div>
+          <span class="text-xs text-[var(--app-muted-foreground)] font-mono">CLM &bull; DTP &bull; HI &bull; LX &bull; SV1 &bull; SV2 &bull; PWK</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs md:text-sm">
+            <thead class="bg-[var(--app-muted)]/30 text-[var(--app-muted-foreground)] border-b border-[var(--app-border)] font-medium">
+              <tr>
+                <th class="py-2.5 px-4">EDI Segment / Element</th>
+                <th class="py-2.5 px-4">JSON Key / Path</th>
+                <th class="py-2.5 px-4">Data Type</th>
+                <th class="py-2.5 px-4">Field Explanation & Business Meaning</th>
+                <th class="py-2.5 px-4">Sample Value</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--app-border)] text-[var(--app-foreground)]">
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="clm claim id total charge amount clm01 clm02">
+                <td class="py-3 px-4 font-mono font-semibold text-blue-400">CLM01 / CLM02</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">claims[].claim_id / claims[].total_claim_charge_amount</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">string / float</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">Submitter's unique claim identifier (Patient Control Number) and total billed charge amount for all services.</td>
+                <td class="py-3 px-4 font-mono text-xs">"CLM-99201", 1250.00</td>
+              </tr>
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="hi diagnosis icd10 principal admitting pointer">
+                <td class="py-3 px-4 font-mono font-semibold text-blue-400">HI01-HI12 (BK/ABK)</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">claims[].diagnoses[]</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">array[object]</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">ICD-10-CM diagnosis codes with qualifier (<code class="badge-x12 px-1 rounded">ABK</code>=Principal Diagnosis, <code class="badge-x12 px-1 rounded">ABF</code>=Secondary Diagnosis).</td>
+                <td class="py-3 px-4 font-mono text-xs">[{"diagnosis_type": "ABK", "code": "I10"}]</td>
+              </tr>
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="sv1 sv2 procedure cpt hcpcs modifier units charge">
+                <td class="py-3 px-4 font-mono font-semibold text-blue-400">SV101 / SV102 / SV104</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">service_lines[].procedure / charge_amount / unit_count</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">object / float</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">CPT/HCPCS medical procedure code with modifier, line item submitted charge amount, and unit quantity count.</td>
+                <td class="py-3 px-4 font-mono text-xs">{"procedure_code": "99214"}, 250.00, 1.0</td>
+              </tr>
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="pwk paperwork attachment control number report type">
+                <td class="py-3 px-4 font-mono font-semibold text-blue-400">PWK01 / PWK02 / PWK06</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">claims[].attachments[]</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">array[object]</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">Attachment paperwork report type code (<code class="badge-x12 px-1 rounded">09</code>=Progress Report), transmission code (<code class="badge-x12 px-1 rounded">EL</code>=Electronic), and tracking control number.</td>
+                <td class="py-3 px-4 font-mono text-xs">{"report_type_code": "09", "transmission_code": "EL"}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Section 4: 835 Remittance, Payments & Adjustments -->
+      <section class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl overflow-hidden shadow-sm mapping-section" data-section="remittance">
+        <div class="bg-[var(--app-muted)]/50 px-5 py-3.5 border-b border-[var(--app-border)] flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+            <h2 class="font-bold text-sm md:text-base text-[var(--app-foreground)]">4. Electronic Remittance Advice (835 ERA) & Adjustments</h2>
+          </div>
+          <span class="text-xs text-[var(--app-muted-foreground)] font-mono">BPR &bull; TRN &bull; CLP &bull; CAS &bull; SVC &bull; PLB</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs md:text-sm">
+            <thead class="bg-[var(--app-muted)]/30 text-[var(--app-muted-foreground)] border-b border-[var(--app-border)] font-medium">
+              <tr>
+                <th class="py-2.5 px-4">EDI Segment / Element</th>
+                <th class="py-2.5 px-4">JSON Key / Path</th>
+                <th class="py-2.5 px-4">Data Type</th>
+                <th class="py-2.5 px-4">Field Explanation & Business Meaning</th>
+                <th class="py-2.5 px-4">Sample Value</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--app-border)] text-[var(--app-foreground)]">
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="bpr payment amount check eft bank routing bpr02 bpr16">
+                <td class="py-3 px-4 font-mono font-semibold text-blue-400">BPR02 / BPR04 / BPR16</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">financial_information.total_payment_amount / payment_method / payment_effective_date</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">float / string</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">Total monetary payment amount transferred to the provider via ACH/Check, payment method code (<code class="badge-x12 px-1 rounded">ACH</code>/<code class="badge-x12 px-1 rounded">CHK</code>), and effective settlement date.</td>
+                <td class="py-3 px-4 font-mono text-xs">850.00, "ACH", "20260815"</td>
+              </tr>
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="clp claim payment status patient responsibility clp01 clp02 clp03 clp04 clp05">
+                <td class="py-3 px-4 font-mono font-semibold text-blue-400">CLP01 / CLP02 / CLP04 / CLP05</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">claims[].patient_control_number / claim_status_code / claim_payment_amount / patient_responsibility_amount</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">string / float</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">Claim adjudication status (<code class="badge-x12 px-1 rounded">1</code>=Primary Paid, <code class="badge-x12 px-1 rounded">4</code>=Denied), actual paid amount, and amount assigned to patient copay/deductible.</td>
+                <td class="py-3 px-4 font-mono text-xs">"1", 850.00, 50.00</td>
+              </tr>
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="cas claim adjustment group code reason code co pr 45 97">
+                <td class="py-3 px-4 font-mono font-semibold text-blue-400">CAS01 / CAS02 / CAS03</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">adjustments[].group_code / reason_code / adjustment_amount</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">array[object]</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">
+                  Group codes (<code class="badge-x12 px-1 rounded">CO</code>=Contractual Obligation, <code class="badge-x12 px-1 rounded">PR</code>=Patient Responsibility), Claim Adjustment Reason Code (CARC <code class="badge-x12 px-1 rounded">45</code>=Fee schedule max, <code class="badge-x12 px-1 rounded">97</code>=Bundled), and adjusted amount.
+                </td>
+                <td class="py-3 px-4 font-mono text-xs">{"group_code": "CO", "reason_code": "45", "adjustment_amount": 350.00}</td>
+              </tr>
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="svc service payment procedure revenue code">
+                <td class="py-3 px-4 font-mono font-semibold text-blue-400">SVC01 / SVC02 / SVC03</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">service_lines[].procedure / line_charge_amount / line_payment_amount</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">object / float</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">Line-item adjudicated medical procedure code, submitted line charge, and actual line payment amount paid by payer.</td>
+                <td class="py-3 px-4 font-mono text-xs">{"procedure_code": "99214"}, 250.00, 180.00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Section 5: 277 Status Requests & Required Attachments -->
+      <section class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl overflow-hidden shadow-sm mapping-section" data-section="status_277">
+        <div class="bg-[var(--app-muted)]/50 px-5 py-3.5 border-b border-[var(--app-border)] flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+            <h2 class="font-bold text-sm md:text-base text-[var(--app-foreground)]">5. Claim Status Notification & Attachment Flagging (277)</h2>
+          </div>
+          <span class="text-xs text-[var(--app-muted-foreground)] font-mono">STC &bull; PWK &bull; TRN &bull; required_attachments</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs md:text-sm">
+            <thead class="bg-[var(--app-muted)]/30 text-[var(--app-muted-foreground)] border-b border-[var(--app-border)] font-medium">
+              <tr>
+                <th class="py-2.5 px-4">EDI Segment / Element</th>
+                <th class="py-2.5 px-4">JSON Key / Path</th>
+                <th class="py-2.5 px-4">Data Type</th>
+                <th class="py-2.5 px-4">Field Explanation & Business Meaning</th>
+                <th class="py-2.5 px-4">Sample Value</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--app-border)] text-[var(--app-foreground)]">
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="stc status category code action code r0 r4 a4 pended">
+                <td class="py-3 px-4 font-mono font-semibold text-blue-400">STC01 / STC03</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">required_attachments[].status_category_code / action_code</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">string</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">
+                  Category codes (<code class="badge-x12 px-1 rounded">R4</code>=Supporting Clinical Documentation, <code class="badge-x12 px-1 rounded">R5</code>=Medical Necessity) and Action (<code class="badge-x12 px-1 rounded">A4</code>=Pended for Additional Info). Triggers automated attachment packaging!
+                </td>
+                <td class="py-3 px-4 font-mono text-xs">"R4", "A4"</td>
+              </tr>
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="pwk paperwork required attachment report type code progress note">
+                <td class="py-3 px-4 font-mono font-semibold text-blue-400">PWK01 / PWK02</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">required_attachments[].attachment_report_type_code / transmission_code</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">string</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">Specific documentation required by the payer (e.g. <code class="badge-x12 px-1 rounded">09</code>=Progress Report, <code class="badge-x12 px-1 rounded">03</code>=Treatment Justification, <code class="badge-x12 px-1 rounded">OB</code>=Operative Note).</td>
+                <td class="py-3 px-4 font-mono text-xs">"09", "Progress Report"</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Section 6: 275 Attachment & C-CDA XML Clinical Extraction -->
+      <section class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl overflow-hidden shadow-sm mapping-section" data-section="ccda_275">
+        <div class="bg-[var(--app-muted)]/50 px-5 py-3.5 border-b border-[var(--app-border)] flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="w-3 h-3 rounded-full bg-purple-500"></span>
+            <h2 class="font-bold text-sm md:text-base text-[var(--app-foreground)]">6. Clinical Attachment Envelope (275) & C-CDA XML Payloads</h2>
+          </div>
+          <span class="text-xs text-[var(--app-muted-foreground)] font-mono">BDS &bull; BIN &bull; CAT &bull; HL7 C-CDA R2.1 / R1.1 XML</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs md:text-sm">
+            <thead class="bg-[var(--app-muted)]/30 text-[var(--app-muted-foreground)] border-b border-[var(--app-border)] font-medium">
+              <tr>
+                <th class="py-2.5 px-4">EDI Segment / C-CDA XML Section</th>
+                <th class="py-2.5 px-4">JSON Key / Path</th>
+                <th class="py-2.5 px-4">Data Type</th>
+                <th class="py-2.5 px-4">Field Explanation & Clinical Meaning</th>
+                <th class="py-2.5 px-4">LOINC / Standard</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--app-border)] text-[var(--app-foreground)]">
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="bds bin binary clinical payload c-cda xml 275">
+                <td class="py-3 px-4 font-mono font-semibold text-blue-400">BDS03 / BIN02</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">attached_clinical_data</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[11px]">clinical_root</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">Extracts raw XML or Base64 clinical document envelope from binary data segments and parses full HL7 tree.</td>
+                <td class="py-3 px-4 font-mono text-xs">HL7 C-CDA R2.1</td>
+              </tr>
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="allergies rxnorm adverse reaction 48765-2">
+                <td class="py-3 px-4 font-mono font-semibold text-purple-400">Allergies Section</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">attached_clinical_data.allergies[]</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">array[object]</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">Allergen substance name, RxNorm code, observed adverse reaction (Hives, Anaphylaxis), and severity level (Mild/Severe).</td>
+                <td class="py-3 px-4 font-mono text-xs">LOINC 48765-2</td>
+              </tr>
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="medications rxnorm dose route 10160-0">
+                <td class="py-3 px-4 font-mono font-semibold text-purple-400">Medications Section</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">attached_clinical_data.medications[]</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">array[object]</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">Active and historical medications, RxNorm identifiers, dosage quantity, administration route (Oral), and instructions.</td>
+                <td class="py-3 px-4 font-mono text-xs">LOINC 10160-0</td>
+              </tr>
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="problems diagnoses icd10 snomed 11450-4">
+                <td class="py-3 px-4 font-mono font-semibold text-purple-400">Problems Section</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">attached_clinical_data.problems_and_diagnoses[]</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">array[object]</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">Active problem list, chronic condition names, ICD-10-CM / SNOMED CT diagnostic codes, status, and onset dates.</td>
+                <td class="py-3 px-4 font-mono text-xs">LOINC 11450-4</td>
+              </tr>
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="vital signs blood pressure heart rate bmi spo2 8716-3">
+                <td class="py-3 px-4 font-mono font-semibold text-purple-400">Vital Signs Section</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">attached_clinical_data.vital_signs[]</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">array[object]</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">Physiological measurements: Systolic/Diastolic BP (mmHg), Heart Rate (bpm), SpO2 (%), BMI (kg/m2), and observation timestamps.</td>
+                <td class="py-3 px-4 font-mono text-xs">LOINC 8716-3</td>
+              </tr>
+              <tr class="hover:bg-[var(--app-muted)]/20 transition-colors mapping-row" data-search="clinical notes assessment plan medical necessity progress note 11506-3 51847-2">
+                <td class="py-3 px-4 font-mono font-semibold text-purple-400">Notes & Assessment</td>
+                <td class="py-3 px-4 font-mono text-emerald-400">attached_clinical_data.clinical_notes_and_evaluations</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-500/10 text-[11px]">object</span></td>
+                <td class="py-3 px-4 text-[var(--app-muted-foreground)]">Chief complaint, physician clinical assessment & treatment plan, progress notes, and medical necessity justification text.</td>
+                <td class="py-3 px-4 font-mono text-xs">LOINC 11506-3 / 51847-2</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- TAB 2: LIVE INTERACTIVE INSPECTOR & CONVERTER -->
+    <div id="tab-interactive" class="hidden space-y-6 tab-content">
+      
+      <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl p-5 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-[var(--app-border)] pb-4">
+          <div>
+            <h2 class="font-bold text-base text-[var(--app-foreground)]">⚡ Live EDI X12 Segment-to-JSON Visualizer</h2>
+            <p class="text-xs text-[var(--app-muted-foreground)]">Click any sample transaction below to inspect how EDI segments map directly to structured JSON keys.</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="loadSample('837')" class="px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-semibold hover:bg-blue-500/20 transition-all">Sample 837 Claim</button>
+            <button onclick="loadSample('835')" class="px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold hover:bg-emerald-500/20 transition-all">Sample 835 ERA</button>
+            <button onclick="loadSample('277')" class="px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20 text-xs font-semibold hover:bg-rose-500/20 transition-all">Sample 277 Request</button>
+            <button onclick="loadSample('275')" class="px-3 py-1.5 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20 text-xs font-semibold hover:bg-purple-500/20 transition-all">Sample 275 C-CDA</button>
+          </div>
+        </div>
+
+        <!-- Split View: Raw EDI on Left, JSON Output on Right -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <!-- Left: EDI Segments with interactive line clicking -->
+          <div class="lg:col-span-5 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-[var(--app-muted-foreground)] uppercase tracking-wider">Raw EDI X12 Segments</span>
+              <span class="text-[11px] text-blue-400">Click segment to highlight mapping</span>
+            </div>
+            <div id="ediViewer" class="bg-[var(--app-muted)]/40 border border-[var(--app-border)] rounded-xl p-3 code-font text-xs overflow-y-auto max-h-[420px] space-y-1.5">
+              <!-- EDI segment lines populated dynamically -->
+            </div>
+          </div>
+
+          <!-- Center/Detail: Active Field Explanation Card -->
+          <div class="lg:col-span-3 space-y-2">
+            <span class="text-xs font-semibold text-[var(--app-muted-foreground)] uppercase tracking-wider">Segment Specification</span>
+            <div id="specCard" class="bg-[var(--app-muted)]/20 border border-[var(--app-border)] rounded-xl p-4 space-y-3 h-[420px] overflow-y-auto">
+              <div class="space-y-1">
+                <span class="text-xs font-mono text-blue-400 font-bold" id="specSegId">CLM - Health Care Claim</span>
+                <p class="text-xs text-[var(--app-muted-foreground)]" id="specDesc">Represents the master claim submission entity containing billing identifier, total charge amount, and filing indicators.</p>
+              </div>
+              <div class="border-t border-[var(--app-border)] pt-2 space-y-1.5">
+                <span class="text-[11px] font-semibold text-[var(--app-muted-foreground)]">Mapped JSON Target:</span>
+                <div class="font-mono text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded p-1.5" id="specTarget">
+                  claims[].total_claim_charge_amount
+                </div>
+              </div>
+              <div class="border-t border-[var(--app-border)] pt-2 space-y-1.5">
+                <span class="text-[11px] font-semibold text-[var(--app-muted-foreground)]">Healthcare Standard / Loop:</span>
+                <p class="text-xs text-[var(--app-foreground)]" id="specLoop">Loop 2300 - Claim Information (005010X222A1)</p>
+              </div>
+              <div class="border-t border-[var(--app-border)] pt-2 space-y-1.5">
+                <span class="text-[11px] font-semibold text-[var(--app-muted-foreground)]">Engine Translation Rule:</span>
+                <p class="text-xs text-[var(--app-muted-foreground)]" id="specRule">Extracts position 2 as numeric float, validates currency formatting, and calculates hierarchical claim balance.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Structured JSON Output -->
+          <div class="lg:col-span-4 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-[var(--app-muted-foreground)] uppercase tracking-wider">Structured JSON Tree</span>
+              <button onclick="copyJsonOutput()" class="text-[11px] text-emerald-400 hover:underline">Copy JSON</button>
+            </div>
+            <pre id="jsonViewer" class="bg-[var(--app-muted)]/40 border border-[var(--app-border)] rounded-xl p-3 code-font text-xs overflow-y-auto max-h-[420px] text-emerald-300"></pre>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB 3: 837 CLAIMS ONLY -->
+    <div id="tab-claims_837" class="hidden space-y-6 tab-content">
+      <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl p-6 shadow-sm space-y-4">
+        <h2 class="text-lg font-bold text-blue-400">837 Health Care Claim (Professional 837P & Institutional 837I)</h2>
+        <p class="text-sm text-[var(--app-muted-foreground)]">
+          The 837 transaction is utilized by health care providers to submit billing claims and encounter information to payers. The parser organizes flat X12 segments into hierarchical loops: Loop 2010AA (Billing Provider), Loop 2010BA (Subscriber), Loop 2300 (Claim Header), and Loop 2400 (Service Lines).
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+          <div class="p-4 rounded-xl bg-[var(--app-muted)]/30 border border-[var(--app-border)] space-y-2">
+            <span class="font-bold text-sm text-[var(--app-foreground)]">Loop 2000A / 2010AA</span>
+            <p class="text-xs text-[var(--app-muted-foreground)]">Billing Provider Details (<code class="badge-x12 px-1 rounded">NM1*85</code>, <code class="badge-x12 px-1 rounded">N3</code>, <code class="badge-x12 px-1 rounded">N4</code>, <code class="badge-x12 px-1 rounded">REF*EI</code>). Mapped to <code class="badge-json px-1 rounded">billing_provider</code>.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-[var(--app-muted)]/30 border border-[var(--app-border)] space-y-2">
+            <span class="font-bold text-sm text-[var(--app-foreground)]">Loop 2300 (Claim Header)</span>
+            <p class="text-xs text-[var(--app-muted-foreground)]">Claim identifier, total charges (<code class="badge-x12 px-1 rounded">CLM02</code>), dates of service (<code class="badge-x12 px-1 rounded">DTP*472</code>), and diagnosis codes (<code class="badge-x12 px-1 rounded">HI*ABK</code>). Mapped to <code class="badge-json px-1 rounded">claims[]</code>.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-[var(--app-muted)]/30 border border-[var(--app-border)] space-y-2">
+            <span class="font-bold text-sm text-[var(--app-foreground)]">Loop 2400 (Service Lines)</span>
+            <p class="text-xs text-[var(--app-muted-foreground)]">Line item counter (<code class="badge-x12 px-1 rounded">LX</code>), CPT/HCPCS procedure codes & units (<code class="badge-x12 px-1 rounded">SV1</code>/<code class="badge-x12 px-1 rounded">SV2</code>). Mapped to <code class="badge-json px-1 rounded">service_lines[]</code>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: 835 REMITTANCE ONLY -->
+    <div id="tab-remittance_835" class="hidden space-y-6 tab-content">
+      <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl p-6 shadow-sm space-y-4">
+        <h2 class="text-lg font-bold text-emerald-400">835 Electronic Remittance Advice (ERA) & Payment Adjudication</h2>
+        <p class="text-sm text-[var(--app-muted-foreground)]">
+          The 835 transaction communicates payment explanation, contractual reductions, deductible/coinsurance assignments, and line-item denials from payers to providers.
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+          <div class="p-4 rounded-xl bg-[var(--app-muted)]/30 border border-[var(--app-border)] space-y-2">
+            <span class="font-bold text-sm text-[var(--app-foreground)]">Financial Information (<code class="badge-x12 px-1 rounded">BPR</code>)</span>
+            <p class="text-xs text-[var(--app-muted-foreground)]">EFT amount, payment method (<code class="badge-x12 px-1 rounded">ACH</code>), routing numbers, and settlement date. Mapped to <code class="badge-json px-1 rounded">financial_information</code>.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-[var(--app-muted)]/30 border border-[var(--app-border)] space-y-2">
+            <span class="font-bold text-sm text-[var(--app-foreground)]">Claim Payment (<code class="badge-x12 px-1 rounded">CLP</code>)</span>
+            <p class="text-xs text-[var(--app-muted-foreground)]">Claim status code (<code class="badge-x12 px-1 rounded">1</code>=Paid, <code class="badge-x12 px-1 rounded">4</code>=Denied), paid amount, and patient responsibility amount. Mapped to <code class="badge-json px-1 rounded">claims[]</code>.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-[var(--app-muted)]/30 border border-[var(--app-border)] space-y-2">
+            <span class="font-bold text-sm text-[var(--app-foreground)]">Adjustments (<code class="badge-x12 px-1 rounded">CAS</code>)</span>
+            <p class="text-xs text-[var(--app-muted-foreground)]">Group codes (CO/PR/OA) and CARC reason codes (e.g. 45=Exceeds Fee Schedule). Mapped to <code class="badge-json px-1 rounded">adjustments[]</code>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: 277 STATUS ONLY -->
+    <div id="tab-status_277" class="hidden space-y-6 tab-content">
+      <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl p-6 shadow-sm space-y-4">
+        <h2 class="text-lg font-bold text-rose-400">277 Claim Status Notification & Clinical Attachment Flagging</h2>
+        <p class="text-sm text-[var(--app-muted-foreground)]">
+          The 277 transaction provides claim status updates and requests additional information from providers. When a payer pends a claim for clinical review, the parser automatically evaluates <code class="badge-x12 px-1 rounded">STC</code> (Categories R0–R5) and <code class="badge-x12 px-1 rounded">PWK</code> segments to populate a unified <code class="badge-json px-1 rounded">required_attachments</code> list.
+        </p>
+      </div>
+    </div>
+
+    <!-- TAB 6: 275 & C-CDA ONLY -->
+    <div id="tab-ccda_275" class="hidden space-y-6 tab-content">
+      <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl p-6 shadow-sm space-y-4">
+        <h2 class="text-lg font-bold text-purple-400">275 Patient Information Attachment & C-CDA XML Integration</h2>
+        <p class="text-sm text-[var(--app-muted-foreground)]">
+          The 275 transaction wraps clinical documentation inside standard X12 envelopes. The engine extracts the embedded payload from <code class="badge-x12 px-1 rounded">BDS</code> / <code class="badge-x12 px-1 rounded">BIN</code> segments (handling both plain XML and Base64 encoding) and passes it to the <code class="badge-clinical px-1 rounded">CCDAParser</code> to produce rich clinical objects for Demographics, Medications, Allergies, Problems, Vitals, and Notes.
+        </p>
+      </div>
+    </div>
+
+    <!-- TAB 7: 270/271 & 278 ONLY -->
+    <div id="tab-eligibility_270" class="hidden space-y-6 tab-content">
+      <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl p-6 shadow-sm space-y-4">
+        <h2 class="text-lg font-bold text-cyan-400">270/271 Eligibility Inquiry & 278 Prior Authorization Review</h2>
+        <p class="text-sm text-[var(--app-muted-foreground)]">
+          Parses health plan benefit inquiries and authorization decisions. Maps <code class="badge-x12 px-1 rounded">EB</code> (Eligibility/Benefit Information), <code class="badge-x12 px-1 rounded">EQ</code> (Eligibility Inquiry), <code class="badge-x12 px-1 rounded">UM</code> (Health Care Services Review), and <code class="badge-x12 px-1 rounded">HCR</code> (Review Decision / Approval Action).
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer Information -->
+    <footer class="text-center text-xs text-[var(--app-muted-foreground)] pt-4 pb-2 border-t border-[var(--app-border)]">
+      EDI X12 (5010) & C-CDA R2.1 Semantic Mapping Engine &bull; Enterprise Canvas UI & Web Dashboard
+    </footer>
+
+  </div>
+
+  <script>
+    // Sample Data Sets for Live Inspector
+    const SAMPLES = {
+      '837': {
+        edi: [
+          { seg: "ISA*00*          *00*          *ZZ*SUBMITTER123   *ZZ*RECEIVER456    *260814*1430*^*00501*000000001*0*P*:~", id: "ISA", desc: "Interchange Control Header", target: "interchange_control_number", loop: "Envelope", rule: "Extracts delimiters, trading partner sender/receiver IDs, and control number." },
+          { seg: "GS*HC*SUBMITTER123*RECEIVER456*20260814*1430*1*X*005010X222A1~", id: "GS", desc: "Functional Group Header", target: "functional_identifier_code", loop: "Group", rule: "Maps 'HC' to Health Care Claim transaction standard." },
+          { seg: "ST*837*0001*005010X222A1~", id: "ST", desc: "Transaction Set Header", target: "transaction_set_identifier", loop: "Set Header", rule: "Initializes 837 Claim parser context." },
+          { seg: "BHT*0019*00*REF-CLM-2026-001*20260814*1430*CH~", id: "BHT", desc: "Beginning of Hierarchical Transaction", target: "beginning_of_hierarchical_transaction", loop: "Header", rule: "Maps claim purpose code and hierarchical structure identifier." },
+          { seg: "NM1*85*2*METROPOLITAN HOSPITAL*****XX*1982736450~", id: "NM1", desc: "Billing Provider Name & NPI", target: "billing_provider.name_last_or_organization", loop: "Loop 2010AA", rule: "Translates entity code '85' to billing provider object with NPI." },
+          { seg: "CLM*CLM-99201*1250.00***11:B:1*Y*A*Y*Y~", id: "CLM", desc: "Health Care Claim Header", target: "claims[].total_claim_charge_amount", loop: "Loop 2300", rule: "Extracts claim ID 'CLM-99201' and total submitted charge $1250.00." },
+          { seg: "HI*ABK:I10~", id: "HI", desc: "Health Care Diagnosis Information", target: "claims[].diagnoses[]", loop: "Loop 2300", rule: "Parses 'ABK' as Principal ICD-10-CM diagnosis code 'I10' (Essential Hypertension)." },
+          { seg: "LX*1~", id: "LX", desc: "Service Line Counter", target: "claims[].service_lines[].line_number", loop: "Loop 2400", rule: "Starts new service line object sequence." },
+          { seg: "SV1*HC:99214*250.00*UN*1***1~", id: "SV1", desc: "Professional Service Line Item", target: "claims[].service_lines[].procedure", loop: "Loop 2400", rule: "Maps CPT code 99214, $250.00 charge, and unit count of 1.0." }
+        ],
+        json: {
+          "transaction_type": "837",
+          "transaction_description": "Health Care Claim",
+          "billing_provider": {
+            "entity_identifier_code": "85",
+            "name_last_or_organization": "METROPOLITAN HOSPITAL",
+            "identification_code": "1982736450"
+          },
+          "claims": [
+            {
+              "claim_id": "CLM-99201",
+              "total_claim_charge_amount": 1250.00,
+              "diagnoses": [
+                { "diagnosis_type": "ABK", "code": "I10" }
+              ],
+              "service_lines": [
+                {
+                  "line_number": "1",
+                  "procedure": { "procedure_code": "99214" },
+                  "charge_amount": 250.00,
+                  "unit_count": 1.0
+                }
+              ]
+            }
+          ]
+        }
+      },
+      '835': {
+        edi: [
+          { seg: "BPR*I*850.00*C*ACH*CTX*01*123456789*DA*987654321*1234567890**01*987654321*DA*123456789*20260815~", id: "BPR", desc: "Financial Payment Information", target: "financial_information.total_payment_amount", loop: "Header", rule: "Parses payment amount $850.00, method ACH, and deposit settlement date." },
+          { seg: "TRN*1*1234567890*1999999999~", id: "TRN", desc: "Reassociation Trace Number", target: "reassociation_trace.check_or_eft_trace_number", loop: "Header", rule: "Extracts check/EFT trace identifier for automated bank account reconciliation." },
+          { seg: "CLP*CLM-99201*1*1250.00*850.00*50.00*MB*PAYER-CLM-8888~", id: "CLP", desc: "Claim Payment Adjudication", target: "claims[].claim_payment_amount", loop: "Loop 2100", rule: "Maps status code '1' (Processed as Primary), $850.00 paid, and $50.00 patient responsibility." },
+          { seg: "CAS*CO*45*350.00~", id: "CAS", desc: "Contractual Obligations Adjustment", target: "claims[].adjustments[]", loop: "Loop 2100", rule: "Parses group code CO and CARC 45 (Charges exceed maximum allowed amount) = $350.00." }
+        ],
+        json: {
+          "transaction_type": "835",
+          "transaction_description": "Health Care Claim Payment / Advice (ERA)",
+          "financial_information": {
+            "total_payment_amount": 850.00,
+            "payment_method": "ACH",
+            "payment_effective_date": "20260815"
+          },
+          "claims": [
+            {
+              "patient_control_number": "CLM-99201",
+              "claim_status_code": "1",
+              "claim_status_description": "Processed as Primary",
+              "total_claim_charge_amount": 1250.00,
+              "claim_payment_amount": 850.00,
+              "patient_responsibility_amount": 50.00,
+              "adjustments": [
+                {
+                  "group_code": "CO",
+                  "group_description": "Contractual Obligations",
+                  "reason_code": "45",
+                  "adjustment_amount": 350.00
+                }
+              ]
+            }
+          ]
+        }
+      },
+      '277': {
+        edi: [
+          { seg: "STC*R4:21:40*20260814*A4*1250.00~", id: "STC", desc: "Status Information (Request for Attachment)", target: "required_attachments[].status_category_code", loop: "Loop 2200D", rule: "Detects Category R4 (Supporting Clinical Documentation) & Action A4 (Pended). Flags attachment!" },
+          { seg: "PWK*09*EL***AC*ATT-78901~", id: "PWK", desc: "Paperwork Attachment Request", target: "required_attachments[].attachment_report_type_code", loop: "Loop 2200D", rule: "Identifies required document type '09' (Progress Report) via Electronic 'EL' transmission." }
+        ],
+        json: {
+          "transaction_type": "277",
+          "required_attachments": [
+            {
+              "status_category_code": "R4",
+              "status_category_description": "Requests for Additional Information / Supporting Documentation (C-CDA/Clinical)",
+              "action_code": "A4",
+              "action_description": "Pended / Additional Information Required",
+              "attachment_report_type_code": "09",
+              "attachment_report_type_description": "Progress Report",
+              "attachment_transmission_code": "EL",
+              "attachment_control_number": "ATT-78901"
+            }
+          ]
+        }
+      },
+      '275': {
+        edi: [
+          { seg: "BGN*02*ATT-78901*20260814*1500~", id: "BGN", desc: "Beginning Segment for Attachment", target: "beginning_segment", loop: "Header", rule: "Correlates attachment envelope with reference tracking identifier." },
+          { seg: "CAT*1*09*ATT-78901~", id: "CAT", desc: "Category of Attachment", target: "attachment_metadata", loop: "Header", rule: "Specifies attachment category and report type code." },
+          { seg: "BDS*XML*4096*<ClinicalDocument ...>...</ClinicalDocument>~", id: "BDS", desc: "Binary Data Segment (C-CDA XML)", target: "attached_clinical_data", loop: "Payload", rule: "Extracts XML payload and parses structured demographics, vitals, allergies, meds, and clinical notes." }
+        ],
+        json: {
+          "transaction_type": "275",
+          "raw_payload_info": { "format": "XML", "is_base64": false },
+          "attached_clinical_data": {
+            "document_metadata": { "title": "Progress Note", "effective_date": "20260814" },
+            "patient_demographics": { "name": { "full_name": "John Doe" }, "date_of_birth": "19800512", "gender": "Male" },
+            "medications": [
+              { "medication_name": "Lisinopril 20mg Oral Tablet", "rxnorm_code": "314076", "status": "active" }
+            ],
+            "clinical_notes_and_evaluations": {
+              "progress_note_medical_necessity_evaluation": "Patient with stage 2 hypertension requires continued therapy and medical monitoring."
+            }
+          }
+        }
+      }
+    };
+
+    let currentSampleKey = '837';
+
+    function loadSample(key) {
+      currentSampleKey = key;
+      const data = SAMPLES[key];
+      const ediViewer = document.getElementById('ediViewer');
+      ediViewer.innerHTML = '';
+
+      data.edi.forEach((item, index) => {
+        const line = document.createElement('div');
+        line.className = `p-2 rounded cursor-pointer transition-colors hover:bg-blue-500/10 ${index === 0 ? 'bg-blue-500/20 border-l-2 border-blue-400' : ''}`;
+        line.innerHTML = `<span class="badge-x12 px-1 py-0.5 rounded mr-1.5 font-bold">${item.id}</span> <span class="text-[var(--app-foreground)]">${item.seg}</span>`;
+        line.onclick = () => selectSegment(item, line);
+        ediViewer.appendChild(line);
+      });
+
+      document.getElementById('jsonViewer').textContent = JSON.stringify(data.json, null, 2);
+      selectSegment(data.edi[0], ediViewer.firstChild);
+    }
+
+    function selectSegment(item, element) {
+      // Clear previous active states
+      const lines = document.getElementById('ediViewer').children;
+      for (let l of lines) {
+        l.className = l.className.replace('bg-blue-500/20 border-l-2 border-blue-400', '');
+      }
+      if (element) {
+        element.className += ' bg-blue-500/20 border-l-2 border-blue-400';
+      }
+
+      // Update Spec Card
+      document.getElementById('specSegId').textContent = `${item.id} - ${item.desc}`;
+      document.getElementById('specDesc').textContent = item.desc;
+      document.getElementById('specTarget').textContent = item.target;
+      document.getElementById('specLoop').textContent = item.loop;
+      document.getElementById('specRule').textContent = item.rule;
+    }
+
+    function copyJsonOutput() {
+      const jsonText = document.getElementById('jsonViewer').textContent;
+      navigator.clipboard.writeText(jsonText).then(() => {
+        alert('Structured JSON copied to clipboard!');
+      });
+    }
+
+    // Tab Navigation Logic
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active', 'border-blue-500', 'text-blue-400');
+        btn.classList.add('border-transparent', 'text-[var(--app-muted-foreground)]');
+      });
+      event.currentTarget.classList.add('active', 'border-blue-500', 'text-blue-400');
+      event.currentTarget.classList.remove('border-transparent', 'text-[var(--app-muted-foreground)]');
+
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+
+      if (tabId === 'all') {
+        document.getElementById('tab-all').classList.remove('hidden');
+      } else if (tabId === 'interactive') {
+        document.getElementById('tab-interactive').classList.remove('hidden');
+        loadSample(currentSampleKey);
+      } else {
+        const target = document.getElementById(`tab-${tabId}`);
+        if (target) target.classList.remove('hidden');
+      }
+    }
+
+    // Live Search Filter across all mapping rows
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+      const q = e.target.value.toLowerCase().trim();
+      const rows = document.querySelectorAll('.mapping-row');
+      rows.forEach(row => {
+        const searchContent = (row.getAttribute('data-search') + ' ' + row.innerText).toLowerCase();
+        if (!q || searchContent.includes(q)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+
+    // Theme Toggle Handler
+    const themeToggleBtn = document.getElementById('themeToggle');
+    const sunIcon = document.getElementById('sunIcon');
+    const moonIcon = document.getElementById('moonIcon');
+
+    themeToggleBtn.addEventListener('click', () => {
+      const html = document.documentElement;
+      if (html.classList.contains('light')) {
+        html.classList.remove('light');
+        html.classList.add('dark');
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+      } else {
+        html.classList.remove('dark');
+        html.classList.add('light');
+        moonIcon.classList.add('hidden');
+        sunIcon.classList.remove('hidden');
+      }
+    });
+
+    // Auto-detect initial theme from container or matchMedia
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+      moonIcon.classList.add('hidden');
+      sunIcon.classList.remove('hidden');
+    }
+
+    // Initialize interactive sample on load
+    loadSample('837');
+  </script>
+</body>
+</html>

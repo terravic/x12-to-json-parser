@@ -7,6 +7,7 @@ and embedded C-CDA XML clinical document integration.
 
 from .engine.base_parser import X12Parser
 from .clinical_parsers.ccda_parser import CCDAParser
+from .ui.dashboard_generator import generate_html_dashboard, save_html_dashboard
 
 __version__ = "1.0.0"
-__all__ = ["X12Parser", "CCDAParser"]
+__all__ = ["X12Parser", "CCDAParser", "generate_html_dashboard", "save_html_dashboard"]

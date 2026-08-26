@@ -42,6 +42,31 @@ class X12Parser:
         data = cls.parse(raw_content)
         return json.dumps(data, indent=indent, default=str)
 
+    @classmethod
+    def generate_dashboard(
+        cls,
+        raw_or_parsed: Union[str, Dict[str, Any]],
+        output_path: Optional[str] = None,
+        raw_x12: str = "",
+        title: str = "EDI X12 Parsed Transaction Dashboard"
+    ) -> str:
+        """
+        Generate an interactive standalone HTML visual dashboard for any X12 raw text or parsed dictionary.
+        Optionally save to output_path if provided.
+        """
+        from ..ui.dashboard_generator import generate_html_dashboard, save_html_dashboard
+
+        if isinstance(raw_or_parsed, dict):
+            parsed_data = raw_or_parsed
+            x12_str = raw_x12
+        else:
+            x12_str = str(raw_or_parsed)
+            parsed_data = cls.parse(x12_str)
+
+        if output_path:
+            return save_html_dashboard(parsed_data, output_path=output_path, raw_x12=x12_str, title=title)
+        return generate_html_dashboard(parsed_data, raw_x12=x12_str, title=title)
+
     def to_dict(self) -> Dict[str, Any]:
         """Execute full parsing pipeline and return standardized output schema."""
         interchange: Dict[str, Any] = {

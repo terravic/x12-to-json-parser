@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - sample_275_ccda_response.x12 - [275]</title>
+  <!-- Tailwind CSS via allowlisted CDN -->
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    :root {
+      --app-background: #0f172a;
+      --app-foreground: #f8fafc;
+      --app-card: #1e293b;
+      --app-card-border: #334155;
+      --app-card-foreground: #f8fafc;
+      --app-border: #334155;
+      --app-primary: #3b82f6;
+      --app-primary-foreground: #ffffff;
+      --app-muted: #334155;
+      --app-muted-foreground: #94a3b8;
+      --vscode-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    html.light {
+      --app-background: #f8fafc;
+      --app-foreground: #0f172a;
+      --app-card: #ffffff;
+      --app-card-border: #e2e8f0;
+      --app-card-foreground: #0f172a;
+      --app-border: #e2e8f0;
+      --app-primary: #2563eb;
+      --app-primary-foreground: #ffffff;
+      --app-muted: #f1f5f9;
+      --app-muted-foreground: #64748b;
+    }
+
+    body {
+      background-color: var(--app-background);
+      color: var(--app-foreground);
+      font-family: var(--vscode-font-family);
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.05); }
+    ::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.4); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.7); }
+
+    .badge-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+    html.light .badge-blue { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+
+    .badge-green { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    html.light .badge-green { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+
+    .badge-purple { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+    html.light .badge-purple { background: #faf5ff; color: #7e22ce; border-color: #e9d5ff; }
+
+    .badge-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    html.light .badge-amber { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+
+    .badge-rose { background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
+    html.light .badge-rose { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+
+    .code-font { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+  </style>
+</head>
+<body class="min-h-screen p-3 md:p-6 antialiased">
+  <div class="max-w-7xl mx-auto space-y-5">
+
+    <!-- Top Header -->
+    <header class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl p-4 md:p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-xl font-bold text-[var(--app-foreground)] tracking-tight" id="dashboardTitle">Dashboard - sample_275_ccda_response.x12</h1>
+            <span class="text-xs px-2.5 py-0.5 rounded-full badge-blue font-bold" id="txBadge">275</span>
+          </div>
+          <p class="text-xs md:text-sm text-[var(--app-muted-foreground)]">Interactive parsed healthcare transaction dashboard & clinical inspector</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons & Theme Switcher -->
+      <div class="flex items-center space-x-3 self-end md:self-center">
+        <button onclick="openUploadModal()" class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm flex items-center space-x-1.5 transition-all">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+          </svg>
+          <span>Parse Another X12 File</span>
+        </button>
+
+        <button id="themeToggle" class="p-2 rounded-lg bg-[var(--app-muted)] text-[var(--app-foreground)] border border-[var(--app-border)] hover:opacity-80 transition-all" title="Toggle Light/Dark Theme">
+          <svg id="sunIcon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+          </svg>
+          <svg id="moonIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Key Metrics Cards Container -->
+    <div id="metricsBar" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <!-- Dynamic Metric Cards Injected Here -->
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="border-b border-[var(--app-border)] flex space-x-2 overflow-x-auto pb-1" id="tabBar">
+      <button onclick="switchTab('overview')" class="tab-btn active px-4 py-2 text-sm font-semibold border-b-2 border-blue-500 text-blue-400 whitespace-nowrap">
+        📊 Transaction Details
+      </button>
+      <button onclick="switchTab('clinical')" id="clinicalTabBtn" class="tab-btn hidden px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-[var(--app-muted-foreground)] hover:text-[var(--app-foreground)] whitespace-nowrap">
+        🩺 C-CDA Clinical Payload
+      </button>
+      <button onclick="switchTab('json')" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-[var(--app-muted-foreground)] hover:text-[var(--app-foreground)] whitespace-nowrap">
+        🌳 Structured JSON
+      </button>
+      <button onclick="switchTab('raw_edi')" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-[var(--app-muted-foreground)] hover:text-[var(--app-foreground)] whitespace-nowrap">
+        📄 Raw X12 Text
+      </button>
+      <button onclick="switchTab('mapping_guide')" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-[var(--app-muted-foreground)] hover:text-[var(--app-foreground)] whitespace-nowrap">
+        📖 Field Mapping Spec
+      </button>
+    </div>
+
+    <!-- TAB 1: TRANSACTION OVERVIEW & SPECIFIC DETAILS -->
+    <div id="tab-overview" class="space-y-5 tab-content">
+      <!-- Envelope & Interchange Header Card -->
+      <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl p-5 shadow-sm space-y-4">
+        <h2 class="text-sm font-bold text-[var(--app-foreground)] uppercase tracking-wider flex items-center space-x-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+          <span>Interchange & Functional Group Envelopes</span>
+        </h2>
+        <div id="envelopeGrid" class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Business Entities Grid (Submitter, Receiver, Billing Provider, Subscriber, Patient) -->
+      <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl p-5 shadow-sm space-y-4">
+        <h2 class="text-sm font-bold text-[var(--app-foreground)] uppercase tracking-wider flex items-center space-x-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+          <span>Business Entities & Participants</span>
+        </h2>
+        <div id="entitiesGrid" class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Transaction Specific Panel (Claims / Remittance / Status / Attachment) -->
+      <div id="txSpecificPanel" class="space-y-4">
+        <!-- Dynamic transaction specific tables injected here -->
+      </div>
+    </div>
+
+    <!-- TAB 2: C-CDA CLINICAL PAYLOAD (IF PRESENT) -->
+    <div id="tab-clinical" class="hidden space-y-5 tab-content">
+      <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl p-5 shadow-sm space-y-4">
+        <div class="flex items-center justify-between border-b border-[var(--app-border)] pb-3">
+          <div>
+            <h2 class="text-base font-bold text-purple-400" id="clinicalDocTitle">Consolidated Clinical Document (C-CDA)</h2>
+            <p class="text-xs text-[var(--app-muted-foreground)]" id="clinicalDocMeta">HL7 R2.1 / R1.1 Structured XML Payload</p>
+          </div>
+          <span class="badge-purple px-2.5 py-1 rounded-full text-xs font-semibold">C-CDA R2.1</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="clinicalSectionsGrid">
+          <!-- Clinical subsections (Allergies, Medications, Problems, Vitals, Notes) -->
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: STRUCTURED JSON TREE -->
+    <div id="tab-json" class="hidden space-y-4 tab-content">
+      <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl p-5 shadow-sm space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-[var(--app-foreground)] uppercase tracking-wider">Complete Hierarchical JSON Output</span>
+          <div class="flex items-center space-x-2">
+            <button onclick="copyJsonOutput()" class="px-3 py-1 rounded-lg badge-green text-xs font-semibold hover:opacity-80">Copy JSON</button>
+            <button onclick="downloadJsonFile()" class="px-3 py-1 rounded-lg badge-blue text-xs font-semibold hover:opacity-80">Download .json</button>
+          </div>
+        </div>
+        <pre id="jsonTreeDisplay" class="bg-[var(--app-muted)]/40 border border-[var(--app-border)] rounded-xl p-4 code-font text-xs overflow-auto max-h-[600px] text-emerald-300"></pre>
+      </div>
+    </div>
+
+    <!-- TAB 4: RAW X12 TEXT -->
+    <div id="tab-raw_edi" class="hidden space-y-4 tab-content">
+      <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl p-5 shadow-sm space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-[var(--app-foreground)] uppercase tracking-wider">Raw EDI X12 Transmission Stream</span>
+          <button onclick="copyRawEdi()" class="px-3 py-1 rounded-lg badge-blue text-xs font-semibold hover:opacity-80">Copy EDI Text</button>
+        </div>
+        <pre id="rawEdiDisplay" class="bg-[var(--app-muted)]/40 border border-[var(--app-border)] rounded-xl p-4 code-font text-xs overflow-auto max-h-[600px] text-blue-300"></pre>
+      </div>
+    </div>
+
+    <!-- TAB 5: FIELD MAPPING SPECIFICATION -->
+    <div id="tab-mapping_guide" class="hidden space-y-4 tab-content">
+      <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl p-5 shadow-sm space-y-4">
+        <h2 class="text-sm font-bold text-[var(--app-foreground)] uppercase tracking-wider">EDI 5010 to JSON Semantic Key Reference</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-[var(--app-muted)]/40 text-[var(--app-muted-foreground)] font-medium border-b border-[var(--app-border)]">
+              <tr>
+                <th class="p-2.5">Segment</th>
+                <th class="p-2.5">JSON Field Name</th>
+                <th class="p-2.5">Loop / Context</th>
+                <th class="p-2.5">Healthcare Business Description</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--app-border)] text-[var(--app-foreground)]">
+              <tr><td class="p-2.5 font-mono text-blue-400 font-bold">ISA</td><td class="p-2.5 font-mono text-emerald-400">interchange_control_header</td><td class="p-2.5">Interchange</td><td class="p-2.5 text-[var(--app-muted-foreground)]">Trading partner routing identifiers, delimiters, and interchange tracking number.</td></tr>
+              <tr><td class="p-2.5 font-mono text-blue-400 font-bold">CLM</td><td class="p-2.5 font-mono text-emerald-400">claims[].total_claim_charge_amount</td><td class="p-2.5">Loop 2300 (837)</td><td class="p-2.5 text-[var(--app-muted-foreground)]">Submitted claim control number, total billed charges, and filing indicators.</td></tr>
+              <tr><td class="p-2.5 font-mono text-blue-400 font-bold">CLP</td><td class="p-2.5 font-mono text-emerald-400">claims[].claim_payment_amount</td><td class="p-2.5">Loop 2100 (835)</td><td class="p-2.5 text-[var(--app-muted-foreground)]">Remittance claim adjudication, paid amounts, patient responsibility (copay/deductible).</td></tr>
+              <tr><td class="p-2.5 font-mono text-blue-400 font-bold">CAS</td><td class="p-2.5 font-mono text-emerald-400">adjustments[].reason_code</td><td class="p-2.5">Loop 2100/2110 (835)</td><td class="p-2.5 text-[var(--app-muted-foreground)]">Contractual Obligations (CO) and CARC reason codes for claim balance reductions.</td></tr>
+              <tr><td class="p-2.5 font-mono text-blue-400 font-bold">STC</td><td class="p-2.5 font-mono text-emerald-400">required_attachments[]</td><td class="p-2.5">Loop 2200D (277)</td><td class="p-2.5 text-[var(--app-muted-foreground)]">Pended claim notification with Category R0-R5 requesting clinical records.</td></tr>
+              <tr><td class="p-2.5 font-mono text-purple-400 font-bold">BDS/BIN</td><td class="p-2.5 font-mono text-purple-400">attached_clinical_data</td><td class="p-2.5">Loop 2000 (275)</td><td class="p-2.5 text-[var(--app-muted-foreground)]">Embedded HL7 C-CDA XML clinical document containing meds, allergies, problems, vitals.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: PARSE ANOTHER X12 FILE -->
+    <div id="uploadModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+      <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between border-b border-[var(--app-border)] pb-3">
+          <div class="flex items-center space-x-2">
+            <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+            <h3 class="font-bold text-base text-[var(--app-foreground)]">Parse Custom EDI X12 File / Raw Text</h3>
+          </div>
+          <button onclick="closeUploadModal()" class="text-[var(--app-muted-foreground)] hover:text-[var(--app-foreground)] text-lg font-bold">&times;</button>
+        </div>
+
+        <div class="space-y-3">
+          <!-- File Drop Zone -->
+          <div id="dropZone" class="border-2 border-dashed border-[var(--app-border)] hover:border-blue-500 rounded-xl p-6 text-center cursor-pointer transition-colors bg-[var(--app-muted)]/20">
+            <svg class="w-8 h-8 mx-auto text-blue-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+            </svg>
+            <p class="text-xs font-semibold text-[var(--app-foreground)]">Drag & drop any .x12, .edi, or .txt file here, or <span class="text-blue-400 underline">browse</span></p>
+            <p class="text-[11px] text-[var(--app-muted-foreground)] mt-1">Supports 837, 835, 270, 271, 277, 275 (C-CDA), 278 transactions</p>
+            <input type="file" id="fileInput" class="hidden" accept=".x12,.edi,.txt">
+          </div>
+
+          <!-- Or Paste Raw EDI String -->
+          <div>
+            <label class="block text-xs font-semibold text-[var(--app-muted-foreground)] mb-1">Or paste raw EDI X12 text directly:</label>
+            <textarea id="rawInputArea" rows="6" placeholder="ISA*00*          *00*          *ZZ*SUBMITTER ... ~" 
+                      class="w-full bg-[var(--app-muted)]/40 text-[var(--app-foreground)] border border-[var(--app-border)] rounded-xl p-3 code-font text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none"></textarea>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end space-x-3 pt-2 border-t border-[var(--app-border)]">
+          <button onclick="closeUploadModal()" class="px-4 py-2 rounded-lg border border-[var(--app-border)] text-xs text-[var(--app-muted-foreground)] hover:bg-[var(--app-muted)] transition-colors">Cancel</button>
+          <button onclick="parseCustomX12()" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm">Parse & Rebuild Dashboard</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-[var(--app-muted-foreground)] pt-4 border-t border-[var(--app-border)]">
+      EDI X12 (5010) & C-CDA R2.1 Real-time Parser &bull; Enterprise Canvas UI & Web Dashboard
+    </footer>
+
+  </div>
+
+  <script>
+    // Embedded Initial Parsed Data & Raw EDI Stream
+    let CURRENT_DATA = {
+  "delimiters": {
+    "element_separator": "*",
+    "component_separator": ":",
+    "segment_terminator": "~",
+    "repetition_separator": "^"
+  },
+  "interchange_header": {
+    "segment_id": "ISA",
+    "segment_name": "Interchange Control Header",
+    "line_number": 1,
+    "fields": {
+      "authorization_information_qualifier": "00",
+      "authorization_information": "",
+      "security_information_qualifier": "00",
+      "security_information": "",
+      "interchange_sender_id_qualifier": "ZZ",
+      "interchange_sender_id": "SUBMITTER123",
+      "interchange_receiver_id_qualifier": "ZZ",
+      "interchange_receiver_id": "BLUEHORIZON",
+      "interchange_date": "260814",
+      "interchange_time": "1600",
+      "repetition_separator": "^",
+      "interchange_control_version_number": "00501",
+      "interchange_control_number": "000000004",
+      "acknowledgment_requested": "0",
+      "usage_indicator": "P",
+      "component_element_separator": {
+        "raw": ":",
+        "component_1": "",
+        "component_2": ""
+      }
+    }
+  },
+  "functional_groups": [
+    {
+      "functional_group_header": {
+        "segment_id": "GS",
+        "segment_name": "Functional Group Header",
+        "line_number": 2,
+        "fields": {
+          "functional_identifier_code": "PI",
+          "application_sender_code": "SUBMITTER123",
+          "application_receiver_code": "BLUEHORIZON",
+          "date": "20260814",
+          "time": "1600",
+          "group_control_number": "4",
+          "responsible_agency_code": "X",
+          "version_release_industry_identifier_code": "005010X210"
+        }
+      },
+      "functional_identifier_code": "PI",
+      "sender_code": "SUBMITTER123",
+      "receiver_code": "BLUEHORIZON",
+      "group_control_number": "4",
+      "version": "005010X210",
+      "transaction_sets": [
+        {
+          "transaction_type": "275",
+          "transaction_set_control_number": "0001",
+          "implementation_convention_reference": "005010X210",
+          "transaction_header": {
+            "segment_id": "ST",
+            "segment_name": "Transaction Set Header",
+            "line_number": 3,
+            "fields": {
+              "transaction_set_identifier_code": "275",
+              "transaction_set_control_number": "0001",
+              "implementation_convention_reference": "005010X210"
+            }
+          },
+          "parsed_transaction": {
+            "transaction_type": "275",
+            "transaction_description": "Patient Information Attachment Envelope",
+            "beginning_segment": {
+              "purpose_code": "00",
+              "reference_identification": "ATT-TRANS-20260814",
+              "date": "20260814",
+              "time": "1600",
+              "action_code": ""
+            },
+            "submitter": {
+              "entity_identifier_code": "41",
+              "entity_type": "Non-Person/Organization",
+              "name_last_or_organization": "METROPOLITAN MEDICAL CENTER",
+              "name_first": "",
+              "name_middle": "",
+              "identification_code_qualifier": "XX",
+              "identification_code": "1234567890"
+            },
+            "receiver": {
+              "entity_identifier_code": "40",
+              "entity_type": "Non-Person/Organization",
+              "name_last_or_organization": "BLUE HORIZON HEALTH PLAN",
+              "name_first": "",
+              "name_middle": "",
+              "identification_code_qualifier": "PI",
+              "identification_code": "BH999"
+            },
+            "patient": {
+              "entity_identifier_code": "QC",
+              "entity_type": "Person",
+              "name_last_or_organization": "DOE",
+              "name_first": "JOHN",
+              "name_middle": "M",
+              "identification_code_qualifier": "MI",
+              "identification_code": "W1234567890",
+              "address": {
+                "address_line_1": "742 EVERGREEN TERRACE",
+                "address_line_2": ""
+              },
+              "geographic_location": {
+                "city": "METROPOLIS",
+                "state": "NY",
+                "postal_code": "10001"
+              },
+              "demographics": {
+                "date_of_birth": "19750412",
+                "gender": "M"
+              }
+            },
+            "attachment_metadata": {
+              "attachment_structure_code": "TI",
+              "attachment_type_code": "09",
+              "attachment_type_description": "Progress Report",
+              "attachment_control_number": "ATT-REF-99214-CCDA",
+              "description": "PROGRESS REPORT AND MEDICAL NECESSITY EVALUATION"
+            },
+            "raw_payload_info": {
+              "format": "XML",
+              "length_bytes": 18052,
+              "is_base64": false
+            },
+            "attached_clinical_data": {
+              "document_metadata": {
+                "title": "Metropolitan Medical Center - Clinical Progress Note & Medical Necessity Evaluation",
+                "document_id": {
+                  "root": "2.16.840.1.113883.19.5.99999.1",
+                  "extension": "CCDA-DOC-20260814-001"
+                },
+                "effective_date": "20260814154500-0500",
+                "confidentiality_code": "N",
+                "language_code": "en-US",
+                "author": {
+                  "name": {
+                    "full_name": "Dr. Robert Smith MD",
+                    "first_name": "Robert",
+                    "middle_name": "",
+                    "family_name": "Smith",
+                    "prefix": "Dr.",
+                    "suffix": "MD"
+                  },
+                  "organization": "Metropolitan Medical Center"
+                },
+                "custodian": {
+                  "organization_name": "Metropolitan Medical Center Health System",
+                  "address": {
+                    "street_address": "100 Healthcare Blvd",
+                    "city": "Metropolis",
+                    "state": "NY",
+                    "postal_code": "10001",
+                    "country": "USA"
+                  }
+                }
+              },
+              "patient_demographics": {
+                "patient_identifier": "MRN-DOE-78901",
+                "patient_identifier_root": "2.16.840.1.113883.19.5",
+                "name": {
+                  "full_name": "John M Doe",
+                  "first_name": "John",
+                  "middle_name": "M",
+                  "family_name": "Doe",
+                  "prefix": "",
+                  "suffix": ""
+                },
+                "date_of_birth": "19750412",
+                "gender": "Male",
+                "marital_status": "Married",
+                "race": "White",
+                "ethnic_group": "Not Hispanic or Latino",
+                "address": {
+                  "street_address": "742 Evergreen Terrace",
+                  "city": "Metropolis",
+                  "state": "NY",
+                  "postal_code": "10001",
+                  "country": "USA"
+                },
+                "telecom": "tel:+1-555-867-5309"
+              },
+              "allergies": [
+                {
+                  "substance": "Penicillin G",
+                  "code": "70618",
+                  "code_system": "RxNorm",
+                  "status": "active",
+                  "reaction": "Anaphylaxis",
+                  "severity": "Severe"
+                }
+              ],
+              "medications": [
+                {
+                  "medication_name": "Lisinopril 20 MG Oral Tablet",
+                  "rxnorm_code": "314076",
+                  "dose": "20 mg",
+                  "route": "Oral",
+                  "instructions": "Take 1 tablet (20mg) orally once daily every morning for hypertension management",
+                  "status": "active",
+                  "start_date": "20240115",
+                  "end_date": ""
+                }
+              ],
+              "problems_and_diagnoses": [
+                {
+                  "problem_name": "Essential (Primary) Hypertension",
+                  "code": "I10",
+                  "code_system": "ICD-10-CM",
+                  "status": "Active",
+                  "onset_date": "20220310"
+                },
+                {
+                  "problem_name": "Chest Pain, Unspecified",
+                  "code": "R07.9",
+                  "code_system": "ICD-10-CM",
+                  "status": "Active",
+                  "onset_date": "20260808"
+                }
+              ],
+              "vital_signs": [
+                {
+                  "measurement_name": "Systolic Blood Pressure",
+                  "loinc_code": "8480-6",
+                  "value": "138",
+                  "unit": "mm[Hg]",
+                  "recorded_date": "20260810103000"
+                },
+                {
+                  "measurement_name": "Diastolic Blood Pressure",
+                  "loinc_code": "8462-4",
+                  "value": "86",
+                  "unit": "mm[Hg]",
+                  "recorded_date": "20260810103000"
+                },
+                {
+                  "measurement_name": "Heart Rate",
+                  "loinc_code": "8867-4",
+                  "value": "72",
+                  "unit": "/min",
+                  "recorded_date": "20260810103000"
+                },
+                {
+                  "measurement_name": "Oxygen Saturation",
+                  "loinc_code": "59408-5",
+                  "value": "98",
+                  "unit": "%",
+                  "recorded_date": "20260810103000"
+                },
+                {
+                  "measurement_name": "Body Mass Index",
+                  "loinc_code": "39156-5",
+                  "value": "27.4",
+                  "unit": "kg/m2",
+                  "recorded_date": "20260810103000"
+                }
+              ],
+              "encounters": [
+                {
+                  "encounter_type": "Office or other outpatient visit for the evaluation and management of an established patient (Level 4)",
+                  "cpt_or_snomed_code": "99214",
+                  "date": "20260810100000",
+                  "attending_provider": "Dr. Robert Smith MD"
+                }
+              ],
+              "clinical_notes_and_evaluations": {
+                "chief_complaint_and_reason_for_visit": "Patient presents for evaluation of intermittent substernal chest pressure associated with exertion, and routine follow-up of essential hypertension.",
+                "assessment_and_plan": "1. Essential Hypertension (I10): Well controlled on Lisinopril 20mg daily. Continue current regimen.\n2. Atypical Chest Pain (R07.9): 12-lead EKG performed in office (CPT 93000) showing normal sinus rhythm without acute ischemic changes. Low cardiac risk profile. Advised on lifestyle modifications and return precautions.",
+                "progress_note_medical_necessity_evaluation": "CLINICAL EVALUATION & MEDICAL NECESSITY JUSTIFICATION:\nPatient John Doe (DOB 04/12/1975) was evaluated on 2026-08-10 at Metropolitan Medical Center for medical management of essential hypertension and new-onset atypical chest discomfort. \nDetailed clinical assessment justifies the medical necessity of comprehensive Evaluation & Management (CPT 99214) due to moderate-to-high medical decision making complexity and multi-system chronic disease management. \nIn-office 12-lead diagnostic electrocardiogram (CPT 93000) was medically necessary to rule out acute coronary syndrome and evaluate for hypertensive cardiovascular changes. \nAdherence to Lisinopril 20mg daily was verified with patient showing favorable hemodynamic stability.\nAll diagnostic and therapeutic services rendered meet established clinical guidelines and coverage criteria for claim reimbursement under reference CLM-2026-98124."
+              }
+            }
+          },
+          "hierarchical_loops": {
+            "transaction_type": "275",
+            "header_segments": [
+              {
+                "segment_id": "ST",
+                "segment_name": "Transaction Set Header",
+                "line_number": 3,
+                "fields": {
+                  "transaction_set_identifier_code": "275",
+                  "transaction_set_control_number": "0001",
+                  "implementation_convention_reference": "005010X210"
+                }
+              },
+              {
+                "segment_id": "BGN",
+                "segment_name": "Beginning Segment",
+                "line_number": 4,
+                "fields": {
+                  "transaction_set_purpose_code": "00",
+                  "reference_identification": "ATT-TRANS-20260814",
+                  "date": "20260814",
+                  "time": "1600"
+                }
+              },
+              {
+                "segment_id": "NM1",
+                "segment_name": "Individual or Organizational Name",
+                "line_number": 5,
+                "fields": {
+                  "entity_identifier_code": "41",
+                  "entity_type_qualifier": "2",
+                  "name_last_or_organization_name": "METROPOLITAN MEDICAL CENTER",
+                  "name_first": "",
+                  "name_middle": "",
+                  "name_prefix": "",
+                  "name_suffix": "",
+                  "identification_code_qualifier": "XX",
+                  "identification_code": "1234567890"
+                }
+              },
+              {
+                "segment_id": "NM1",
+                "segment_name": "Individual or Organizational Name",
+                "line_number": 6,
+                "fields": {
+                  "entity_identifier_code": "40",
+                  "entity_type_qualifier": "2",
+                  "name_last_or_organization_name": "BLUE HORIZON HEALTH PLAN",
+                  "name_first": "",
+                  "name_middle": "",
+                  "name_prefix": "",
+                  "name_suffix": "",
+                  "identification_code_qualifier": "PI",
+                  "identification_code": "BH999"
+                }
+              }
+            ],
+            "hierarchical_loops": [
+              {
+                "hl_id": "1",
+                "parent_id": "",
+                "level_code": "20",
+                "child_code": "1",
+                "hl_segment": {
+                  "segment_id": "HL",
+                  "segment_name": "Hierarchical Level",
+                  "line_number": 7,
+                  "fields": {
+                    "hierarchical_id_number": "1",
+                    "hierarchical_parent_id_number": "",
+                    "hierarchical_level_code": "20",
+                    "hierarchical_child_code": "1"
+                  }
+                },
+                "segments": [
+                  "<x12_parser.engine.segment_parser.ParsedSegment object at 0x7f27d6f9c9e0>"
+                ],
+                "child_hls": [
+                  {
+                    "hl_id": "2",
+                    "parent_id": "1",
+                    "level_code": "21",
+                    "child_code": "1",
+                    "hl_segment": {
+                      "segment_id": "HL",
+                      "segment_name": "Hierarchical Level",
+                      "line_number": 9,
+                      "fields": {
+                        "hierarchical_id_number": "2",
+                        "hierarchical_parent_id_number": "1",
+                        "hierarchical_level_code": "21",
+                        "hierarchical_child_code": "1"
+                      }
+                    },
+                    "segments": [
+                      "<x12_parser.engine.segment_parser.ParsedSegment object at 0x7f27d7156950>"
+                    ],
+                    "child_hls": [
+                      {
+                        "hl_id": "3",
+                        "parent_id": "2",
+                        "level_code": "PT",
+                        "child_code": "0",
+                        "hl_segment": {
+                          "segment_id": "HL",
+                          "segment_name": "Hierarchical Level",
+                          "line_number": 11,
+                          "fields": {
+                            "hierarchical_id_number": "3",
+                            "hierarchical_parent_id_number": "2",
+                            "hierarchical_level_code": "PT",
+                            "hierarchical_child_code": "0"
+                          }
+                        },
+                        "segments": [
+                          "<x12_parser.engine.segment_parser.ParsedSegment object at 0x7f27d6f459a0>",
+                          "<x12_parser.engine.segment_parser.ParsedSegment object at 0x7f27d7138830>",
+                          "<x12_parser.engine.segment_parser.ParsedSegment object at 0x7f27d7138910>",
+                          "<x12_parser.engine.segment_parser.ParsedSegment object at 0x7f27d6f4fad0>",
+                          "<x12_parser.engine.segment_parser.ParsedSegment object at 0x7f27d712cf50>",
+                          "<x12_parser.engine.segment_parser.ParsedSegment object at 0x7f27d712d010>",
+                          "<x12_parser.engine.segment_parser.ParsedSegment object at 0x7f27d71295a0>"
+                        ],
+                        "child_hls": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "trailer_segments": [
+              {
+                "segment_id": "SE",
+                "segment_name": "Transaction Set Trailer",
+                "line_number": 19,
+                "fields": {
+                  "number_of_included_segments": "18",
+                  "transaction_set_control_number": "0001"
+                }
+              }
+            ]
+          },
+          "segments": [
+            {
+              "segment_id": "ST",
+              "segment_name": "Transaction Set Header",
+              "line_number": 3,
+              "fields": {
+                "transaction_set_identifier_code": "275",
+                "transaction_set_control_number": "0001",
+                "implementation_convention_reference": "005010X210"
+              }
+            },
+            {
+              "segment_id": "BGN",
+              "segment_name": "Beginning Segment",
+              "line_number": 4,
+              "fields": {
+                "transaction_set_purpose_code": "00",
+                "reference_identification": "ATT-TRANS-20260814",
+                "date": "20260814",
+                "time": "1600"
+              }
+            },
+            {
+              "segment_id": "NM1",
+              "segment_name": "Individual or Organizational Name",
+              "line_number": 5,
+              "fields": {
+                "entity_identifier_code": "41",
+                "entity_type_qualifier": "2",
+                "name_last_or_organization_name": "METROPOLITAN MEDICAL CENTER",
+                "name_first": "",
+                "name_middle": "",
+                "name_prefix": "",
+                "name_suffix": "",
+                "identification_code_qualifier": "XX",
+                "identification_code": "1234567890"
+              }
+            },
+            {
+              "segment_id": "NM1",
+              "segment_name": "Individual or Organizational Name",
+              "line_number": 6,
+              "fields": {
+                "entity_identifier_code": "40",
+                "entity_type_qualifier": "2",
+                "name_last_or_organization_name": "BLUE HORIZON HEALTH PLAN",
+                "name_first": "",
+                "name_middle": "",
+                "name_prefix": "",
+                "name_suffix": "",
+                "identification_code_qualifier": "PI",
+                "identification_code": "BH999"
+              }
+            },
+            {
+              "segment_id": "HL",
+              "segment_name": "Hierarchical Level",
+              "line_number": 7,
+              "fields": {
+                "hierarchical_id_number": "1",
+                "hierarchical_parent_id_number": "",
+                "hierarchical_level_code": "20",
+                "hierarchical_child_code": "1"
+              }
+            },
+            {
+              "segment_id": "NM1",
+              "segment_name": "Individual or Organizational Name",
+              "line_number": 8,
+              "fields": {
+                "entity_identifier_code": "PR",
+                "entity_type_qualifier": "2",
+                "name_last_or_organization_name": "BLUE HORIZON HEALTH PLAN",
+                "name_first": "",
+                "name_middle": "",
+                "name_prefix": "",
+                "name_suffix": "",
+                "identification_code_qualifier": "PI",
+                "identification_code": "BH999"
+              }
+            },
+            {
+              "segment_id": "HL",
+              "segment_name": "Hierarchical Level",
+              "line_number": 9,
+              "fields": {
+                "hierarchical_id_number": "2",
+                "hierarchical_parent_id_number": "1",
+                "hierarchical_level_code": "21",
+                "hierarchical_child_code": "1"
+              }
+            },
+            {
+              "segment_id": "NM1",
+              "segment_name": "Individual or Organizational Name",
+              "line_number": 10,
+              "fields": {
+                "entity_identifier_code": "1P",
+                "entity_type_qualifier": "2",
+                "name_last_or_organization_name": "METROPOLITAN MEDICAL CENTER",
+                "name_first": "",
+                "name_middle": "",
+                "name_prefix": "",
+                "name_suffix": "",
+                "identification_code_qualifier": "XX",
+                "identification_code": "1234567890"
+              }
+            },
+            {
+              "segment_id": "HL",
+              "segment_name": "Hierarchical Level",
+              "line_number": 11,
+              "fields": {
+                "hierarchical_id_number": "3",
+                "hierarchical_parent_id_number": "2",
+                "hierarchical_level_code": "PT",
+                "hierarchical_child_code": "0"
+              }
+            },
+            {
+              "segment_id": "NM1",
+              "segment_name": "Individual or Organizational Name",
+              "line_number": 12,
+              "fields": {
+                "entity_identifier_code": "QC",
+                "entity_type_qualifier": "1",
+                "name_last_or_organization_name": "DOE",
+                "name_first": "JOHN",
+                "name_middle": "M",
+                "name_prefix": "",
+                "name_suffix": "",
+                "identification_code_qualifier": "MI",
+                "identification_code": "W1234567890"
+              }
+            },
+            {
+              "segment_id": "N3",
+              "segment_name": "Party Location / Address",
+              "line_number": 13,
+              "fields": {
+                "address_line_1": "742 EVERGREEN TERRACE"
+              }
+            },
+            {
+              "segment_id": "N4",
+              "segment_name": "Geographic Location",
+              "line_number": 14,
+              "fields": {
+                "city_name": "METROPOLIS",
+                "state_or_province_code": "NY",
+                "postal_code": "10001"
+              }
+            },
+            {
+              "segment_id": "DMG",
+              "segment_name": "Demographic Information",
+              "line_number": 15,
+              "fields": {
+                "date_time_period_format_qualifier": "D8",
+                "date_of_birth": "19750412",
+                "gender_code": "M"
+              }
+            },
+            {
+              "segment_id": "CAT",
+              "segment_name": "Category of Attachment",
+              "line_number": 16,
+              "fields": {
+                "attachment_structure_code": "TI",
+                "attachment_type_code": "09",
+                "attachment_control_number": "ATT-REF-99214-CCDA"
+              }
+            },
+            {
+              "segment_id": "PID",
+              "segment_name": "Product/Item Description",
+              "line_number": 17,
+              "fields": {
+                "item_description_type": "F",
+                "product_characteristic_code": "",
+                "agency_qualifier_code": "",
+                "product_description_code": "",
+                "description": "PROGRESS REPORT AND MEDICAL NECESSITY EVALUATION"
+              }
+            },
+            {
+              "segment_id": "BDS",
+              "segment_name": "Binary Data Segment",
+              "line_number": 18,
+              "fields": {
+                "filter_id_code": "XML",
+                "binary_data_length": "0",
+                "binary_data": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<ClinicalDocument xmlns=\"urn:hl7-org:v3\" xmlns:sdtc=\"urn:hl7-org:sdtc\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n  <realmCode code=\"US\"/>\n  <typeId root=\"2.16.840.1.113883.1.3\" extension=\"POCD_HD000040\"/>\n  <templateId root=\"2.16.840.1.113883.10.20.22.1.1\"/>\n  <templateId root=\"2.16.840.1.113883.10.20.22.1.2\"/>\n  <id root=\"2.16.840.1.113883.19.5.99999.1\" extension=\"CCDA-DOC-20260814-001\"/>\n  <code code=\"34133-9\" codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\" displayName=\"Summarization of Episode Note\"/>\n  <title>Metropolitan Medical Center - Clinical Progress Note &amp; Medical Necessity Evaluation</title>\n  <effectiveTime value=\"20260814154500-0500\"/>\n  <confidentialityCode code=\"N\" codeSystem=\"2.16.840.1.113883.5.25\" displayName=\"Normal\"/>\n  <languageCode code=\"en-US\"/>\n  <recordTarget>\n    <patientRole>\n      <id root=\"2.16.840.1.113883.19.5\" extension=\"MRN-DOE-78901\"/>\n      <addr>\n        <streetAddressLine>742 Evergreen Terrace</streetAddressLine>\n        <city>Metropolis</city>\n        <state>NY</state>\n        <postalCode>10001</postalCode>\n        <country>USA</country>\n      </addr>\n      <telecom value=\"tel:+1-555-867-5309\" use=\"HP\"/>\n      <patient>\n        <name>\n          <given>John</given>\n          <given>M</given>\n          <family>Doe</family>\n        </name>\n        <administrativeGenderCode code=\"M\" codeSystem=\"2.16.840.1.113883.5.1\" displayName=\"Male\"/>\n        <birthTime value=\"19750412\"/>\n        <maritalStatusCode code=\"M\" codeSystem=\"2.16.840.1.113883.5.2\" displayName=\"Married\"/>\n        <raceCode code=\"2106-3\" codeSystem=\"2.16.840.1.113883.6.238\" displayName=\"White\"/>\n        <ethnicGroupCode code=\"2186-5\" codeSystem=\"2.16.840.1.113883.6.238\" displayName=\"Not Hispanic or Latino\"/>\n      </patient>\n    </patientRole>\n  </recordTarget>\n  <author>\n    <time value=\"20260814154500-0500\"/>\n    <assignedAuthor>\n      <id root=\"2.16.840.1.113883.4.6\" extension=\"1987654321\"/>\n      <assignedPerson>\n        <name>\n          <prefix>Dr.</prefix>\n          <given>Robert</given>\n          <family>Smith</family>\n          <suffix>MD</suffix>\n        </name>\n      </assignedPerson>\n      <representedOrganization>\n        <name>Metropolitan Medical Center</name>\n      </representedOrganization>\n    </assignedAuthor>\n  </author>\n  <custodian>\n    <assignedCustodian>\n      <representedCustodianOrganization>\n        <name>Metropolitan Medical Center Health System</name>\n        <addr>\n          <streetAddressLine>100 Healthcare Blvd</streetAddressLine>\n          <city>Metropolis</city>\n          <state>NY</state>\n          <postalCode>10001</postalCode>\n        </addr>\n      </representedCustodianOrganization>\n    </assignedCustodian>\n  </custodian>\n  <component>\n    <structuredBody>\n      <!-- ALLERGIES SECTION -->\n      <component>\n        <section>\n          <templateId root=\"2.16.840.1.113883.10.20.22.2.6.1\"/>\n          <code code=\"48765-2\" codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\" displayName=\"Allergies and adverse reactions\"/>\n          <title>Allergies &amp; Adverse Reactions</title>\n          <text>\n            <table>\n              <thead>\n                <tr><th>Substance</th><th>Reaction</th><th>Severity</th><th>Status</th></tr>\n              </thead>\n              <tbody>\n                <tr><td>Penicillin G</td><td>Anaphylaxis / Hives</td><td>Severe</td><td>Active</td></tr>\n              </tbody>\n            </table>\n          </text>\n          <entry>\n            <act classCode=\"ACT\" moodCode=\"EVN\">\n              <templateId root=\"2.16.840.1.113883.10.20.22.4.30\"/>\n              <id root=\"36e3e930-7b14-11db-9fe1-0800200c9a66\"/>\n              <code code=\"CONC\" codeSystem=\"2.16.840.1.113883.5.6\"/>\n              <statusCode code=\"active\"/>\n              <entryRelationship typeCode=\"SUBJ\">\n                <observation classCode=\"OBS\" moodCode=\"EVN\">\n                  <templateId root=\"2.16.840.1.113883.10.20.22.4.7\"/>\n                  <id root=\"4ca5edd0-7b14-11db-9fe1-0800200c9a66\"/>\n                  <code code=\"ASSERTION\" codeSystem=\"2.16.840.1.113883.5.4\"/>\n                  <statusCode code=\"completed\"/>\n                  <value xsi:type=\"CD\" code=\"419199007\" codeSystem=\"2.16.840.1.113883.6.96\" displayName=\"Allergy to substance\"/>\n                  <participant typeCode=\"CSM\">\n                    <participantRole classCode=\"MANU\">\n                      <playingEntity classCode=\"MMAT\">\n                        <code code=\"70618\" codeSystem=\"2.16.840.1.113883.6.88\" codeSystemName=\"RxNorm\" displayName=\"Penicillin G\"/>\n                      </playingEntity>\n                    </participantRole>\n                  </participant>\n                  <entryRelationship typeCode=\"MFST\" inversionInd=\"true\">\n                    <observation classCode=\"OBS\" moodCode=\"EVN\">\n                      <templateId root=\"2.16.840.1.113883.10.20.22.4.9\"/>\n                      <code code=\"ASSERTION\" codeSystem=\"2.16.840.1.113883.5.4\"/>\n                      <statusCode code=\"completed\"/>\n                      <value xsi:type=\"CD\" code=\"39579001\" codeSystem=\"2.16.840.1.113883.6.96\" displayName=\"Anaphylaxis\"/>\n                    </observation>\n                  </entryRelationship>\n                  <entryRelationship typeCode=\"SUBJ\" inversionInd=\"true\">\n                    <observation classCode=\"OBS\" moodCode=\"EVN\">\n                      <templateId root=\"2.16.840.1.113883.10.20.22.4.8\"/>\n                      <code code=\"SEV\" codeSystem=\"2.16.840.1.113883.5.4\"/>\n                      <statusCode code=\"completed\"/>\n                      <value xsi:type=\"CD\" code=\"24484000\" codeSystem=\"2.16.840.1.113883.6.96\" displayName=\"Severe\"/>\n                    </observation>\n                  </entryRelationship>\n                </observation>\n              </entryRelationship>\n            </act>\n          </entry>\n        </section>\n      </component>\n\n      <!-- MEDICATIONS SECTION -->\n      <component>\n        <section>\n          <templateId root=\"2.16.840.1.113883.10.20.22.2.1.1\"/>\n          <code code=\"10160-0\" codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\" displayName=\"History of medication use\"/>\n          <title>Current Medications</title>\n          <text>\n            <table>\n              <thead>\n                <tr><th>Medication</th><th>Instructions</th><th>Status</th></tr>\n              </thead>\n              <tbody>\n                <tr><td>Lisinopril 20 MG Oral Tablet</td><td>Take 1 tablet (20mg) orally once daily every morning</td><td>Active</td></tr>\n              </tbody>\n            </table>\n          </text>\n          <entry>\n            <substanceAdministration classCode=\"SBADM\" moodCode=\"EVN\">\n              <templateId root=\"2.16.840.1.113883.10.20.22.4.16\"/>\n              <id root=\"cdbd33f0-6cde-11db-9fe1-0800200c9a66\"/>\n              <text>Take 1 tablet (20mg) orally once daily every morning for hypertension management</text>\n              <statusCode code=\"active\"/>\n              <effectiveTime xsi:type=\"IVL_TS\">\n                <low value=\"20240115\"/>\n              </effectiveTime>\n              <doseQuantity value=\"20\" unit=\"mg\"/>\n              <routeCode code=\"C38288\" codeSystem=\"2.16.840.1.113883.3.26.1.1\" codeSystemName=\"NCI Thesaurus\" displayName=\"Oral\"/>\n              <consumable>\n                <manufacturedProduct classCode=\"MANU\">\n                  <templateId root=\"2.16.840.1.113883.10.20.22.4.23\"/>\n                  <manufacturedMaterial>\n                    <code code=\"314076\" codeSystem=\"2.16.840.1.113883.6.88\" codeSystemName=\"RxNorm\" displayName=\"Lisinopril 20 MG Oral Tablet\"/>\n                  </manufacturedMaterial>\n                </manufacturedProduct>\n              </consumable>\n            </substanceAdministration>\n          </entry>\n        </section>\n      </component>\n\n      <!-- PROBLEMS SECTION -->\n      <component>\n        <section>\n          <templateId root=\"2.16.840.1.113883.10.20.22.2.5.1\"/>\n          <code code=\"11450-4\" codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\" displayName=\"Problem list\"/>\n          <title>Problem List / Diagnoses</title>\n          <text>\n            <table>\n              <thead>\n                <tr><th>Condition</th><th>Code</th><th>Status</th><th>Onset</th></tr>\n              </thead>\n              <tbody>\n                <tr><td>Essential (Primary) Hypertension</td><td>ICD-10: I10</td><td>Active</td><td>2022-03-10</td></tr>\n                <tr><td>Chest Pain, Unspecified</td><td>ICD-10: R07.9</td><td>Active</td><td>2026-08-08</td></tr>\n              </tbody>\n            </table>\n          </text>\n          <entry>\n            <act classCode=\"ACT\" moodCode=\"EVN\">\n              <templateId root=\"2.16.840.1.113883.10.20.22.4.3\"/>\n              <id root=\"ab1791b0-5f71-11db-b0de-0800200c9a66\"/>\n              <code code=\"CONC\" codeSystem=\"2.16.840.1.113883.5.6\"/>\n              <statusCode code=\"active\"/>\n              <entryRelationship typeCode=\"SUBJ\">\n                <observation classCode=\"OBS\" moodCode=\"EVN\">\n                  <templateId root=\"2.16.840.1.113883.10.20.22.4.4\"/>\n                  <id root=\"ab1791b0-5f71-11db-b0de-0800200c9a67\"/>\n                  <code code=\"64572001\" codeSystem=\"2.16.840.1.113883.6.96\" displayName=\"Condition\"/>\n                  <statusCode code=\"completed\"/>\n                  <effectiveTime>\n                    <low value=\"20220310\"/>\n                  </effectiveTime>\n                  <value xsi:type=\"CD\" code=\"I10\" codeSystem=\"2.16.840.1.113883.6.90\" codeSystemName=\"ICD-10-CM\" displayName=\"Essential (Primary) Hypertension\"/>\n                </observation>\n              </entryRelationship>\n            </act>\n          </entry>\n          <entry>\n            <act classCode=\"ACT\" moodCode=\"EVN\">\n              <templateId root=\"2.16.840.1.113883.10.20.22.4.3\"/>\n              <id root=\"ab1791b0-5f71-11db-b0de-0800200c9a68\"/>\n              <code code=\"CONC\" codeSystem=\"2.16.840.1.113883.5.6\"/>\n              <statusCode code=\"active\"/>\n              <entryRelationship typeCode=\"SUBJ\">\n                <observation classCode=\"OBS\" moodCode=\"EVN\">\n                  <templateId root=\"2.16.840.1.113883.10.20.22.4.4\"/>\n                  <id root=\"ab1791b0-5f71-11db-b0de-0800200c9a69\"/>\n                  <code code=\"64572001\" codeSystem=\"2.16.840.1.113883.6.96\" displayName=\"Condition\"/>\n                  <statusCode code=\"completed\"/>\n                  <effectiveTime>\n                    <low value=\"20260808\"/>\n                  </effectiveTime>\n                  <value xsi:type=\"CD\" code=\"R07.9\" codeSystem=\"2.16.840.1.113883.6.90\" codeSystemName=\"ICD-10-CM\" displayName=\"Chest Pain, Unspecified\"/>\n                </observation>\n              </entryRelationship>\n            </act>\n          </entry>\n        </section>\n      </component>\n\n      <!-- VITAL SIGNS SECTION -->\n      <component>\n        <section>\n          <templateId root=\"2.16.840.1.113883.10.20.22.2.4.1\"/>\n          <code code=\"8716-3\" codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\" displayName=\"Vital signs\"/>\n          <title>Vital Signs</title>\n          <text>\n            <table>\n              <thead>\n                <tr><th>Measurement</th><th>Value</th><th>Date</th></tr>\n              </thead>\n              <tbody>\n                <tr><td>Systolic Blood Pressure</td><td>138 mm[Hg]</td><td>2026-08-10</td></tr>\n                <tr><td>Diastolic Blood Pressure</td><td>86 mm[Hg]</td><td>2026-08-10</td></tr>\n                <tr><td>Heart Rate</td><td>72 /min</td><td>2026-08-10</td></tr>\n                <tr><td>Oxygen Saturation (SpO2)</td><td>98 %</td><td>2026-08-10</td></tr>\n                <tr><td>Body Mass Index (BMI)</td><td>27.4 kg/m2</td><td>2026-08-10</td></tr>\n              </tbody>\n            </table>\n          </text>\n          <entry>\n            <organizer classCode=\"CLUSTER\" moodCode=\"EVN\">\n              <templateId root=\"2.16.840.1.113883.10.20.22.4.26\"/>\n              <statusCode code=\"completed\"/>\n              <effectiveTime value=\"20260810103000\"/>\n              <component>\n                <observation classCode=\"OBS\" moodCode=\"EVN\">\n                  <templateId root=\"2.16.840.1.113883.10.20.22.4.27\"/>\n                  <code code=\"8480-6\" codeSystem=\"2.16.840.1.113883.6.1\" displayName=\"Systolic Blood Pressure\"/>\n                  <effectiveTime value=\"20260810103000\"/>\n                  <value xsi:type=\"PQ\" value=\"138\" unit=\"mm[Hg]\"/>\n                </observation>\n              </component>\n              <component>\n                <observation classCode=\"OBS\" moodCode=\"EVN\">\n                  <templateId root=\"2.16.840.1.113883.10.20.22.4.27\"/>\n                  <code code=\"8462-4\" codeSystem=\"2.16.840.1.113883.6.1\" displayName=\"Diastolic Blood Pressure\"/>\n                  <effectiveTime value=\"20260810103000\"/>\n                  <value xsi:type=\"PQ\" value=\"86\" unit=\"mm[Hg]\"/>\n                </observation>\n              </component>\n              <component>\n                <observation classCode=\"OBS\" moodCode=\"EVN\">\n                  <templateId root=\"2.16.840.1.113883.10.20.22.4.27\"/>\n                  <code code=\"8867-4\" codeSystem=\"2.16.840.1.113883.6.1\" displayName=\"Heart Rate\"/>\n                  <effectiveTime value=\"20260810103000\"/>\n                  <value xsi:type=\"PQ\" value=\"72\" unit=\"/min\"/>\n                </observation>\n              </component>\n              <component>\n                <observation classCode=\"OBS\" moodCode=\"EVN\">\n                  <templateId root=\"2.16.840.1.113883.10.20.22.4.27\"/>\n                  <code code=\"59408-5\" codeSystem=\"2.16.840.1.113883.6.1\" displayName=\"Oxygen Saturation\"/>\n                  <effectiveTime value=\"20260810103000\"/>\n                  <value xsi:type=\"PQ\" value=\"98\" unit=\"%\"/>\n                </observation>\n              </component>\n              <component>\n                <observation classCode=\"OBS\" moodCode=\"EVN\">\n                  <templateId root=\"2.16.840.1.113883.10.20.22.4.27\"/>\n                  <code code=\"39156-5\" codeSystem=\"2.16.840.1.113883.6.1\" displayName=\"Body Mass Index\"/>\n                  <effectiveTime value=\"20260810103000\"/>\n                  <value xsi:type=\"PQ\" value=\"27.4\" unit=\"kg/m2\"/>\n                </observation>\n              </component>\n            </organizer>\n          </entry>\n        </section>\n      </component>\n\n      <!-- ENCOUNTERS SECTION -->\n      <component>\n        <section>\n          <templateId root=\"2.16.840.1.113883.10.20.22.2.22.1\"/>\n          <code code=\"46240-8\" codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\" displayName=\"Encounters\"/>\n          <title>Encounters</title>\n          <entry>\n            <encounter classCode=\"ENC\" moodCode=\"EVN\">\n              <templateId root=\"2.16.840.1.113883.10.20.22.4.49\"/>\n              <code code=\"99214\" codeSystem=\"2.16.840.1.113883.6.12\" codeSystemName=\"CPT-4\" displayName=\"Office or other outpatient visit for the evaluation and management of an established patient (Level 4)\"/>\n              <effectiveTime value=\"20260810100000\"/>\n              <performer>\n                <assignedEntity>\n                  <assignedPerson>\n                    <name>\n                      <prefix>Dr.</prefix>\n                      <given>Robert</given>\n                      <family>Smith</family>\n                      <suffix>MD</suffix>\n                    </name>\n                  </assignedPerson>\n                </assignedEntity>\n              </performer>\n            </encounter>\n          </entry>\n        </section>\n      </component>\n\n      <!-- CHIEF COMPLAINT SECTION -->\n      <component>\n        <section>\n          <code code=\"10154-3\" codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\" displayName=\"Chief complaint\"/>\n          <title>Chief Complaint</title>\n          <text>Patient presents for evaluation of intermittent substernal chest pressure associated with exertion, and routine follow-up of essential hypertension.</text>\n        </section>\n      </component>\n\n      <!-- ASSESSMENT AND PLAN SECTION -->\n      <component>\n        <section>\n          <templateId root=\"2.16.840.1.113883.10.20.22.2.9\"/>\n          <code code=\"51847-2\" codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\" displayName=\"Assessment and Plan\"/>\n          <title>Assessment and Plan</title>\n          <text>1. Essential Hypertension (I10): Well controlled on Lisinopril 20mg daily. Continue current regimen.\n2. Atypical Chest Pain (R07.9): 12-lead EKG performed in office (CPT 93000) showing normal sinus rhythm without acute ischemic changes. Low cardiac risk profile. Advised on lifestyle modifications and return precautions.</text>\n        </section>\n      </component>\n\n      <!-- PROGRESS NOTE & MEDICAL NECESSITY EVALUATION SECTION -->\n      <component>\n        <section>\n          <code code=\"11506-3\" codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\" displayName=\"Progress note\"/>\n          <title>Clinical Progress Note &amp; Medical Necessity Evaluation</title>\n          <text>CLINICAL EVALUATION &amp; MEDICAL NECESSITY JUSTIFICATION:\nPatient John Doe (DOB 04/12/1975) was evaluated on 2026-08-10 at Metropolitan Medical Center for medical management of essential hypertension and new-onset atypical chest discomfort. \nDetailed clinical assessment justifies the medical necessity of comprehensive Evaluation &amp; Management (CPT 99214) due to moderate-to-high medical decision making complexity and multi-system chronic disease management. \nIn-office 12-lead diagnostic electrocardiogram (CPT 93000) was medically necessary to rule out acute coronary syndrome and evaluate for hypertensive cardiovascular changes. \nAdherence to Lisinopril 20mg daily was verified with patient showing favorable hemodynamic stability.\nAll diagnostic and therapeutic services rendered meet established clinical guidelines and coverage criteria for claim reimbursement under reference CLM-2026-98124.</text>\n        </section>\n      </component>\n    </structuredBody>\n  </component>\n</ClinicalDocument>"
+              }
+            },
+            {
+              "segment_id": "SE",
+              "segment_name": "Transaction Set Trailer",
+              "line_number": 19,
+              "fields": {
+                "number_of_included_segments": "18",
+                "transaction_set_control_number": "0001"
+              }
+            }
+          ],
+          "transaction_trailer": {
+            "segment_id": "SE",
+            "segment_name": "Transaction Set Trailer",
+            "line_number": 19,
+            "fields": {
+              "number_of_included_segments": "18",
+              "transaction_set_control_number": "0001"
+            }
+          }
+        }
+      ],
+      "functional_group_trailer": {
+        "segment_id": "GE",
+        "segment_name": "Functional Group Trailer",
+        "line_number": 20,
+        "fields": {
+          "number_of_transaction_sets_included": "1",
+          "group_control_number": "4"
+        }
+      }
+    }
+  ],
+  "interchange_trailer": {
+    "segment_id": "IEA",
+    "segment_name": "Interchange Control Trailer",
+    "line_number": 21,
+    "fields": {
+      "number_of_included_functional_groups": "1",
+      "interchange_control_number": "000000004"
+    }
+  },
+  "summary": {
+    "total_segments_count": 21,
+    "total_functional_groups_count": 1,
+    "total_transaction_sets_count": 1
+  }
+};
+    let CURRENT_RAW_EDI = `ISA*00*          *00*          *ZZ*SUBMITTER123   *ZZ*BLUEHORIZON    *260814*1600*^*00501*000000004*0*P*:~
+GS*PI*SUBMITTER123*BLUEHORIZON*20260814*1600*4*X*005010X210~
+ST*275*0001*005010X210~
+BGN*00*ATT-TRANS-20260814*20260814*1600~
+NM1*41*2*METROPOLITAN MEDICAL CENTER*****XX*1234567890~
+NM1*40*2*BLUE HORIZON HEALTH PLAN*****PI*BH999~
+HL*1**20*1~
+NM1*PR*2*BLUE HORIZON HEALTH PLAN*****PI*BH999~
+HL*2*1*21*1~
+NM1*1P*2*METROPOLITAN MEDICAL CENTER*****XX*1234567890~
+HL*3*2*PT*0~
+NM1*QC*1*DOE*JOHN*M***MI*W1234567890~
+N3*742 EVERGREEN TERRACE~
+N4*METROPOLIS*NY*10001~
+DMG*D8*19750412*M~
+CAT*TI*09*ATT-REF-99214-CCDA~
+PID*F****PROGRESS REPORT AND MEDICAL NECESSITY EVALUATION~
+BDS*XML*0*<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:sdtc="urn:hl7-org:sdtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <realmCode code="US"/>
+  <typeId root="2.16.840.1.113883.1.3" extension="POCD_HD000040"/>
+  <templateId root="2.16.840.1.113883.10.20.22.1.1"/>
+  <templateId root="2.16.840.1.113883.10.20.22.1.2"/>
+  <id root="2.16.840.1.113883.19.5.99999.1" extension="CCDA-DOC-20260814-001"/>
+  <code code="34133-9" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Summarization of Episode Note"/>
+  <title>Metropolitan Medical Center - Clinical Progress Note &amp; Medical Necessity Evaluation</title>
+  <effectiveTime value="20260814154500-0500"/>
+  <confidentialityCode code="N" codeSystem="2.16.840.1.113883.5.25" displayName="Normal"/>
+  <languageCode code="en-US"/>
+  <recordTarget>
+    <patientRole>
+      <id root="2.16.840.1.113883.19.5" extension="MRN-DOE-78901"/>
+      <addr>
+        <streetAddressLine>742 Evergreen Terrace</streetAddressLine>
+        <city>Metropolis</city>
+        <state>NY</state>
+        <postalCode>10001</postalCode>
+        <country>USA</country>
+      </addr>
+      <telecom value="tel:+1-555-867-5309" use="HP"/>
+      <patient>
+        <name>
+          <given>John</given>
+          <given>M</given>
+          <family>Doe</family>
+        </name>
+        <administrativeGenderCode code="M" codeSystem="2.16.840.1.113883.5.1" displayName="Male"/>
+        <birthTime value="19750412"/>
+        <maritalStatusCode code="M" codeSystem="2.16.840.1.113883.5.2" displayName="Married"/>
+        <raceCode code="2106-3" codeSystem="2.16.840.1.113883.6.238" displayName="White"/>
+        <ethnicGroupCode code="2186-5" codeSystem="2.16.840.1.113883.6.238" displayName="Not Hispanic or Latino"/>
+      </patient>
+    </patientRole>
+  </recordTarget>
+  <author>
+    <time value="20260814154500-0500"/>
+    <assignedAuthor>
+      <id root="2.16.840.1.113883.4.6" extension="1987654321"/>
+      <assignedPerson>
+        <name>
+          <prefix>Dr.</prefix>
+          <given>Robert</given>
+          <family>Smith</family>
+          <suffix>MD</suffix>
+        </name>
+      </assignedPerson>
+      <representedOrganization>
+        <name>Metropolitan Medical Center</name>
+      </representedOrganization>
+    </assignedAuthor>
+  </author>
+  <custodian>
+    <assignedCustodian>
+      <representedCustodianOrganization>
+        <name>Metropolitan Medical Center Health System</name>
+        <addr>
+          <streetAddressLine>100 Healthcare Blvd</streetAddressLine>
+          <city>Metropolis</city>
+          <state>NY</state>
+          <postalCode>10001</postalCode>
+        </addr>
+      </representedCustodianOrganization>
+    </assignedCustodian>
+  </custodian>
+  <component>
+    <structuredBody>
+      <!-- ALLERGIES SECTION -->
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.6.1"/>
+          <code code="48765-2" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Allergies and adverse reactions"/>
+          <title>Allergies &amp; Adverse Reactions</title>
+          <text>
+            <table>
+              <thead>
+                <tr><th>Substance</th><th>Reaction</th><th>Severity</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Penicillin G</td><td>Anaphylaxis / Hives</td><td>Severe</td><td>Active</td></tr>
+              </tbody>
+            </table>
+          </text>
+          <entry>
+            <act classCode="ACT" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.30"/>
+              <id root="36e3e930-7b14-11db-9fe1-0800200c9a66"/>
+              <code code="CONC" codeSystem="2.16.840.1.113883.5.6"/>
+              <statusCode code="active"/>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.7"/>
+                  <id root="4ca5edd0-7b14-11db-9fe1-0800200c9a66"/>
+                  <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                  <statusCode code="completed"/>
+                  <value xsi:type="CD" code="419199007" codeSystem="2.16.840.1.113883.6.96" displayName="Allergy to substance"/>
+                  <participant typeCode="CSM">
+                    <participantRole classCode="MANU">
+                      <playingEntity classCode="MMAT">
+                        <code code="70618" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm" displayName="Penicillin G"/>
+                      </playingEntity>
+                    </participantRole>
+                  </participant>
+                  <entryRelationship typeCode="MFST" inversionInd="true">
+                    <observation classCode="OBS" moodCode="EVN">
+                      <templateId root="2.16.840.1.113883.10.20.22.4.9"/>
+                      <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                      <statusCode code="completed"/>
+                      <value xsi:type="CD" code="39579001" codeSystem="2.16.840.1.113883.6.96" displayName="Anaphylaxis"/>
+                    </observation>
+                  </entryRelationship>
+                  <entryRelationship typeCode="SUBJ" inversionInd="true">
+                    <observation classCode="OBS" moodCode="EVN">
+                      <templateId root="2.16.840.1.113883.10.20.22.4.8"/>
+                      <code code="SEV" codeSystem="2.16.840.1.113883.5.4"/>
+                      <statusCode code="completed"/>
+                      <value xsi:type="CD" code="24484000" codeSystem="2.16.840.1.113883.6.96" displayName="Severe"/>
+                    </observation>
+                  </entryRelationship>
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+        </section>
+      </component>
+
+      <!-- MEDICATIONS SECTION -->
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.1.1"/>
+          <code code="10160-0" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="History of medication use"/>
+          <title>Current Medications</title>
+          <text>
+            <table>
+              <thead>
+                <tr><th>Medication</th><th>Instructions</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Lisinopril 20 MG Oral Tablet</td><td>Take 1 tablet (20mg) orally once daily every morning</td><td>Active</td></tr>
+              </tbody>
+            </table>
+          </text>
+          <entry>
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <id root="cdbd33f0-6cde-11db-9fe1-0800200c9a66"/>
+              <text>Take 1 tablet (20mg) orally once daily every morning for hypertension management</text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low value="20240115"/>
+              </effectiveTime>
+              <doseQuantity value="20" unit="mg"/>
+              <routeCode code="C38288" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus" displayName="Oral"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <manufacturedMaterial>
+                    <code code="314076" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm" displayName="Lisinopril 20 MG Oral Tablet"/>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+        </section>
+      </component>
+
+      <!-- PROBLEMS SECTION -->
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.5.1"/>
+          <code code="11450-4" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Problem list"/>
+          <title>Problem List / Diagnoses</title>
+          <text>
+            <table>
+              <thead>
+                <tr><th>Condition</th><th>Code</th><th>Status</th><th>Onset</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Essential (Primary) Hypertension</td><td>ICD-10: I10</td><td>Active</td><td>2022-03-10</td></tr>
+                <tr><td>Chest Pain, Unspecified</td><td>ICD-10: R07.9</td><td>Active</td><td>2026-08-08</td></tr>
+              </tbody>
+            </table>
+          </text>
+          <entry>
+            <act classCode="ACT" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.3"/>
+              <id root="ab1791b0-5f71-11db-b0de-0800200c9a66"/>
+              <code code="CONC" codeSystem="2.16.840.1.113883.5.6"/>
+              <statusCode code="active"/>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
+                  <id root="ab1791b0-5f71-11db-b0de-0800200c9a67"/>
+                  <code code="64572001" codeSystem="2.16.840.1.113883.6.96" displayName="Condition"/>
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+                    <low value="20220310"/>
+                  </effectiveTime>
+                  <value xsi:type="CD" code="I10" codeSystem="2.16.840.1.113883.6.90" codeSystemName="ICD-10-CM" displayName="Essential (Primary) Hypertension"/>
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+          <entry>
+            <act classCode="ACT" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.3"/>
+              <id root="ab1791b0-5f71-11db-b0de-0800200c9a68"/>
+              <code code="CONC" codeSystem="2.16.840.1.113883.5.6"/>
+              <statusCode code="active"/>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
+                  <id root="ab1791b0-5f71-11db-b0de-0800200c9a69"/>
+                  <code code="64572001" codeSystem="2.16.840.1.113883.6.96" displayName="Condition"/>
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+                    <low value="20260808"/>
+                  </effectiveTime>
+                  <value xsi:type="CD" code="R07.9" codeSystem="2.16.840.1.113883.6.90" codeSystemName="ICD-10-CM" displayName="Chest Pain, Unspecified"/>
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+        </section>
+      </component>
+
+      <!-- VITAL SIGNS SECTION -->
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.4.1"/>
+          <code code="8716-3" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Vital signs"/>
+          <title>Vital Signs</title>
+          <text>
+            <table>
+              <thead>
+                <tr><th>Measurement</th><th>Value</th><th>Date</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Systolic Blood Pressure</td><td>138 mm[Hg]</td><td>2026-08-10</td></tr>
+                <tr><td>Diastolic Blood Pressure</td><td>86 mm[Hg]</td><td>2026-08-10</td></tr>
+                <tr><td>Heart Rate</td><td>72 /min</td><td>2026-08-10</td></tr>
+                <tr><td>Oxygen Saturation (SpO2)</td><td>98 %</td><td>2026-08-10</td></tr>
+                <tr><td>Body Mass Index (BMI)</td><td>27.4 kg/m2</td><td>2026-08-10</td></tr>
+              </tbody>
+            </table>
+          </text>
+          <entry>
+            <organizer classCode="CLUSTER" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.26"/>
+              <statusCode code="completed"/>
+              <effectiveTime value="20260810103000"/>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <code code="8480-6" codeSystem="2.16.840.1.113883.6.1" displayName="Systolic Blood Pressure"/>
+                  <effectiveTime value="20260810103000"/>
+                  <value xsi:type="PQ" value="138" unit="mm[Hg]"/>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <code code="8462-4" codeSystem="2.16.840.1.113883.6.1" displayName="Diastolic Blood Pressure"/>
+                  <effectiveTime value="20260810103000"/>
+                  <value xsi:type="PQ" value="86" unit="mm[Hg]"/>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <code code="8867-4" codeSystem="2.16.840.1.113883.6.1" displayName="Heart Rate"/>
+                  <effectiveTime value="20260810103000"/>
+                  <value xsi:type="PQ" value="72" unit="/min"/>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <code code="59408-5" codeSystem="2.16.840.1.113883.6.1" displayName="Oxygen Saturation"/>
+                  <effectiveTime value="20260810103000"/>
+                  <value xsi:type="PQ" value="98" unit="%"/>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <code code="39156-5" codeSystem="2.16.840.1.113883.6.1" displayName="Body Mass Index"/>
+                  <effectiveTime value="20260810103000"/>
+                  <value xsi:type="PQ" value="27.4" unit="kg/m2"/>
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+        </section>
+      </component>
+
+      <!-- ENCOUNTERS SECTION -->
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.22.1"/>
+          <code code="46240-8" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Encounters"/>
+          <title>Encounters</title>
+          <entry>
+            <encounter classCode="ENC" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.49"/>
+              <code code="99214" codeSystem="2.16.840.1.113883.6.12" codeSystemName="CPT-4" displayName="Office or other outpatient visit for the evaluation and management of an established patient (Level 4)"/>
+              <effectiveTime value="20260810100000"/>
+              <performer>
+                <assignedEntity>
+                  <assignedPerson>
+                    <name>
+                      <prefix>Dr.</prefix>
+                      <given>Robert</given>
+                      <family>Smith</family>
+                      <suffix>MD</suffix>
+                    </name>
+                  </assignedPerson>
+                </assignedEntity>
+              </performer>
+            </encounter>
+          </entry>
+        </section>
+      </component>
+
+      <!-- CHIEF COMPLAINT SECTION -->
+      <component>
+        <section>
+          <code code="10154-3" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Chief complaint"/>
+          <title>Chief Complaint</title>
+          <text>Patient presents for evaluation of intermittent substernal chest pressure associated with exertion, and routine follow-up of essential hypertension.</text>
+        </section>
+      </component>
+
+      <!-- ASSESSMENT AND PLAN SECTION -->
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.9"/>
+          <code code="51847-2" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Assessment and Plan"/>
+          <title>Assessment and Plan</title>
+          <text>1. Essential Hypertension (I10): Well controlled on Lisinopril 20mg daily. Continue current regimen.
+2. Atypical Chest Pain (R07.9): 12-lead EKG performed in office (CPT 93000) showing normal sinus rhythm without acute ischemic changes. Low cardiac risk profile. Advised on lifestyle modifications and return precautions.</text>
+        </section>
+      </component>
+
+      <!-- PROGRESS NOTE & MEDICAL NECESSITY EVALUATION SECTION -->
+      <component>
+        <section>
+          <code code="11506-3" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Progress note"/>
+          <title>Clinical Progress Note &amp; Medical Necessity Evaluation</title>
+          <text>CLINICAL EVALUATION &amp; MEDICAL NECESSITY JUSTIFICATION:
+Patient John Doe (DOB 04/12/1975) was evaluated on 2026-08-10 at Metropolitan Medical Center for medical management of essential hypertension and new-onset atypical chest discomfort. 
+Detailed clinical assessment justifies the medical necessity of comprehensive Evaluation &amp; Management (CPT 99214) due to moderate-to-high medical decision making complexity and multi-system chronic disease management. 
+In-office 12-lead diagnostic electrocardiogram (CPT 93000) was medically necessary to rule out acute coronary syndrome and evaluate for hypertensive cardiovascular changes. 
+Adherence to Lisinopril 20mg daily was verified with patient showing favorable hemodynamic stability.
+All diagnostic and therapeutic services rendered meet established clinical guidelines and coverage criteria for claim reimbursement under reference CLM-2026-98124.</text>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>~
+SE*18*0001~
+GE*1*4~
+IEA*1*000000004~
+`;
+
+    function initDashboard() {
+      renderMetrics(CURRENT_DATA);
+      renderEnvelopes(CURRENT_DATA);
+      renderEntities(CURRENT_DATA);
+      renderTxSpecific(CURRENT_DATA);
+      renderJsonTree(CURRENT_DATA);
+      renderRawEdi(CURRENT_RAW_EDI);
+    }
+
+    function renderMetrics(data) {
+      const bar = document.getElementById('metricsBar');
+      bar.innerHTML = '';
+
+      const summary = data.summary || {};
+      const firstGroup = (data.functional_groups || [])[0] || {};
+      const firstTx = (firstGroup.transaction_sets || [])[0] || {};
+      const parsedTx = firstTx.parsed_transaction || {};
+      const txType = firstTx.transaction_type || 'X12';
+
+      // 1. Transaction Type Metric
+      bar.innerHTML += `
+        <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-xl p-3 flex flex-col justify-between">
+          <span class="text-xs text-[var(--app-muted-foreground)] font-medium">Transaction Type</span>
+          <span class="text-lg font-bold text-blue-400">${txType} ${firstTx.transaction_name || ''}</span>
+          <span class="text-[11px] text-[var(--app-muted-foreground)]">Version ${firstGroup.version || '5010'}</span>
+        </div>
+      `;
+
+      // 2. Total Segments Metric
+      bar.innerHTML += `
+        <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-xl p-3 flex flex-col justify-between">
+          <span class="text-xs text-[var(--app-muted-foreground)] font-medium">Total Segments</span>
+          <span class="text-lg font-bold text-[var(--app-foreground)]">${summary.total_segments_count || 0}</span>
+          <span class="text-[11px] text-[var(--app-muted-foreground)]">${summary.total_transaction_sets_count || 1} Transaction Set(s)</span>
+        </div>
+      `;
+
+      if (txType === '837') {
+        const claims = parsedTx.claims || [];
+        let totalCharge = claims.reduce((acc, c) => acc + (parseFloat(c.total_claim_charge_amount) || 0), 0);
+        let totalLines = claims.reduce((acc, c) => acc + (c.service_lines || []).length, 0);
+
+        bar.innerHTML += `
+          <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-xl p-3 flex flex-col justify-between">
+            <span class="text-xs text-[var(--app-muted-foreground)] font-medium">Total Claims</span>
+            <span class="text-lg font-bold text-cyan-400">${claims.length}</span>
+            <span class="text-[11px] text-[var(--app-muted-foreground)]">${totalLines} Service Line(s)</span>
+          </div>
+          <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-xl p-3 flex flex-col justify-between">
+            <span class="text-xs text-[var(--app-muted-foreground)] font-medium">Total Billed Charges</span>
+            <span class="text-lg font-bold text-emerald-400">$${totalCharge.toFixed(2)}</span>
+            <span class="text-[11px] text-[var(--app-muted-foreground)]">Submitted Billed Total</span>
+          </div>
+        `;
+      } else if (txType === '835') {
+        const fin = parsedTx.financial_information || {};
+        const claims = parsedTx.claims || [];
+        bar.innerHTML += `
+          <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-xl p-3 flex flex-col justify-between">
+            <span class="text-xs text-[var(--app-muted-foreground)] font-medium">Payment Total</span>
+            <span class="text-lg font-bold text-emerald-400">$${(parseFloat(fin.total_payment_amount) || 0).toFixed(2)}</span>
+            <span class="text-[11px] text-[var(--app-muted-foreground)]">Method: ${fin.payment_method || 'ACH'}</span>
+          </div>
+          <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-xl p-3 flex flex-col justify-between">
+            <span class="text-xs text-[var(--app-muted-foreground)] font-medium">Adjudicated Claims</span>
+            <span class="text-lg font-bold text-amber-400">${claims.length}</span>
+            <span class="text-[11px] text-[var(--app-muted-foreground)]">Remittance Details</span>
+          </div>
+        `;
+      } else if (txType === '277') {
+        const reqAtt = parsedTx.required_attachments || [];
+        bar.innerHTML += `
+          <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-xl p-3 flex flex-col justify-between">
+            <span class="text-xs text-[var(--app-muted-foreground)] font-medium">Required Attachments</span>
+            <span class="text-lg font-bold text-rose-400">${reqAtt.length} Flagged</span>
+            <span class="text-[11px] text-[var(--app-muted-foreground)]">Action Required</span>
+          </div>
+        `;
+      } else if (txType === '275') {
+        const clin = parsedTx.attached_clinical_data || {};
+        const meds = clin.medications || [];
+        const allergies = clin.allergies || [];
+        bar.innerHTML += `
+          <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-xl p-3 flex flex-col justify-between">
+            <span class="text-xs text-[var(--app-muted-foreground)] font-medium">Clinical C-CDA XML</span>
+            <span class="text-lg font-bold text-purple-400">${meds.length} Meds</span>
+            <span class="text-[11px] text-[var(--app-muted-foreground)]">${allergies.length} Allergies</span>
+          </div>
+        `;
+      }
+    }
+
+    function renderEnvelopes(data) {
+      const grid = document.getElementById('envelopeGrid');
+      grid.innerHTML = '';
+      const isa = data.interchange_control_header || {};
+      const firstGroup = (data.functional_groups || [])[0] || {};
+      const firstTx = (firstGroup.transaction_sets || [])[0] || {};
+
+      const items = [
+        { label: 'Sender ID (ISA06)', val: isa.interchange_sender_id || 'N/A' },
+        { label: 'Receiver ID (ISA08)', val: isa.interchange_receiver_id || 'N/A' },
+        { label: 'Control Number (ISA13)', val: isa.interchange_control_number || 'N/A' },
+        { label: 'Interchange Date/Time', val: `${isa.interchange_date || ''} ${isa.interchange_time || ''}` },
+        { label: 'Group Identifier (GS01)', val: firstGroup.functional_identifier_code || 'N/A' },
+        { label: 'Group Control # (GS06)', val: firstGroup.group_control_number || 'N/A' },
+        { label: 'Standard Version (GS08)', val: firstGroup.version || '005010' },
+        { label: 'Set Control # (ST02)', val: firstTx.transaction_set_control_number || '0001' }
+      ];
+
+      items.forEach(it => {
+        grid.innerHTML += `
+          <div class="p-2.5 rounded-lg bg-[var(--app-muted)]/30 border border-[var(--app-border)]">
+            <span class="text-[11px] text-[var(--app-muted-foreground)] block">${it.label}</span>
+            <span class="font-mono font-semibold text-[var(--app-foreground)] truncate block">${it.val}</span>
+          </div>
+        `;
+      });
+    }
+
+    function renderEntities(data) {
+      const grid = document.getElementById('entitiesGrid');
+      grid.innerHTML = '';
+
+      const firstGroup = (data.functional_groups || [])[0] || {};
+      const firstTx = (firstGroup.transaction_sets || [])[0] || {};
+      const tx = firstTx.parsed_transaction || {};
+
+      const entityKeys = [
+        { title: 'Billing Provider', obj: tx.billing_provider || tx.payee || tx.service_provider, color: 'text-blue-400' },
+        { title: 'Payer / Source', obj: tx.payer || tx.information_source, color: 'text-emerald-400' },
+        { title: 'Subscriber / Member', obj: tx.subscriber || tx.insured, color: 'text-cyan-400' },
+        { title: 'Patient', obj: tx.patient, color: 'text-purple-400' },
+        { title: 'Submitter', obj: tx.submitter || tx.information_receiver, color: 'text-amber-400' }
+      ];
+
+      let count = 0;
+      entityKeys.forEach(e => {
+        if (e.obj && (e.obj.name_last_or_organization || e.obj.name || e.obj.identification_code)) {
+          count++;
+          const name = e.obj.name_last_or_organization || e.obj.name || `${e.obj.name_first || ''} ${e.obj.name_last || ''}`.trim();
+          const idVal = e.obj.identification_code || 'N/A';
+          const addr = e.obj.address || {};
+          const geo = e.obj.geographic_location || {};
+          const addrStr = addr.address_line_1 ? `${addr.address_line_1}, ${geo.city || ''} ${geo.state || ''} ${geo.postal_code || ''}` : 'Address on file';
+
+          grid.innerHTML += `
+            <div class="p-3 rounded-xl bg-[var(--app-muted)]/30 border border-[var(--app-border)] space-y-1">
+              <span class="text-xs font-bold ${e.color}">${e.title}</span>
+              <p class="font-semibold text-[var(--app-foreground)] truncate">${name || 'Unknown Entity'}</p>
+              <p class="text-[11px] text-[var(--app-muted-foreground)] font-mono">ID: ${idVal}</p>
+              <p class="text-[11px] text-[var(--app-muted-foreground)] truncate">${addrStr}</p>
+            </div>
+          `;
+        }
+      });
+
+      if (count === 0) {
+        grid.innerHTML = `<p class="text-xs text-[var(--app-muted-foreground)] col-span-3">No distinct entity loops identified in this transaction.</p>`;
+      }
+    }
+
+    function renderTxSpecific(data) {
+      const panel = document.getElementById('txSpecificPanel');
+      panel.innerHTML = '';
+
+      const firstGroup = (data.functional_groups || [])[0] || {};
+      const firstTx = (firstGroup.transaction_sets || [])[0] || {};
+      const tx = firstTx.parsed_transaction || {};
+      const txType = firstTx.transaction_type;
+
+      if (txType === '837') {
+        const claims = tx.claims || [];
+        let html = `
+          <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl p-5 shadow-sm space-y-4">
+            <h2 class="text-sm font-bold text-blue-400 uppercase tracking-wider">Submitted Health Claims & Service Lines</h2>
+            <div class="space-y-4">
+        `;
+
+        claims.forEach((c, idx) => {
+          const diags = (c.diagnoses || []).map(d => `<span class="badge-blue px-2 py-0.5 rounded text-[11px] font-mono">${d.diagnosis_type}: ${d.code}</span>`).join(' ');
+          html += `
+            <div class="border border-[var(--app-border)] rounded-xl p-4 bg-[var(--app-muted)]/20 space-y-3">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--app-border)] pb-2">
+                <div>
+                  <span class="font-bold text-sm text-[var(--app-foreground)]">Claim #${idx + 1}: ${c.claim_id}</span>
+                  <span class="ml-2 text-xs text-[var(--app-muted-foreground)]">Date: ${c.dates && c.dates.service_date ? c.dates.service_date : 'N/A'}</span>
+                </div>
+                <span class="text-sm font-bold text-emerald-400 font-mono">$${(parseFloat(c.total_claim_charge_amount) || 0).toFixed(2)}</span>
+              </div>
+              <div>
+                <span class="text-[11px] font-semibold text-[var(--app-muted-foreground)] block mb-1">Diagnoses (ICD-10):</span>
+                <div class="flex flex-wrap gap-1.5">${diags || '<span class="text-xs text-[var(--app-muted-foreground)]">None</span>'}</div>
+              </div>
+              <div>
+                <span class="text-[11px] font-semibold text-[var(--app-muted-foreground)] block mb-1">Service Lines:</span>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left text-xs">
+                    <thead class="bg-[var(--app-muted)]/40 text-[var(--app-muted-foreground)] font-medium">
+                      <tr><th class="p-2">Line #</th><th class="p-2">Procedure Code</th><th class="p-2">Charge</th><th class="p-2">Units</th></tr>
+                    </thead>
+                    <tbody class="divide-y divide-[var(--app-border)]">
+                      ${(c.service_lines || []).map(sl => `
+                        <tr>
+                          <td class="p-2 font-mono">${sl.line_number}</td>
+                          <td class="p-2 font-mono text-blue-400 font-bold">${(sl.procedure && (sl.procedure.procedure_code || sl.procedure.code)) || 'N/A'}</td>
+                          <td class="p-2 font-mono text-emerald-400">$${(parseFloat(sl.charge_amount) || 0).toFixed(2)}</td>
+                          <td class="p-2 font-mono">${sl.unit_count || 1}</td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        html += `</div></div>`;
+        panel.innerHTML = html;
+
+      }} else if (txType === '835') {
+        const claims = tx.claims || [];
+        let html = `
+          <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl p-5 shadow-sm space-y-4">
+            <h2 class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Adjudicated Claims & Remittance Details</h2>
+            <div class="space-y-4">
+        `;
+        claims.forEach((c, idx) => {
+          html += `
+            <div class="border border-[var(--app-border)] rounded-xl p-4 bg-[var(--app-muted)]/20 space-y-3">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--app-border)] pb-2">
+                <div>
+                  <span class="font-bold text-sm text-[var(--app-foreground)]">Claim: ${c.patient_control_number}</span>
+                  <span class="ml-2 badge-green px-2 py-0.5 rounded text-[11px]">${c.claim_status_description || 'Processed'}</span>
+                </div>
+                <div class="text-right">
+                  <span class="text-xs text-[var(--app-muted-foreground)]">Paid: </span>
+                  <span class="text-sm font-bold text-emerald-400 font-mono">$${(parseFloat(c.claim_payment_amount) || 0).toFixed(2)}</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                <div><span class="text-[11px] text-[var(--app-muted-foreground)]">Submitted Charge:</span> <span class="font-mono text-[var(--app-foreground)]">$${(parseFloat(c.total_claim_charge_amount) || 0).toFixed(2)}</span></div>
+                <div><span class="text-[11px] text-[var(--app-muted-foreground)]">Patient Responsibility:</span> <span class="font-mono text-amber-400">$${(parseFloat(c.patient_responsibility_amount) || 0).toFixed(2)}</span></div>
+                <div><span class="text-[11px] text-[var(--app-muted-foreground)]">Payer Claim #:</span> <span class="font-mono text-[var(--app-foreground)]">${c.payer_claim_control_number || 'N/A'}</span></div>
+              </div>
+            </div>
+          `;
+        });
+        html += `</div></div>`;
+        panel.innerHTML = html;
+
+      }} else if (txType === '277') {
+        const reqAtt = tx.required_attachments || [];
+        let html = `
+          <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl p-5 shadow-sm space-y-4">
+            <h2 class="text-sm font-bold text-rose-400 uppercase tracking-wider">Required Documentation & Status Notifications</h2>
+            <div class="space-y-3">
+        `;
+        reqAtt.forEach(a => {
+          html += `
+            <div class="border border-rose-500/30 rounded-xl p-4 bg-rose-500/10 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-sm text-rose-400">${a.attachment_report_type_description || a.status_category_description || 'Documentation Required'}</span>
+                <span class="badge-rose px-2 py-0.5 rounded text-xs font-mono">Code: ${a.attachment_report_type_code || a.status_category_code}</span>
+              </div>
+              <p class="text-xs text-[var(--app-foreground)]">Transmission Method: <code class="badge-blue px-1 rounded">${a.attachment_transmission_code || 'Electronic (EL)'}</code> &bull; Action: ${a.action_description || 'Pended / Action Required'}</p>
+            </div>
+          `;
+        });
+        html += `</div></div>`;
+        panel.innerHTML = html;
+
+      }} else if (txType === '275' || tx.attached_clinical_data) {
+        renderClinicalTab(tx.attached_clinical_data);
+      }
+    }
+
+    function renderClinicalTab(clin) {
+      if (!clin || Object.keys(clin).length === 0) return;
+      document.getElementById('clinicalTabBtn').classList.remove('hidden');
+
+      const meta = clin.document_metadata || {};
+      const pt = clin.patient_demographics || {};
+      document.getElementById('clinicalDocTitle').textContent = meta.title || 'Clinical Document';
+      document.getElementById('clinicalDocMeta').textContent = `Patient: ${(pt.name && pt.name.full_name) || 'N/A'} | Date: ${meta.effective_date || 'N/A'}`;
+
+      const grid = document.getElementById('clinicalSectionsGrid');
+      const meds = clin.medications || [];
+      const allergies = clin.allergies || [];
+      const probs = clin.problems_and_diagnoses || [];
+      const notes = (clin.clinical_notes_and_evaluations && (clin.clinical_notes_and_evaluations.progress_note_medical_necessity_evaluation || clin.clinical_notes_and_evaluations.assessment_and_plan)) || 'No narrative note provided.';
+
+      grid.innerHTML = `
+        <!-- Medications -->
+        <div class="p-4 rounded-xl bg-[var(--app-muted)]/20 border border-[var(--app-border)] space-y-2">
+          <span class="font-bold text-xs text-purple-400 uppercase">Medications (${meds.length})</span>
+          <div class="space-y-1.5 max-h-48 overflow-y-auto">
+            ${meds.map(m => `<div class="text-xs p-1.5 rounded bg-[var(--app-muted)]/30"><span class="font-semibold text-[var(--app-foreground)]">${m.medication_name}</span> <span class="badge-purple text-[10px] px-1 rounded">${m.rxnorm_code || 'RxNorm'}</span></div>`).join('') || '<p class="text-xs text-[var(--app-muted-foreground)]">None recorded</p>'}
+          </div>
+        </div>
+
+        <!-- Allergies -->
+        <div class="p-4 rounded-xl bg-[var(--app-muted)]/20 border border-[var(--app-border)] space-y-2">
+          <span class="font-bold text-xs text-rose-400 uppercase">Allergies (${allergies.length})</span>
+          <div class="space-y-1.5 max-h-48 overflow-y-auto">
+            ${allergies.map(a => `<div class="text-xs p-1.5 rounded bg-[var(--app-muted)]/30"><span class="font-semibold text-[var(--app-foreground)]">${a.substance}</span> - <span class="text-rose-400">${a.reaction || 'Adverse reaction'} (${a.severity || 'Moderate'})</span></div>`).join('') || '<p class="text-xs text-[var(--app-muted-foreground)]">None recorded</p>'}
+          </div>
+        </div>
+
+        <!-- Problems & Diagnoses -->
+        <div class="p-4 rounded-xl bg-[var(--app-muted)]/20 border border-[var(--app-border)] space-y-2">
+          <span class="font-bold text-xs text-cyan-400 uppercase">Problems & Diagnoses (${probs.length})</span>
+          <div class="space-y-1.5 max-h-48 overflow-y-auto">
+            ${probs.map(p => `<div class="text-xs p-1.5 rounded bg-[var(--app-muted)]/30"><span class="font-semibold text-[var(--app-foreground)]">${p.problem_name}</span> <span class="badge-blue text-[10px] px-1 rounded">${p.code}</span></div>`).join('') || '<p class="text-xs text-[var(--app-muted-foreground)]">None recorded</p>'}
+          </div>
+        </div>
+
+        <!-- Clinical Notes -->
+        <div class="p-4 rounded-xl bg-[var(--app-muted)]/20 border border-[var(--app-border)] space-y-2">
+          <span class="font-bold text-xs text-amber-400 uppercase">Clinical Notes & Justification</span>
+          <p class="text-xs text-[var(--app-foreground)] leading-relaxed italic bg-[var(--app-muted)]/30 p-2.5 rounded-lg max-h-48 overflow-y-auto">
+            ${notes}
+          </p>
+        </div>
+      `;
+    }
+
+    function renderJsonTree(data) {
+      document.getElementById('jsonTreeDisplay').textContent = JSON.stringify(data, null, 2);
+    }
+
+    function renderRawEdi(raw) {
+      document.getElementById('rawEdiDisplay').textContent = raw || 'No raw EDI text supplied.';
+    }
+
+    function copyJsonOutput() {
+      navigator.clipboard.writeText(document.getElementById('jsonTreeDisplay').textContent).then(() => alert('JSON copied to clipboard!'));
+    }
+
+    function downloadJsonFile() {
+      const blob = new Blob([document.getElementById('jsonTreeDisplay').textContent], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'parsed_x12_output.json';
+      a.click();
+    }
+
+    function copyRawEdi() {
+      navigator.clipboard.writeText(document.getElementById('rawEdiDisplay').textContent).then(() => alert('Raw EDI copied to clipboard!'));
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active', 'border-blue-500', 'text-blue-400');
+        btn.classList.add('border-transparent', 'text-[var(--app-muted-foreground)]');
+      });
+      event.currentTarget.classList.add('active', 'border-blue-500', 'text-blue-400');
+      event.currentTarget.classList.remove('border-transparent', 'text-[var(--app-muted-foreground)]');
+
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+      const target = document.getElementById(`tab-${tabId}`);
+      if (target) target.classList.remove('hidden');
+    }
+
+    function openUploadModal() {
+      document.getElementById('uploadModal').classList.remove('hidden');
+    }
+
+    function closeUploadModal() {
+      document.getElementById('uploadModal').classList.add('hidden');
+    }
+
+    // Theme Toggle Handler
+    const themeToggleBtn = document.getElementById('themeToggle');
+    const sunIcon = document.getElementById('sunIcon');
+    const moonIcon = document.getElementById('moonIcon');
+
+    themeToggleBtn.addEventListener('click', () => {
+      const html = document.documentElement;
+      if (html.classList.contains('light')) {
+        html.classList.remove('light');
+        html.classList.add('dark');
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+      } else {
+        html.classList.remove('dark');
+        html.classList.add('light');
+        moonIcon.classList.add('hidden');
+        sunIcon.classList.remove('hidden');
+      }
+    });
+
+    // Drag and Drop & File Upload handling
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (re) => {
+          document.getElementById('rawInputArea').value = re.target.result;
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    // Parse custom X12 text entered by user (via API or Client-side stream parsing)
+    async function parseCustomX12() {
+      const rawText = document.getElementById('rawInputArea').value.trim();
+      if (!rawText) {
+        alert('Please select a file or paste raw X12 content.');
+        return;
+      }
+
+      try {
+        // Try posting to local server if running
+        const resp = await fetch('/v1/parse/x12', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ raw_x12: rawText })
+        });
+
+        if (resp.ok) {
+          const parsed = await resp.json();
+          CURRENT_DATA = parsed;
+          CURRENT_RAW_EDI = rawText;
+          initDashboard();
+          closeUploadModal();
+          switchTab('overview');
+          return;
+        }
+      } catch (err) {
+        console.warn('Backend server not directly reachable, attempting local stream fallback.', err);
+      }
+
+      alert('File loaded. For complete server-side parsing, ensure server is running: python3 -m x12_parser.api.server');
+      closeUploadModal();
+    }
+
+    // Auto-detect system theme
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+      moonIcon.classList.add('hidden');
+      sunIcon.classList.remove('hidden');
+    }
+
+    initDashboard();
+  </script>
+</body>
+</html>

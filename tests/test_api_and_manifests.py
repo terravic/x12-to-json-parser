@@ -78,10 +78,21 @@ class TestAPIAndManifests(unittest.TestCase):
 
         self.assertEqual(skill.get("schema_version"), "1.0")
         self.assertEqual(skill.get("name_for_model"), "X12_Healthcare_Parser")
+        self.assertTrue(skill.get("ui_canvas", {}).get("supported"))
         endpoints = skill.get("endpoints", [])
-        self.assertEqual(len(endpoints), 1)
+        self.assertGreaterEqual(len(endpoints), 1)
         self.assertEqual(endpoints[0]["path"], "/v1/parse/x12")
         self.assertEqual(endpoints[0]["method"], "POST")
+
+    def test_server_dashboard_endpoint(self):
+        url = f"{self.base_url}/dashboard"
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req) as resp:
+            self.assertEqual(resp.status, 200)
+            self.assertIn("text/html", resp.headers.get("Content-Type", ""))
+            html_content = resp.read().decode("utf-8")
+            self.assertIn("EDI X12", html_content)
+            self.assertIn("Semantic Mapping Engine", html_content)
 
     def test_server_health_endpoint(self):
         url = f"{self.base_url}/v1/health"
@@ -130,6 +141,39 @@ class TestAPIAndManifests(unittest.TestCase):
             self.assertEqual(tx["transaction_type"], "275")
             clin = tx.get("attached_clinical_data", {})
             self.assertEqual(clin.get("patient_demographics", {}).get("name", {}).get("family_name"), "Doe")
+
+    def test_generate_dashboard_any_x12_file(self):
+        from x12_parser import X12Parser
+        for sample_name in [
+            "sample_837_claim.x12",
+            "sample_835_remittance.x12",
+            "sample_277_request.x12",
+            "sample_275_ccda_response.x12",
+            "sample_271_response.x12",
+            "sample_278_prior_auth.x12"
+        ]:
+            raw = read_sample(sample_name)
+            html = X12Parser.generate_dashboard(raw, title=f"Test {sample_name}")
+            self.assertIn("<!DOCTYPE html>", html)
+            self.assertIn("tailwindcss.min.js", html)
+            self.assertIn("CURRENT_DATA", html)
+
+    def test_server_parse_and_build_html_dashboard(self):
+        url = f"{self.base_url}/v1/parse/x12"
+        raw_835 = read_sample("sample_835_remittance.x12")
+        payload = json.dumps({"raw_x12": raw_835, "format": "html"}).encode("utf-8")
+
+        req = urllib.request.Request(
+            url,
+            data=payload,
+            headers={"Content-Type": "application/json"}
+        )
+        with urllib.request.urlopen(req) as resp:
+            self.assertEqual(resp.status, 200)
+            self.assertIn("text/html", resp.headers.get("Content-Type", ""))
+            html_out = resp.read().decode("utf-8")
+            self.assertIn("835", html_out)
+            self.assertIn("Payment Total", html_out)
 
 
 if __name__ == "__main__":

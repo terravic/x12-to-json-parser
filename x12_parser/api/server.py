@@ -68,14 +68,27 @@ class X12APIRequestHandler(BaseHTTPRequestHandler):
             else:
                 self._send_error_json(404, "Skill manifest not found")
 
+        elif path in ("/dashboard", "/ui", "/v1/dashboard"):
+            dashboard_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "ui", "x12_mapping_dashboard.html")
+            if not os.path.exists(dashboard_path):
+                dashboard_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "docs", "x12_mapping_dashboard.html")
+            if os.path.exists(dashboard_path):
+                with open(dashboard_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                self._set_headers(200, content_type="text/html")
+                self.wfile.write(content.encode("utf-8"))
+            else:
+                self._send_error_json(404, "Visual dashboard HTML not found")
+
         else:
             self._send_error_json(404, f"Endpoint not found: {path}")
 
     def do_POST(self) -> None:
         parsed_url = urlparse(self.path)
         path = parsed_url.path
+        query = parsed_url.query
 
-        if path in ("/v1/parse/x12", "/parse"):
+        if path in ("/v1/parse/x12", "/parse", "/dashboard", "/v1/dashboard/generate"):
             content_length = int(self.headers.get("Content-Length", 0))
             if content_length == 0:
                 self._send_error_json(400, "Empty request body. Please provide raw X12 EDI text.")
@@ -83,15 +96,24 @@ class X12APIRequestHandler(BaseHTTPRequestHandler):
 
             body_bytes = self.rfile.read(content_length)
             content_type = self.headers.get("Content-Type", "")
+            accept_header = self.headers.get("Accept", "")
 
             raw_x12 = ""
             context = ""
+            requested_format = "json"
+
+            if "format=html" in query or path in ("/dashboard", "/v1/dashboard/generate"):
+                requested_format = "html"
+            elif "text/html" in accept_header and "application/json" not in accept_header:
+                requested_format = "html"
 
             try:
                 if "application/json" in content_type:
                     payload = json.loads(body_bytes.decode("utf-8"))
                     raw_x12 = payload.get("raw_x12", "")
                     context = payload.get("context", "")
+                    if payload.get("format") == "html" or payload.get("dashboard") is True:
+                        requested_format = "html"
                 else:
                     raw_x12 = body_bytes.decode("utf-8")
             except Exception as e:
@@ -106,8 +128,18 @@ class X12APIRequestHandler(BaseHTTPRequestHandler):
                 parsed_result = X12Parser.parse(raw_x12)
                 if context:
                     parsed_result["request_context"] = context
-                self._set_headers(200)
-                self.wfile.write(json.dumps(parsed_result, indent=2, default=str).encode("utf-8"))
+
+                if requested_format == "html":
+                    html_dashboard = X12Parser.generate_dashboard(
+                        parsed_result,
+                        raw_x12=raw_x12,
+                        title="EDI X12 Parsed Transaction Dashboard"
+                    )
+                    self._set_headers(200, content_type="text/html")
+                    self.wfile.write(html_dashboard.encode("utf-8"))
+                else:
+                    self._set_headers(200, content_type="application/json")
+                    self.wfile.write(json.dumps(parsed_result, indent=2, default=str).encode("utf-8"))
             except Exception as e:
                 self._send_error_json(400, f"X12 parsing error: {str(e)}")
         else:

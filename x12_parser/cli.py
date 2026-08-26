@@ -18,6 +18,7 @@ def main():
     )
     parser.add_argument("input_file", nargs="?", help="Path to input X12 EDI raw file (or '-' for stdin)")
     parser.add_argument("-o", "--output", help="Path to write output JSON file (default: stdout)")
+    parser.add_argument("--html", "--dashboard", dest="html_output", nargs="?", const="dashboard.html", help="Generate and save interactive HTML visual dashboard for this parsed file (e.g. --html claim_dashboard.html)")
     parser.add_argument("-p", "--pretty", action="store_true", default=True, help="Pretty print JSON output")
     parser.add_argument("-s", "--summary", action="store_true", help="Print summary of parsed transaction sets")
     parser.add_argument("-v", "--version", action="version", version="x12-parser 1.0.0")
@@ -85,6 +86,18 @@ def main():
                     print(f"     Allergies: {len(clin.get('allergies', []))}, Medications: {len(clin.get('medications', []))}, Problems: {len(clin.get('problems_and_diagnoses', []))}, Vitals: {len(clin.get('vital_signs', []))}")
         print("=" * 60)
 
+    # Generate HTML Dashboard if requested
+    if args.html_output:
+        html_file = args.html_output
+        file_title = os.path.basename(args.input_file) if args.input_file and args.input_file != "-" else "Parsed EDI Transaction"
+        X12Parser.generate_dashboard(
+            parsed_data,
+            output_path=html_file,
+            raw_x12=raw_x12,
+            title=f"Dashboard - {file_title}"
+        )
+        print(f"Interactive Canvas UI Visual Dashboard successfully generated at: {html_file}")
+
     # Output JSON
     indent = 2 if args.pretty else None
     json_out = json.dumps(parsed_data, indent=indent, default=str)
@@ -93,9 +106,10 @@ def main():
         with open(args.output, "w", encoding="utf-8") as f:
             f.write(json_out)
         print(f"Structured JSON output successfully written to: {args.output}")
-    elif not args.summary:
+    elif not args.summary and not args.html_output:
         print(json_out)
 
 
 if __name__ == "__main__":
     main()
+

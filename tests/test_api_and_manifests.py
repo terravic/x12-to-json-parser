@@ -1,5 +1,5 @@
 """
-Tests for OpenAPI specification, Gemini Enterprise Skill/Plugin manifests, and API Server.
+Tests for OpenAPI specification, Skill/Plugin manifests, and API Server.
 """
 
 import os
@@ -78,7 +78,7 @@ class TestAPIAndManifests(unittest.TestCase):
 
         self.assertEqual(skill.get("schema_version"), "1.0")
         self.assertEqual(skill.get("name_for_model"), "X12_Healthcare_Parser")
-        self.assertTrue(skill.get("ui_canvas", {}).get("supported"))
+        self.assertTrue(skill.get("ui_dashboard", {}).get("supported"))
         endpoints = skill.get("endpoints", [])
         self.assertGreaterEqual(len(endpoints), 1)
         self.assertEqual(endpoints[0]["path"], "/v1/parse/x12")
@@ -155,7 +155,7 @@ class TestAPIAndManifests(unittest.TestCase):
             raw = read_sample(sample_name)
             html = X12Parser.generate_dashboard(raw, title=f"Test {sample_name}")
             self.assertIn("<!DOCTYPE html>", html)
-            self.assertIn("tailwindcss.min.js", html)
+            self.assertIn("tailwindcss", html)
             self.assertIn("CURRENT_DATA", html)
 
     def test_server_parse_and_build_html_dashboard(self):
@@ -175,6 +175,32 @@ class TestAPIAndManifests(unittest.TestCase):
             self.assertIn("835", html_out)
             self.assertIn("Payment Total", html_out)
 
+    def test_visual_dashboard_elements_in_dashboard(self):
+        from x12_parser import X12Parser
+        raw_837 = read_sample("sample_837_claim.x12")
+        html = X12Parser.generate_dashboard(raw_837, title="Test 837 Visual Dashboard")
+        self.assertIn("Interactive X12 & JSON Explorer", html)
+        self.assertIn("segmentListContainer", html)
+        self.assertIn("activeJsonSubtreeDisplay", html)
+        self.assertIn("activeSegElementsTable", html)
+        self.assertIn("Raw X12 File", html)
+        self.assertIn("Structured JSON", html)
+        self.assertIn("Field Mapping Spec", html)
+        self.assertIn("SEGMENT_KB", html)
+
+    def test_skill_visual_dashboard_references_and_scripts(self):
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        guide_file = os.path.join(project_root, "skills", "x12-healthcare-parser", "references", "visual_dashboard_guide.md")
+        specs_file = os.path.join(project_root, "skills", "x12-healthcare-parser", "references", "x12_json_mapping_specs.md")
+        script_file = os.path.join(project_root, "skills", "x12-healthcare-parser", "scripts", "generate_visual_dashboard.py")
+        example_file = os.path.join(project_root, "skills", "x12-healthcare-parser", "examples", "parse_and_visualize_example.py")
+
+        self.assertTrue(os.path.exists(guide_file))
+        self.assertTrue(os.path.exists(specs_file))
+        self.assertTrue(os.path.exists(script_file))
+        self.assertTrue(os.path.exists(example_file))
+
 
 if __name__ == "__main__":
     unittest.main()
+

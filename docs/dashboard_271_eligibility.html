@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - sample_835_remittance.x12 - [835]</title>
+  <title>Dashboard - sample_271_response.x12 - [271]</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -78,8 +78,8 @@
         </div>
         <div>
           <div class="flex items-center space-x-2">
-            <h1 class="text-xl font-bold text-[var(--app-foreground)] tracking-tight" id="dashboardTitle">Dashboard - sample_835_remittance.x12</h1>
-            <span class="text-xs px-2.5 py-0.5 rounded-full badge-blue font-bold" id="txBadge">835</span>
+            <h1 class="text-xl font-bold text-[var(--app-foreground)] tracking-tight" id="dashboardTitle">Dashboard - sample_271_response.x12</h1>
+            <span class="text-xs px-2.5 py-0.5 rounded-full badge-blue font-bold" id="txBadge">271</span>
           </div>
           <p class="text-xs md:text-sm text-[var(--app-muted-foreground)]">Interactive parsed healthcare transaction dashboard & clinical inspector</p>
         </div>
@@ -397,10 +397,10 @@
       "interchange_receiver_id_qualifier": "ZZ",
       "interchange_receiver_id": "METROMEDICAL",
       "interchange_date": "260814",
-      "interchange_time": "1500",
+      "interchange_time": "1205",
       "repetition_separator": "^",
       "interchange_control_version_number": "00501",
-      "interchange_control_number": "000000002",
+      "interchange_control_number": "000000006",
       "acknowledgment_requested": "0",
       "usage_indicator": "P",
       "component_element_separator": {
@@ -417,498 +417,288 @@
         "segment_name": "Functional Group Header",
         "line_number": 2,
         "fields": {
-          "functional_identifier_code": "HP",
+          "functional_identifier_code": "HB",
           "application_sender_code": "BLUEHORIZON",
           "application_receiver_code": "METROMEDICAL",
           "date": "20260814",
-          "time": "1500",
-          "group_control_number": "2",
+          "time": "1205",
+          "group_control_number": "6",
           "responsible_agency_code": "X",
-          "version_release_industry_identifier_code": "005010X221A1"
+          "version_release_industry_identifier_code": "005010X279A1"
         }
       },
-      "functional_identifier_code": "HP",
+      "functional_identifier_code": "HB",
       "sender_code": "BLUEHORIZON",
       "receiver_code": "METROMEDICAL",
-      "group_control_number": "2",
-      "version": "005010X221A1",
+      "group_control_number": "6",
+      "version": "005010X279A1",
       "transaction_sets": [
         {
-          "transaction_type": "835",
+          "transaction_type": "271",
           "transaction_set_control_number": "0001",
-          "implementation_convention_reference": "005010X221A1",
+          "implementation_convention_reference": "005010X279A1",
           "transaction_header": {
             "segment_id": "ST",
             "segment_name": "Transaction Set Header",
             "line_number": 3,
             "fields": {
-              "transaction_set_identifier_code": "835",
+              "transaction_set_identifier_code": "271",
               "transaction_set_control_number": "0001",
-              "implementation_convention_reference": "005010X221A1"
+              "implementation_convention_reference": "005010X279A1"
             }
           },
           "parsed_transaction": {
-            "transaction_type": "835",
-            "transaction_description": "Health Care Claim Payment / Advice (ERA)",
-            "financial_information": {
-              "transaction_handling_code": "I",
-              "total_payment_amount": 950.0,
-              "credit_debit_flag": "C",
-              "payment_method": "ACH",
-              "payment_effective_date": "20260814",
-              "sender_bank_routing_number": "021000021",
-              "receiver_bank_account_number": "9876543210"
+            "transaction_type": "271",
+            "transaction_description": "Health Care Eligibility Benefit Response",
+            "information_source": {
+              "entity_identifier_code": "PR",
+              "entity_type": "Non-Person/Organization",
+              "name_last_or_organization": "BLUE HORIZON HEALTH PLAN",
+              "name_first": "",
+              "name_middle": "",
+              "identification_code_qualifier": "PI",
+              "identification_code": "BH999"
             },
-            "reassociation_trace": {
-              "trace_type": "1",
-              "check_or_eft_trace_number": "CHK78912345",
-              "originating_company_id": "1999999999"
+            "information_receiver": {
+              "entity_identifier_code": "1P",
+              "entity_type": "Non-Person/Organization",
+              "name_last_or_organization": "METROPOLITAN MEDICAL CENTER",
+              "name_first": "",
+              "name_middle": "",
+              "identification_code_qualifier": "XX",
+              "identification_code": "1234567890"
             },
-            "payer": {},
-            "payee": {},
-            "claims": [
+            "subscriber": {
+              "eligibility_benefits": [
+                {
+                  "eligibility_code": "1",
+                  "eligibility_description": "Active Coverage",
+                  "coverage_level_code": "IND",
+                  "service_type_code": "30",
+                  "service_type_description": "Health Benefit Plan Coverage",
+                  "insurance_type_code": "CI",
+                  "plan_coverage_description": "COMPREHENSIVE MAJOR MEDICAL",
+                  "monetary_amount": 0.0,
+                  "percent": null,
+                  "time_period_qualifier": "27",
+                  "in_plan_network_indicator": "",
+                  "authorization_required": ""
+                },
+                {
+                  "eligibility_code": "B",
+                  "eligibility_description": "Co-Payment",
+                  "coverage_level_code": "",
+                  "service_type_code": "98",
+                  "service_type_description": "Professional (Physician) Visit - Office",
+                  "insurance_type_code": "CI",
+                  "plan_coverage_description": "",
+                  "monetary_amount": 25.0,
+                  "percent": null,
+                  "time_period_qualifier": "27",
+                  "in_plan_network_indicator": "",
+                  "authorization_required": ""
+                },
+                {
+                  "eligibility_code": "C",
+                  "eligibility_description": "Deductible",
+                  "coverage_level_code": "IND",
+                  "service_type_code": "30",
+                  "service_type_description": "Health Benefit Plan Coverage",
+                  "insurance_type_code": "CI",
+                  "plan_coverage_description": "",
+                  "monetary_amount": 500.0,
+                  "percent": null,
+                  "time_period_qualifier": "27",
+                  "in_plan_network_indicator": "",
+                  "authorization_required": ""
+                },
+                {
+                  "eligibility_code": "A",
+                  "eligibility_description": "Co-Insurance",
+                  "coverage_level_code": "IND",
+                  "service_type_code": "30",
+                  "service_type_description": "Health Benefit Plan Coverage",
+                  "insurance_type_code": "CI",
+                  "plan_coverage_description": "",
+                  "monetary_amount": null,
+                  "percent": 0.2,
+                  "time_period_qualifier": "27",
+                  "in_plan_network_indicator": "",
+                  "authorization_required": ""
+                }
+              ],
+              "entity_identifier_code": "IL",
+              "entity_type": "Person",
+              "name_last_or_organization": "DOE",
+              "name_first": "JOHN",
+              "name_middle": "M",
+              "identification_code_qualifier": "MI",
+              "identification_code": "W1234567890",
+              "demographics": {
+                "date_of_birth": "19750412",
+                "gender": "M"
+              }
+            },
+            "dependents": [],
+            "eligibility_benefits": [
               {
-                "patient_control_number": "CLM-2026-98124",
-                "claim_status_code": "1",
-                "claim_status_description": "Processed as Primary",
-                "total_claim_charge_amount": 1500.0,
-                "claim_payment_amount": 950.0,
-                "patient_responsibility_amount": 100.0,
-                "payer_claim_control_number": "BH-ICN-987654321",
-                "claim_filing_indicator": "MC",
-                "patient": {
-                  "name_last_or_organization": "DOE",
-                  "name_first": "JOHN",
-                  "identification_code": "W1234567890"
-                },
-                "insured": {},
-                "service_provider": {
-                  "name_last_or_organization": "SMITH",
-                  "name_first": "ROBERT",
-                  "identification_code": "1987654321"
-                },
-                "adjustments": [
-                  {
-                    "group_code": "CO",
-                    "group_description": "Contractual Obligations",
-                    "reason_code": "45",
-                    "adjustment_amount": 350.0,
-                    "quantity": 1.0
-                  },
-                  {
-                    "group_code": "CO",
-                    "group_description": "Contractual Obligations",
-                    "reason_code": "96",
-                    "adjustment_amount": 100.0,
-                    "quantity": 1.0
-                  },
-                  {
-                    "group_code": "PR",
-                    "group_description": "Patient Responsibility",
-                    "reason_code": "1",
-                    "adjustment_amount": 50.0,
-                    "quantity": 1.0
-                  },
-                  {
-                    "group_code": "PR",
-                    "group_description": "Patient Responsibility",
-                    "reason_code": "2",
-                    "adjustment_amount": 50.0,
-                    "quantity": 1.0
-                  }
-                ],
-                "service_lines": [
-                  {
-                    "line_item_number": 1,
-                    "procedure": {
-                      "qualifier": "HC",
-                      "code": "99214",
-                      "raw": "HC:99214"
-                    },
-                    "line_charge_amount": 250.0,
-                    "line_payment_amount": 200.0,
-                    "units_paid": 1.0,
-                    "revenue_code": "",
-                    "adjustments": [
-                      {
-                        "group_code": "CO",
-                        "group_description": "Contractual Obligations",
-                        "reason_code": "45",
-                        "adjustment_amount": 50.0,
-                        "quantity": 1.0
-                      }
-                    ]
-                  },
-                  {
-                    "line_item_number": 2,
-                    "procedure": {
-                      "qualifier": "HC",
-                      "code": "93000",
-                      "raw": "HC:93000"
-                    },
-                    "line_charge_amount": 1250.0,
-                    "line_payment_amount": 750.0,
-                    "units_paid": 1.0,
-                    "revenue_code": "",
-                    "adjustments": [
-                      {
-                        "group_code": "CO",
-                        "group_description": "Contractual Obligations",
-                        "reason_code": "45",
-                        "adjustment_amount": 300.0,
-                        "quantity": 1.0
-                      },
-                      {
-                        "group_code": "CO",
-                        "group_description": "Contractual Obligations",
-                        "reason_code": "96",
-                        "adjustment_amount": 100.0,
-                        "quantity": 1.0
-                      },
-                      {
-                        "group_code": "PR",
-                        "group_description": "Patient Responsibility",
-                        "reason_code": "1",
-                        "adjustment_amount": 50.0,
-                        "quantity": 1.0
-                      },
-                      {
-                        "group_code": "PR",
-                        "group_description": "Patient Responsibility",
-                        "reason_code": "2",
-                        "adjustment_amount": 50.0,
-                        "quantity": 1.0
-                      }
-                    ]
-                  }
-                ]
+                "eligibility_code": "1",
+                "eligibility_description": "Active Coverage",
+                "coverage_level_code": "IND",
+                "service_type_code": "30",
+                "service_type_description": "Health Benefit Plan Coverage",
+                "insurance_type_code": "CI",
+                "plan_coverage_description": "COMPREHENSIVE MAJOR MEDICAL",
+                "monetary_amount": 0.0,
+                "percent": null,
+                "time_period_qualifier": "27",
+                "in_plan_network_indicator": "",
+                "authorization_required": ""
+              },
+              {
+                "eligibility_code": "B",
+                "eligibility_description": "Co-Payment",
+                "coverage_level_code": "",
+                "service_type_code": "98",
+                "service_type_description": "Professional (Physician) Visit - Office",
+                "insurance_type_code": "CI",
+                "plan_coverage_description": "",
+                "monetary_amount": 25.0,
+                "percent": null,
+                "time_period_qualifier": "27",
+                "in_plan_network_indicator": "",
+                "authorization_required": ""
+              },
+              {
+                "eligibility_code": "C",
+                "eligibility_description": "Deductible",
+                "coverage_level_code": "IND",
+                "service_type_code": "30",
+                "service_type_description": "Health Benefit Plan Coverage",
+                "insurance_type_code": "CI",
+                "plan_coverage_description": "",
+                "monetary_amount": 500.0,
+                "percent": null,
+                "time_period_qualifier": "27",
+                "in_plan_network_indicator": "",
+                "authorization_required": ""
+              },
+              {
+                "eligibility_code": "A",
+                "eligibility_description": "Co-Insurance",
+                "coverage_level_code": "IND",
+                "service_type_code": "30",
+                "service_type_description": "Health Benefit Plan Coverage",
+                "insurance_type_code": "CI",
+                "plan_coverage_description": "",
+                "monetary_amount": null,
+                "percent": 0.2,
+                "time_period_qualifier": "27",
+                "in_plan_network_indicator": "",
+                "authorization_required": ""
               }
             ],
-            "provider_adjustments": [
-              {
-                "provider_identifier": "1234567890",
-                "fiscal_period_date": "20260814",
-                "adjustment_identifier": {
-                  "raw": "CS:-0.00",
-                  "component_1": "CS",
-                  "component_2": "-0.00"
-                },
-                "adjustment_amount": 0.0
-              }
-            ],
-            "summary": {
-              "total_claims_count": 1,
-              "total_charge_amount": 1500.0,
-              "total_payment_amount": 950.0,
-              "total_patient_responsibility": 100.0,
-              "total_adjustment_amount": 1100.0
+            "beginning_of_hierarchical_transaction": {
+              "structure_code": "0022",
+              "purpose_code": "11",
+              "reference_identification": "RESP2026081401",
+              "date": "20260814",
+              "time": "1205"
             }
           },
           "hierarchical_loops": {
-            "transaction_type": "835",
+            "transaction_type": "271",
             "header_segments": [
               {
                 "segment_id": "ST",
                 "segment_name": "Transaction Set Header",
                 "line_number": 3,
                 "fields": {
-                  "transaction_set_identifier_code": "835",
+                  "transaction_set_identifier_code": "271",
                   "transaction_set_control_number": "0001",
-                  "implementation_convention_reference": "005010X221A1"
+                  "implementation_convention_reference": "005010X279A1"
                 }
               },
               {
-                "segment_id": "BPR",
-                "segment_name": "Financial Information / Payment Order",
+                "segment_id": "BHT",
+                "segment_name": "Beginning of Hierarchical Transaction",
                 "line_number": 4,
                 "fields": {
-                  "transaction_handling_code": "I",
-                  "total_actual_provider_payment_amount": "950.00",
-                  "credit_debit_flag_code": "C",
-                  "payment_method_code": "ACH",
-                  "payment_format_code": "CCP",
-                  "depository_financial_institution_qualifier_sender": "01",
-                  "sender_bank_transit_routing_number": "021000021",
-                  "sender_bank_account_number_qualifier": "DA",
-                  "sender_bank_account_number": "1234567890",
-                  "originating_company_identifier": "1999999999",
-                  "originating_company_supplemental_code": "",
-                  "depository_financial_institution_qualifier_receiver": "01",
-                  "receiver_bank_transit_routing_number": "021000089",
-                  "receiver_bank_account_number_qualifier": "DA",
-                  "receiver_bank_account_number": "9876543210",
-                  "check_or_eft_effective_date": "20260814"
-                }
-              },
-              {
-                "segment_id": "TRN",
-                "segment_name": "Reassociation Key / Trace",
-                "line_number": 5,
-                "fields": {
-                  "trace_type_code": "1",
-                  "reference_identification_trace_number": "CHK78912345",
-                  "originating_company_identifier": "1999999999"
-                }
-              },
-              {
-                "segment_id": "REF",
-                "segment_name": "Reference Identification",
-                "line_number": 6,
-                "fields": {
-                  "reference_identification_qualifier": "EV",
-                  "reference_identification": "BH-PAY-2026-0814"
-                }
-              },
-              {
-                "segment_id": "DTM",
-                "segment_name": "Date/Time Reference",
-                "line_number": 7,
-                "fields": {
-                  "date_time_qualifier": "405",
-                  "date": "20260814"
-                }
-              },
-              {
-                "segment_id": "N1",
-                "segment_name": "Party Identification",
-                "line_number": 8,
-                "fields": {
-                  "element_01": "PR",
-                  "element_02": "BLUE HORIZON HEALTH PLAN",
-                  "element_03": "XV",
-                  "element_04": "BH999"
-                }
-              },
-              {
-                "segment_id": "N3",
-                "segment_name": "Party Location / Address",
-                "line_number": 9,
-                "fields": {
-                  "address_line_1": "500 INSURANCE WAY"
-                }
-              },
-              {
-                "segment_id": "N4",
-                "segment_name": "Geographic Location",
-                "line_number": 10,
-                "fields": {
-                  "city_name": "NEW YORK",
-                  "state_or_province_code": "NY",
-                  "postal_code": "10022"
-                }
-              },
-              {
-                "segment_id": "N1",
-                "segment_name": "Party Identification",
-                "line_number": 11,
-                "fields": {
-                  "element_01": "PE",
-                  "element_02": "METROPOLITAN MEDICAL CENTER",
-                  "element_03": "XX",
-                  "element_04": "1234567890"
-                }
-              },
-              {
-                "segment_id": "N3",
-                "segment_name": "Party Location / Address",
-                "line_number": 12,
-                "fields": {
-                  "address_line_1": "100 HEALTHCARE BLVD",
-                  "address_line_2": "SUITE 400"
-                }
-              },
-              {
-                "segment_id": "N4",
-                "segment_name": "Geographic Location",
-                "line_number": 13,
-                "fields": {
-                  "city_name": "METROPOLIS",
-                  "state_or_province_code": "NY",
-                  "postal_code": "10001"
+                  "hierarchical_structure_code": "0022",
+                  "beginning_transaction_purpose_code": "11",
+                  "reference_identification": "RESP2026081401",
+                  "date": "20260814",
+                  "time": "1205"
                 }
               }
             ],
-            "claim_loops": [
+            "hierarchical_loops": [
               {
-                "loop_id": "2100",
-                "loop_name": "Claim Payment Information",
-                "claim_payment": {
-                  "segment_id": "CLP",
-                  "segment_name": "Claim Payment Information",
-                  "line_number": 14,
+                "hl_id": "1",
+                "parent_id": "",
+                "level_code": "20",
+                "child_code": "1",
+                "hl_segment": {
+                  "segment_id": "HL",
+                  "segment_name": "Hierarchical Level",
+                  "line_number": 5,
                   "fields": {
-                    "claim_submitters_identifier": "CLM-2026-98124",
-                    "claim_status_code": "1",
-                    "total_claim_charge_amount": "1500.00",
-                    "claim_payment_amount": "950.00",
-                    "patient_responsibility_amount": "100.00",
-                    "claim_filing_indicator_code": "MC",
-                    "payer_claim_control_number": "BH-ICN-987654321",
-                    "facility_code_value": "11",
-                    "claim_frequency_type_code": "1"
+                    "hierarchical_id_number": "1",
+                    "hierarchical_parent_id_number": "",
+                    "hierarchical_level_code": "20",
+                    "hierarchical_child_code": "1"
                   }
                 },
                 "segments": [
-                  {
-                    "segment_id": "CAS",
-                    "segment_name": "Claims Adjustment",
-                    "line_number": 15,
-                    "fields": {
-                      "claim_adjustment_group_code": "CO",
-                      "claim_adjustment_reason_code_1": "45",
-                      "adjustment_amount_1": "350.00",
-                      "adjustment_quantity_1": "1",
-                      "claim_adjustment_reason_code_2": "96",
-                      "adjustment_amount_2": "100.00",
-                      "adjustment_quantity_2": "1"
-                    }
-                  },
-                  {
-                    "segment_id": "CAS",
-                    "segment_name": "Claims Adjustment",
-                    "line_number": 16,
-                    "fields": {
-                      "claim_adjustment_group_code": "PR",
-                      "claim_adjustment_reason_code_1": "1",
-                      "adjustment_amount_1": "50.00",
-                      "adjustment_quantity_1": "1",
-                      "claim_adjustment_reason_code_2": "2",
-                      "adjustment_amount_2": "50.00",
-                      "adjustment_quantity_2": "1"
-                    }
-                  },
-                  {
-                    "segment_id": "NM1",
-                    "segment_name": "Individual or Organizational Name",
-                    "line_number": 17,
-                    "fields": {
-                      "entity_identifier_code": "QC",
-                      "entity_type_qualifier": "1",
-                      "name_last_or_organization_name": "DOE",
-                      "name_first": "JOHN",
-                      "name_middle": "M",
-                      "name_prefix": "",
-                      "name_suffix": "",
-                      "identification_code_qualifier": "MI",
-                      "identification_code": "W1234567890"
-                    }
-                  },
-                  {
-                    "segment_id": "NM1",
-                    "segment_name": "Individual or Organizational Name",
-                    "line_number": 18,
-                    "fields": {
-                      "entity_identifier_code": "82",
-                      "entity_type_qualifier": "1",
-                      "name_last_or_organization_name": "SMITH",
-                      "name_first": "ROBERT",
-                      "name_middle": "E",
-                      "name_prefix": "",
-                      "name_suffix": "MD",
-                      "identification_code_qualifier": "XX",
-                      "identification_code": "1987654321"
-                    }
-                  }
+                  "<x12_parser.engine.segment_parser.ParsedSegment object at 0x7f39f84c2210>"
                 ],
-                "service_lines": [
+                "child_hls": [
                   {
-                    "loop_id": "2110",
-                    "loop_name": "Service Payment Information",
-                    "service_payment": {
-                      "segment_id": "SVC",
-                      "segment_name": "Service Payment Information",
-                      "line_number": 19,
+                    "hl_id": "2",
+                    "parent_id": "1",
+                    "level_code": "21",
+                    "child_code": "1",
+                    "hl_segment": {
+                      "segment_id": "HL",
+                      "segment_name": "Hierarchical Level",
+                      "line_number": 7,
                       "fields": {
-                        "composite_medical_procedure_identifier": {
-                          "qualifier": "HC",
-                          "code": "99214",
-                          "raw": "HC:99214"
-                        },
-                        "line_item_charge_amount": "250.00",
-                        "line_item_provider_payment_amount": "200.00",
-                        "national_uniform_billing_committee_revenue_code": "",
-                        "units_of_service_paid_count": "1"
+                        "hierarchical_id_number": "2",
+                        "hierarchical_parent_id_number": "1",
+                        "hierarchical_level_code": "21",
+                        "hierarchical_child_code": "1"
                       }
                     },
                     "segments": [
+                      "<x12_parser.engine.segment_parser.ParsedSegment object at 0x7f39f8334270>"
+                    ],
+                    "child_hls": [
                       {
-                        "segment_id": "DTM",
-                        "segment_name": "Date/Time Reference",
-                        "line_number": 20,
-                        "fields": {
-                          "date_time_qualifier": "472",
-                          "date": "20260810"
-                        }
-                      },
-                      {
-                        "segment_id": "CAS",
-                        "segment_name": "Claims Adjustment",
-                        "line_number": 21,
-                        "fields": {
-                          "claim_adjustment_group_code": "CO",
-                          "claim_adjustment_reason_code_1": "45",
-                          "adjustment_amount_1": "50.00",
-                          "adjustment_quantity_1": "1"
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "loop_id": "2110",
-                    "loop_name": "Service Payment Information",
-                    "service_payment": {
-                      "segment_id": "SVC",
-                      "segment_name": "Service Payment Information",
-                      "line_number": 22,
-                      "fields": {
-                        "composite_medical_procedure_identifier": {
-                          "qualifier": "HC",
-                          "code": "93000",
-                          "raw": "HC:93000"
+                        "hl_id": "3",
+                        "parent_id": "2",
+                        "level_code": "22",
+                        "child_code": "0",
+                        "hl_segment": {
+                          "segment_id": "HL",
+                          "segment_name": "Hierarchical Level",
+                          "line_number": 9,
+                          "fields": {
+                            "hierarchical_id_number": "3",
+                            "hierarchical_parent_id_number": "2",
+                            "hierarchical_level_code": "22",
+                            "hierarchical_child_code": "0"
+                          }
                         },
-                        "line_item_charge_amount": "1250.00",
-                        "line_item_provider_payment_amount": "750.00",
-                        "national_uniform_billing_committee_revenue_code": "",
-                        "units_of_service_paid_count": "1"
-                      }
-                    },
-                    "segments": [
-                      {
-                        "segment_id": "DTM",
-                        "segment_name": "Date/Time Reference",
-                        "line_number": 23,
-                        "fields": {
-                          "date_time_qualifier": "472",
-                          "date": "20260810"
-                        }
-                      },
-                      {
-                        "segment_id": "CAS",
-                        "segment_name": "Claims Adjustment",
-                        "line_number": 24,
-                        "fields": {
-                          "claim_adjustment_group_code": "CO",
-                          "claim_adjustment_reason_code_1": "45",
-                          "adjustment_amount_1": "300.00",
-                          "adjustment_quantity_1": "1",
-                          "claim_adjustment_reason_code_2": "96",
-                          "adjustment_amount_2": "100.00",
-                          "adjustment_quantity_2": "1"
-                        }
-                      },
-                      {
-                        "segment_id": "CAS",
-                        "segment_name": "Claims Adjustment",
-                        "line_number": 25,
-                        "fields": {
-                          "claim_adjustment_group_code": "PR",
-                          "claim_adjustment_reason_code_1": "1",
-                          "adjustment_amount_1": "50.00",
-                          "adjustment_quantity_1": "1",
-                          "claim_adjustment_reason_code_2": "2",
-                          "adjustment_amount_2": "50.00",
-                          "adjustment_quantity_2": "1"
-                        }
+                        "segments": [
+                          "<x12_parser.engine.segment_parser.ParsedSegment object at 0x7f39f849e250>",
+                          "<x12_parser.engine.segment_parser.ParsedSegment object at 0x7f39f82dd6d0>",
+                          "<x12_parser.engine.segment_parser.ParsedSegment object at 0x7f39f82dd7c0>",
+                          "<x12_parser.engine.segment_parser.ParsedSegment object at 0x7f39f82d04b0>",
+                          "<x12_parser.engine.segment_parser.ParsedSegment object at 0x7f39f82d0590>",
+                          "<x12_parser.engine.segment_parser.ParsedSegment object at 0x7f39f8487450>",
+                          "<x12_parser.engine.segment_parser.ParsedSegment object at 0x7f39f84a9010>"
+                        ],
+                        "child_hls": []
                       }
                     ]
                   }
@@ -917,25 +707,11 @@
             ],
             "trailer_segments": [
               {
-                "segment_id": "PLB",
-                "segment_name": "Provider Level Adjustment",
-                "line_number": 26,
-                "fields": {
-                  "provider_identifier": "1234567890",
-                  "fiscal_period_date": "20260814",
-                  "adjustment_identifier_1": {
-                    "raw": "CS:-0.00",
-                    "component_1": "CS",
-                    "component_2": "-0.00"
-                  }
-                }
-              },
-              {
                 "segment_id": "SE",
                 "segment_name": "Transaction Set Trailer",
-                "line_number": 27,
+                "line_number": 17,
                 "fields": {
-                  "number_of_included_segments": "25",
+                  "number_of_included_segments": "15",
                   "transaction_set_control_number": "0001"
                 }
               }
@@ -947,171 +723,94 @@
               "segment_name": "Transaction Set Header",
               "line_number": 3,
               "fields": {
-                "transaction_set_identifier_code": "835",
+                "transaction_set_identifier_code": "271",
                 "transaction_set_control_number": "0001",
-                "implementation_convention_reference": "005010X221A1"
+                "implementation_convention_reference": "005010X279A1"
               }
             },
             {
-              "segment_id": "BPR",
-              "segment_name": "Financial Information / Payment Order",
+              "segment_id": "BHT",
+              "segment_name": "Beginning of Hierarchical Transaction",
               "line_number": 4,
               "fields": {
-                "transaction_handling_code": "I",
-                "total_actual_provider_payment_amount": "950.00",
-                "credit_debit_flag_code": "C",
-                "payment_method_code": "ACH",
-                "payment_format_code": "CCP",
-                "depository_financial_institution_qualifier_sender": "01",
-                "sender_bank_transit_routing_number": "021000021",
-                "sender_bank_account_number_qualifier": "DA",
-                "sender_bank_account_number": "1234567890",
-                "originating_company_identifier": "1999999999",
-                "originating_company_supplemental_code": "",
-                "depository_financial_institution_qualifier_receiver": "01",
-                "receiver_bank_transit_routing_number": "021000089",
-                "receiver_bank_account_number_qualifier": "DA",
-                "receiver_bank_account_number": "9876543210",
-                "check_or_eft_effective_date": "20260814"
+                "hierarchical_structure_code": "0022",
+                "beginning_transaction_purpose_code": "11",
+                "reference_identification": "RESP2026081401",
+                "date": "20260814",
+                "time": "1205"
               }
             },
             {
-              "segment_id": "TRN",
-              "segment_name": "Reassociation Key / Trace",
+              "segment_id": "HL",
+              "segment_name": "Hierarchical Level",
               "line_number": 5,
               "fields": {
-                "trace_type_code": "1",
-                "reference_identification_trace_number": "CHK78912345",
-                "originating_company_identifier": "1999999999"
-              }
-            },
-            {
-              "segment_id": "REF",
-              "segment_name": "Reference Identification",
-              "line_number": 6,
-              "fields": {
-                "reference_identification_qualifier": "EV",
-                "reference_identification": "BH-PAY-2026-0814"
-              }
-            },
-            {
-              "segment_id": "DTM",
-              "segment_name": "Date/Time Reference",
-              "line_number": 7,
-              "fields": {
-                "date_time_qualifier": "405",
-                "date": "20260814"
-              }
-            },
-            {
-              "segment_id": "N1",
-              "segment_name": "Party Identification",
-              "line_number": 8,
-              "fields": {
-                "element_01": "PR",
-                "element_02": "BLUE HORIZON HEALTH PLAN",
-                "element_03": "XV",
-                "element_04": "BH999"
-              }
-            },
-            {
-              "segment_id": "N3",
-              "segment_name": "Party Location / Address",
-              "line_number": 9,
-              "fields": {
-                "address_line_1": "500 INSURANCE WAY"
-              }
-            },
-            {
-              "segment_id": "N4",
-              "segment_name": "Geographic Location",
-              "line_number": 10,
-              "fields": {
-                "city_name": "NEW YORK",
-                "state_or_province_code": "NY",
-                "postal_code": "10022"
-              }
-            },
-            {
-              "segment_id": "N1",
-              "segment_name": "Party Identification",
-              "line_number": 11,
-              "fields": {
-                "element_01": "PE",
-                "element_02": "METROPOLITAN MEDICAL CENTER",
-                "element_03": "XX",
-                "element_04": "1234567890"
-              }
-            },
-            {
-              "segment_id": "N3",
-              "segment_name": "Party Location / Address",
-              "line_number": 12,
-              "fields": {
-                "address_line_1": "100 HEALTHCARE BLVD",
-                "address_line_2": "SUITE 400"
-              }
-            },
-            {
-              "segment_id": "N4",
-              "segment_name": "Geographic Location",
-              "line_number": 13,
-              "fields": {
-                "city_name": "METROPOLIS",
-                "state_or_province_code": "NY",
-                "postal_code": "10001"
-              }
-            },
-            {
-              "segment_id": "CLP",
-              "segment_name": "Claim Payment Information",
-              "line_number": 14,
-              "fields": {
-                "claim_submitters_identifier": "CLM-2026-98124",
-                "claim_status_code": "1",
-                "total_claim_charge_amount": "1500.00",
-                "claim_payment_amount": "950.00",
-                "patient_responsibility_amount": "100.00",
-                "claim_filing_indicator_code": "MC",
-                "payer_claim_control_number": "BH-ICN-987654321",
-                "facility_code_value": "11",
-                "claim_frequency_type_code": "1"
-              }
-            },
-            {
-              "segment_id": "CAS",
-              "segment_name": "Claims Adjustment",
-              "line_number": 15,
-              "fields": {
-                "claim_adjustment_group_code": "CO",
-                "claim_adjustment_reason_code_1": "45",
-                "adjustment_amount_1": "350.00",
-                "adjustment_quantity_1": "1",
-                "claim_adjustment_reason_code_2": "96",
-                "adjustment_amount_2": "100.00",
-                "adjustment_quantity_2": "1"
-              }
-            },
-            {
-              "segment_id": "CAS",
-              "segment_name": "Claims Adjustment",
-              "line_number": 16,
-              "fields": {
-                "claim_adjustment_group_code": "PR",
-                "claim_adjustment_reason_code_1": "1",
-                "adjustment_amount_1": "50.00",
-                "adjustment_quantity_1": "1",
-                "claim_adjustment_reason_code_2": "2",
-                "adjustment_amount_2": "50.00",
-                "adjustment_quantity_2": "1"
+                "hierarchical_id_number": "1",
+                "hierarchical_parent_id_number": "",
+                "hierarchical_level_code": "20",
+                "hierarchical_child_code": "1"
               }
             },
             {
               "segment_id": "NM1",
               "segment_name": "Individual or Organizational Name",
-              "line_number": 17,
+              "line_number": 6,
               "fields": {
-                "entity_identifier_code": "QC",
+                "entity_identifier_code": "PR",
+                "entity_type_qualifier": "2",
+                "name_last_or_organization_name": "BLUE HORIZON HEALTH PLAN",
+                "name_first": "",
+                "name_middle": "",
+                "name_prefix": "",
+                "name_suffix": "",
+                "identification_code_qualifier": "PI",
+                "identification_code": "BH999"
+              }
+            },
+            {
+              "segment_id": "HL",
+              "segment_name": "Hierarchical Level",
+              "line_number": 7,
+              "fields": {
+                "hierarchical_id_number": "2",
+                "hierarchical_parent_id_number": "1",
+                "hierarchical_level_code": "21",
+                "hierarchical_child_code": "1"
+              }
+            },
+            {
+              "segment_id": "NM1",
+              "segment_name": "Individual or Organizational Name",
+              "line_number": 8,
+              "fields": {
+                "entity_identifier_code": "1P",
+                "entity_type_qualifier": "2",
+                "name_last_or_organization_name": "METROPOLITAN MEDICAL CENTER",
+                "name_first": "",
+                "name_middle": "",
+                "name_prefix": "",
+                "name_suffix": "",
+                "identification_code_qualifier": "XX",
+                "identification_code": "1234567890"
+              }
+            },
+            {
+              "segment_id": "HL",
+              "segment_name": "Hierarchical Level",
+              "line_number": 9,
+              "fields": {
+                "hierarchical_id_number": "3",
+                "hierarchical_parent_id_number": "2",
+                "hierarchical_level_code": "22",
+                "hierarchical_child_code": "0"
+              }
+            },
+            {
+              "segment_id": "NM1",
+              "segment_name": "Individual or Organizational Name",
+              "line_number": 10,
+              "fields": {
+                "entity_identifier_code": "IL",
                 "entity_type_qualifier": "1",
                 "name_last_or_organization_name": "DOE",
                 "name_first": "JOHN",
@@ -1123,130 +822,99 @@
               }
             },
             {
-              "segment_id": "NM1",
-              "segment_name": "Individual or Organizational Name",
-              "line_number": 18,
+              "segment_id": "DMG",
+              "segment_name": "Demographic Information",
+              "line_number": 11,
               "fields": {
-                "entity_identifier_code": "82",
-                "entity_type_qualifier": "1",
-                "name_last_or_organization_name": "SMITH",
-                "name_first": "ROBERT",
-                "name_middle": "E",
-                "name_prefix": "",
-                "name_suffix": "MD",
-                "identification_code_qualifier": "XX",
-                "identification_code": "1987654321"
+                "date_time_period_format_qualifier": "D8",
+                "date_of_birth": "19750412",
+                "gender_code": "M"
               }
             },
             {
-              "segment_id": "SVC",
-              "segment_name": "Service Payment Information",
-              "line_number": 19,
+              "segment_id": "DTP",
+              "segment_name": "Date or Time or Period",
+              "line_number": 12,
               "fields": {
-                "composite_medical_procedure_identifier": {
-                  "qualifier": "HC",
-                  "code": "99214",
-                  "raw": "HC:99214"
-                },
-                "line_item_charge_amount": "250.00",
-                "line_item_provider_payment_amount": "200.00",
-                "national_uniform_billing_committee_revenue_code": "",
-                "units_of_service_paid_count": "1"
+                "date_time_qualifier": "291",
+                "date_time_period_format_qualifier": "D8",
+                "date_time_period": "20260814"
               }
             },
             {
-              "segment_id": "DTM",
-              "segment_name": "Date/Time Reference",
-              "line_number": 20,
+              "segment_id": "EB",
+              "segment_name": "Eligibility or Benefit Information",
+              "line_number": 13,
               "fields": {
-                "date_time_qualifier": "472",
-                "date": "20260810"
+                "eligibility_or_benefit_information_code": "1",
+                "coverage_level_code": "IND",
+                "service_type_code": "30",
+                "insurance_type_code": "CI",
+                "plan_coverage_description": "COMPREHENSIVE MAJOR MEDICAL",
+                "time_period_qualifier": "27",
+                "monetary_amount": "0",
+                "percent_decimal": "",
+                "quantity_qualifier": "",
+                "quantity": "Y"
               }
             },
             {
-              "segment_id": "CAS",
-              "segment_name": "Claims Adjustment",
-              "line_number": 21,
+              "segment_id": "EB",
+              "segment_name": "Eligibility or Benefit Information",
+              "line_number": 14,
               "fields": {
-                "claim_adjustment_group_code": "CO",
-                "claim_adjustment_reason_code_1": "45",
-                "adjustment_amount_1": "50.00",
-                "adjustment_quantity_1": "1"
+                "eligibility_or_benefit_information_code": "B",
+                "coverage_level_code": "",
+                "service_type_code": "98",
+                "insurance_type_code": "CI",
+                "plan_coverage_description": "",
+                "time_period_qualifier": "27",
+                "monetary_amount": "25.00",
+                "percent_decimal": "",
+                "quantity_qualifier": "",
+                "quantity": "Y"
               }
             },
             {
-              "segment_id": "SVC",
-              "segment_name": "Service Payment Information",
-              "line_number": 22,
+              "segment_id": "EB",
+              "segment_name": "Eligibility or Benefit Information",
+              "line_number": 15,
               "fields": {
-                "composite_medical_procedure_identifier": {
-                  "qualifier": "HC",
-                  "code": "93000",
-                  "raw": "HC:93000"
-                },
-                "line_item_charge_amount": "1250.00",
-                "line_item_provider_payment_amount": "750.00",
-                "national_uniform_billing_committee_revenue_code": "",
-                "units_of_service_paid_count": "1"
+                "eligibility_or_benefit_information_code": "C",
+                "coverage_level_code": "IND",
+                "service_type_code": "30",
+                "insurance_type_code": "CI",
+                "plan_coverage_description": "",
+                "time_period_qualifier": "27",
+                "monetary_amount": "500.00",
+                "percent_decimal": "",
+                "quantity_qualifier": "",
+                "quantity": "Y"
               }
             },
             {
-              "segment_id": "DTM",
-              "segment_name": "Date/Time Reference",
-              "line_number": 23,
+              "segment_id": "EB",
+              "segment_name": "Eligibility or Benefit Information",
+              "line_number": 16,
               "fields": {
-                "date_time_qualifier": "472",
-                "date": "20260810"
-              }
-            },
-            {
-              "segment_id": "CAS",
-              "segment_name": "Claims Adjustment",
-              "line_number": 24,
-              "fields": {
-                "claim_adjustment_group_code": "CO",
-                "claim_adjustment_reason_code_1": "45",
-                "adjustment_amount_1": "300.00",
-                "adjustment_quantity_1": "1",
-                "claim_adjustment_reason_code_2": "96",
-                "adjustment_amount_2": "100.00",
-                "adjustment_quantity_2": "1"
-              }
-            },
-            {
-              "segment_id": "CAS",
-              "segment_name": "Claims Adjustment",
-              "line_number": 25,
-              "fields": {
-                "claim_adjustment_group_code": "PR",
-                "claim_adjustment_reason_code_1": "1",
-                "adjustment_amount_1": "50.00",
-                "adjustment_quantity_1": "1",
-                "claim_adjustment_reason_code_2": "2",
-                "adjustment_amount_2": "50.00",
-                "adjustment_quantity_2": "1"
-              }
-            },
-            {
-              "segment_id": "PLB",
-              "segment_name": "Provider Level Adjustment",
-              "line_number": 26,
-              "fields": {
-                "provider_identifier": "1234567890",
-                "fiscal_period_date": "20260814",
-                "adjustment_identifier_1": {
-                  "raw": "CS:-0.00",
-                  "component_1": "CS",
-                  "component_2": "-0.00"
-                }
+                "eligibility_or_benefit_information_code": "A",
+                "coverage_level_code": "IND",
+                "service_type_code": "30",
+                "insurance_type_code": "CI",
+                "plan_coverage_description": "",
+                "time_period_qualifier": "27",
+                "monetary_amount": "",
+                "percent_decimal": "0.20",
+                "quantity_qualifier": "",
+                "quantity": "Y"
               }
             },
             {
               "segment_id": "SE",
               "segment_name": "Transaction Set Trailer",
-              "line_number": 27,
+              "line_number": 17,
               "fields": {
-                "number_of_included_segments": "25",
+                "number_of_included_segments": "15",
                 "transaction_set_control_number": "0001"
               }
             }
@@ -1254,9 +922,9 @@
           "transaction_trailer": {
             "segment_id": "SE",
             "segment_name": "Transaction Set Trailer",
-            "line_number": 27,
+            "line_number": 17,
             "fields": {
-              "number_of_included_segments": "25",
+              "number_of_included_segments": "15",
               "transaction_set_control_number": "0001"
             }
           }
@@ -1265,10 +933,10 @@
       "functional_group_trailer": {
         "segment_id": "GE",
         "segment_name": "Functional Group Trailer",
-        "line_number": 28,
+        "line_number": 18,
         "fields": {
           "number_of_transaction_sets_included": "1",
-          "group_control_number": "2"
+          "group_control_number": "6"
         }
       }
     }
@@ -1276,47 +944,37 @@
   "interchange_trailer": {
     "segment_id": "IEA",
     "segment_name": "Interchange Control Trailer",
-    "line_number": 29,
+    "line_number": 19,
     "fields": {
       "number_of_included_functional_groups": "1",
-      "interchange_control_number": "000000002"
+      "interchange_control_number": "000000006"
     }
   },
   "summary": {
-    "total_segments_count": 29,
+    "total_segments_count": 19,
     "total_functional_groups_count": 1,
     "total_transaction_sets_count": 1
   }
 };
-    let CURRENT_RAW_EDI = `ISA*00*          *00*          *ZZ*BLUEHORIZON    *ZZ*METROMEDICAL   *260814*1500*^*00501*000000002*0*P*:~
-GS*HP*BLUEHORIZON*METROMEDICAL*20260814*1500*2*X*005010X221A1~
-ST*835*0001*005010X221A1~
-BPR*I*950.00*C*ACH*CCP*01*021000021*DA*1234567890*1999999999**01*021000089*DA*9876543210*20260814~
-TRN*1*CHK78912345*1999999999~
-REF*EV*BH-PAY-2026-0814~
-DTM*405*20260814~
-N1*PR*BLUE HORIZON HEALTH PLAN*XV*BH999~
-N3*500 INSURANCE WAY~
-N4*NEW YORK*NY*10022~
-N1*PE*METROPOLITAN MEDICAL CENTER*XX*1234567890~
-N3*100 HEALTHCARE BLVD*SUITE 400~
-N4*METROPOLIS*NY*10001~
-CLP*CLM-2026-98124*1*1500.00*950.00*100.00*MC*BH-ICN-987654321*11*1~
-CAS*CO*45*350.00*1*96*100.00*1~
-CAS*PR*1*50.00*1*2*50.00*1~
-NM1*QC*1*DOE*JOHN*M***MI*W1234567890~
-NM1*82*1*SMITH*ROBERT*E**MD*XX*1987654321~
-SVC*HC:99214*250.00*200.00**1~
-DTM*472*20260810~
-CAS*CO*45*50.00*1~
-SVC*HC:93000*1250.00*750.00**1~
-DTM*472*20260810~
-CAS*CO*45*300.00*1*96*100.00*1~
-CAS*PR*1*50.00*1*2*50.00*1~
-PLB*1234567890*20260814*CS:-0.00~
-SE*25*0001~
-GE*1*2~
-IEA*1*000000002~
+    let CURRENT_RAW_EDI = `ISA*00*          *00*          *ZZ*BLUEHORIZON    *ZZ*METROMEDICAL   *260814*1205*^*00501*000000006*0*P*:~
+GS*HB*BLUEHORIZON*METROMEDICAL*20260814*1205*6*X*005010X279A1~
+ST*271*0001*005010X279A1~
+BHT*0022*11*RESP2026081401*20260814*1205~
+HL*1**20*1~
+NM1*PR*2*BLUE HORIZON HEALTH PLAN*****PI*BH999~
+HL*2*1*21*1~
+NM1*1P*2*METROPOLITAN MEDICAL CENTER*****XX*1234567890~
+HL*3*2*22*0~
+NM1*IL*1*DOE*JOHN*M***MI*W1234567890~
+DMG*D8*19750412*M~
+DTP*291*D8*20260814~
+EB*1*IND*30*CI*COMPREHENSIVE MAJOR MEDICAL*27*0***Y~
+EB*B**98*CI**27*25.00***Y~
+EB*C*IND*30*CI**27*500.00***Y~
+EB*A*IND*30*CI**27**0.20**Y~
+SE*15*0001~
+GE*1*6~
+IEA*1*000000006~
 `;
     let ALL_SEGMENTS = [];
     let SELECTED_SEG_INDEX = 0;

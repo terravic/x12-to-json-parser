@@ -96,7 +96,7 @@ def main():
             raw_x12=raw_x12,
             title=f"Dashboard - {file_title}"
         )
-        print(f"Interactive Canvas UI Visual Dashboard successfully generated at: {html_file}")
+        print(f"Interactive Visual Dashboard successfully generated at: {html_file}")
 
     # Output JSON
     indent = 2 if args.pretty else None

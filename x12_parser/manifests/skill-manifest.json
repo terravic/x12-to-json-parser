@@ -7,12 +7,12 @@
   "description_for_model": "Use this skill when the user provides raw EDI X12 healthcare transaction text (such as 270, 271, 277, 275, 278, 837, 835) or embedded C-CDA XML clinical documents, and needs them translated into human-readable or machine-processable structured JSON format.",
   "category": "Healthcare Interoperability",
   "version": "1.0.0",
-  "ui_canvas": {
+  "ui_dashboard": {
     "supported": true,
     "entrypoint": "docs/x12_mapping_dashboard.html",
     "theme_support": ["light", "dark", "system"],
     "interactive_features": ["segment_inspector", "live_converter", "search_filter", "theme_toggle"],
-    "embed_tag": "<agent-embed src=\"file:///docs/x12_mapping_dashboard.html\" height=\"600px\"></agent-embed>"
+    "embed_tag": "<agent-embed src=\"docs/x12_mapping_dashboard.html\" height=\"600px\"></agent-embed>"
   },
   "endpoints": [
     {
@@ -54,15 +54,14 @@
     {
       "path": "/dashboard",
       "method": "GET",
-      "summary": "Get interactive Canvas UI visual mapping dashboard",
+      "summary": "Get interactive visual mapping dashboard",
       "description": "Returns self-contained HTML/JS/CSS dashboard showing complete EDI X12 to JSON semantic mappings, field explanations, and interactive live converter.",
       "parameters": {},
       "routing_keywords": [
         "dashboard",
         "ui",
         "visualizer",
-        "mapping",
-        "canvas"
+        "mapping"
       ]
     }
   ]

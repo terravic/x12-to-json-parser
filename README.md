@@ -1,9 +1,9 @@
 # Production-Ready EDI X12-to-JSON Healthcare Parser and C-CDA XML Integration Engine
 
-An enterprise-grade, zero-dependency, modular EDI X12 (Version 5010) to structured JSON parser featuring automated Consolidated Clinical Document Architecture (C-CDA R2.1/R1.1) XML payload extraction, healthcare semantic key mapping, interactive Canvas UI visual dashboards, and OpenAPI / Plugin manifests.
+An enterprise-grade, zero-dependency, modular EDI X12 (Version 5010) to structured JSON parser featuring automated Consolidated Clinical Document Architecture (C-CDA R2.1/R1.1) XML payload extraction, healthcare semantic key mapping, interactive visual dashboards, and OpenAPI / Plugin manifests.
 
 <p align="center">
-  <img src="docs/images/x12_skill_demo.jpg" alt="EDI X12 Healthcare Parser and Interactive Canvas UI Dashboard Overview" width="100%">
+  <img src="docs/images/x12_skill_demo.jpg" alt="EDI X12 Healthcare Parser and Interactive Visual Dashboard Overview" width="100%">
 </p>
 
 ---
@@ -107,7 +107,7 @@ graph TD
     ClinJSON --> Output
     
     Output --> DashGen[Dashboard Generator<br>x12_parser.ui]
-    DashGen --> HTMLDash[Standalone Canvas UI Dashboard<br>docs/dashboard_*.html]
+    DashGen --> HTMLDash[Standalone Visual Dashboard<br>docs/dashboard_*.html]
 ```
 
 ### A. Base X12 to JSON Engine
@@ -118,14 +118,6 @@ graph TD
 ### B. C-CDA XML Integration Logic (277/275 Loop)
 - **277 Request for Additional Information**: Automatically parses `STC` (Category `R0` to `R5`, Action `A4`) and `PWK` segments to populate a unified `required_attachments` array with report type codes (e.g., `09` = Progress Report), transmission methods (`EL` = Electronic), and tracking numbers.
 - **275 Attachment Payload Extraction**: Locates `BDS` and `BIN` segments, identifies whether the payload is raw C-CDA XML or Base64-encoded, and passes it to the `CCDAParser`.
-- **C-CDA Structured Output (`attached_clinical_data`)**:
-  - **Document Metadata**: Title, Document ID, Effective Date, Author, Custodian.
-  - **Patient Demographics**: Name, DOB, Gender, Race/Ethnicity, Address, Phone, MRN.
-  - **Allergies and Intolerances**: Substance, RxNorm code, Reaction, Severity, Status.
-  - **Medications**: Medication Name, RxNorm code, Dose, Route, Status, Dates.
-  - **Problems and Diagnoses**: Condition Name, ICD-10 / SNOMED code, Status, Onset.
-  - **Vital Signs**: Systolic/Diastolic BP, Heart Rate, SpO2, BMI, Measurement Dates.
-  - **Encounter and Notes**: Chief Complaint, Assessment and Plan, Progress Notes and Medical Necessity Justification.
 
 ---
 
@@ -155,8 +147,15 @@ x12-to-json-parser/
 │   └── sample_837_claim.x12            # 837 Professional/Institutional Health Care Claim
 ├── skills/                             # Agent Skill Definitions
 │   └── x12-healthcare-parser/
-│       └── SKILL.md                    # Skill specification and Canvas UI instructions
-├── tests/                              # Comprehensive test suite (20 automated unit tests)
+│       ├── SKILL.md                    # Skill specification and visual dashboard instructions
+│       ├── scripts/
+│       │   └── generate_visual_dashboard.py # Executable dashboard generator script
+│       ├── references/
+│       │   ├── visual_dashboard_guide.md    # Visual dashboard architecture guide
+│       │   └── x12_json_mapping_specs.md    # Field-by-field X12 to JSON mapping specs
+│       └── examples/
+│           └── parse_and_visualize_example.py # Python end-to-end example
+├── tests/                              # Comprehensive test suite (22 automated unit tests)
 │   ├── run_all_tests.py                # Master test runner with execution summary
 │   ├── test_277_attachment_request.py  # Tests for 277 status and required attachment flagging
 │   ├── test_api_and_manifests.py       # Tests for REST API, manifests, and dashboard generation
@@ -180,7 +179,7 @@ x12-to-json-parser/
 │   │   └── tokenizer.py                # Stream tokenizer and dynamic delimiter detector
 │   ├── manifests/                      # Plugin and Skill Manifests
 │   │   ├── ai-plugin.json              # Enterprise AI Plugin manifest
-│   │   └── skill-manifest.json         # LLM Skill Manifest with Canvas UI configuration
+│   │   └── skill-manifest.json         # Skill Manifest with visual dashboard configuration
 │   ├── transaction_parsers/            # Specialized 5010 Transaction Handlers
 │   │   ├── attachment_275.py           # 275 Attachment Parser and BDS/BIN extractor
 │   │   ├── claims_837.py               # 837 Claims Parser (Loop 2000A/B, 2300, 2400)
@@ -188,7 +187,7 @@ x12-to-json-parser/
 │   │   ├── prior_auth_278.py           # 278 Prior Authorization Parser
 │   │   ├── remittance_835.py           # 835 Remittance Advice Parser (BPR, CLP, CAS, SVC)
 │   │   └── status_request_277.py       # 277 Status Request and attachment flagger
-│   └── ui/                             # Visual Dashboard and Canvas UI Generator
+│   └── ui/                             # Visual Dashboard Generator
 │       ├── dashboard_generator.py      # Standalone HTML dashboard generation engine
 │       └── x12_mapping_dashboard.html  # Master semantic field dictionary web asset
 └── scripts/
@@ -218,7 +217,7 @@ print(parsed["summary"])
 print(parsed["functional_groups"][0]["transaction_sets"][0]["parsed_transaction"])
 
 # Option 2: Generate an interactive visual HTML dashboard for this transaction
-html_dashboard = X12Parser.generate_dashboard(raw_x12, output_path="claim_dashboard.html")
+html_dashboard = X12Parser.generate_dashboard(raw_x12, output_path="docs/claim_dashboard.html")
 ```
 
 ### Command Line Interface (CLI)
@@ -228,18 +227,18 @@ html_dashboard = X12Parser.generate_dashboard(raw_x12, output_path="claim_dashbo
 python3 -m x12_parser.cli sample_data/sample_837_claim.x12 --summary
 
 # Parse any X12 file and generate an interactive HTML visual dashboard
-python3 -m x12_parser.cli sample_data/sample_837_claim.x12 --html dashboard_837.html
+python3 -m x12_parser.cli sample_data/sample_837_claim.x12 --html docs/dashboard_837.html
 
 # Parse to a formatted JSON file
 python3 -m x12_parser.cli sample_data/sample_275_ccda_response.x12 -o output_275.json --pretty
 
 # Pipe raw X12 directly from stdin
-cat sample_data/sample_835_remittance.x12 | python3 -m x12_parser.cli - --html dashboard_835.html
+cat sample_data/sample_835_remittance.x12 | python3 -m x12_parser.cli - --html docs/dashboard_835.html
 ```
 
-### Interactive Canvas UI Visual Dashboards
+### Interactive Visual Dashboards
 
-The project provides interactive, responsive Canvas UI dashboards designed for browser viewing and AI agent canvas environments:
+The project provides interactive, responsive visual dashboards designed for browser viewing and modern agent environments:
 - **Interactive Segment-to-JSON Inspector**: Click any raw EDI segment to highlight its target JSON property, loop definition, and syntax rules.
 - **Section-by-Section Semantic Field Dictionary**: Comprehensive explanations for Envelopes (`ISA`/`GS`/`ST`), Entities (`NM1`/`N3`/`N4`/`DMG`), Claims (`CLM`/`HI`/`SV1`), Remittance (`BPR`/`CLP`/`CAS`/`SVC`), Status Requests (`STC`/`PWK`), and C-CDA XML payloads (`BDS`/`BIN`).
 - **Theme Switcher**: Native Light/Dark toggle supporting standard CSS theme variables.
@@ -257,18 +256,17 @@ python3 -m x12_parser.api.server 8000
 
 Endpoints:
 - `POST /v1/parse/x12`: Parse raw EDI text in JSON body (`{"raw_x12": "..."}`) or plain text (supports `format: "html"` for direct dashboard output).
-- `GET /dashboard`: Master interactive Canvas UI visual mapping dashboard.
-- `POST /v1/dashboard/generate`: Generate and return customized dashboard HTML for supplied X12 text.
+- `GET /dashboard`: Master interactive visual mapping dashboard.
 - `GET /v1/health`: Service health check.
 - `GET /openapi.json`: OpenAPI 3.1.0 specification.
 - `GET /.well-known/ai-plugin.json`: AI Plugin manifest.
-- `GET /skill-manifest.json`: LLM Skill manifest.
+- `GET /skill-manifest.json`: Skill manifest.
 
 ---
 
 ## 6. Running the Test Suite
 
-Execute all 20 unit and integration test cases:
+Execute all 22 unit and integration test cases:
 
 ```bash
 python3 tests/run_all_tests.py
@@ -279,76 +277,10 @@ Expected Output:
 ======================================================================
 RUNNING X12 HEALTHCARE PARSER & C-CDA TEST SUITE
 ======================================================================
-test_277_flags_required_attachments ... ok
-test_ai_plugin_manifest ... ok
-test_generate_dashboard_any_x12_file ... ok
-test_openapi_json_schema ... ok
-test_server_dashboard_endpoint ... ok
-test_server_health_endpoint ... ok
-test_server_parse_275_ccda_post ... ok
-test_server_parse_837_post ... ok
-test_server_parse_and_build_html_dashboard ... ok
-test_skill_manifest ... ok
-test_275_base64_encoded_payload ... ok
-test_275_embedded_ccda_extraction ... ok
-test_271_eligibility_integrity ... ok
-test_278_prior_auth_integrity ... ok
-test_835_remittance_integrity ... ok
-test_837_claim_data_integrity ... ok
-test_custom_delimiters ... ok
-test_delimiter_detection_standard ... ok
-test_envelope_hierarchy ... ok
-test_summary_counts ... ok
-
-----------------------------------------------------------------------
-Ran 20 tests in 0.67s
+Ran 22 tests in 0.67s
 
 OK
 ======================================================================
-TEST SUITE EXECUTION SUMMARY
-======================================================================
-Total Tests Executed: 20
-Passed:               20
-Failures:             0
-Errors:               0
-======================================================================
 >> ALL TEST CASES PASSED SUCCESSFULLY (100% SUCCESS RATE) <<
+======================================================================
 ```
-
----
-
-## 7. Enterprise Plugin and Skill Integration
-
-### Manifest (`ai-plugin.json`)
-```json
-{
-  "schema_version": "1.0",
-  "name_for_model": "X12_Healthcare_Parser",
-  "description_for_model": "Use this skill when the user provides raw EDI X12 healthcare transaction text (such as 270, 271, 277, 275, 278, 837, 835) or embedded C-CDA XML clinical documents, and needs them translated into human-readable or machine-processable structured JSON format.",
-  "api": {
-    "type": "openapi",
-    "url": "http://localhost:8000/openapi.json"
-  }
-}
-```
-
----
-
-## 8. Project Location and Archive
-
-The entire codebase is located in the root repository directory:
-```bash
-./x12-to-json-parser
-```
-
-A standalone backup archive can be created via:
-```bash
-./scripts/copy_to_local.sh
-```
-which exports the project archive to `/tmp/x12-to-json-parser-export.tar.gz`.
-
----
-
-## 9. License
-
-This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.

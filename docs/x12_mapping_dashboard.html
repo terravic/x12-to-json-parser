@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EDI X12 to JSON Semantic Mapping & Clinical Integration Dashboard</title>
-  <!-- Tailwind CSS via allowlisted CDN -->
-  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* Theme color fallbacks and semantic mapping */
     :root {
@@ -182,7 +182,7 @@
         All Mappings (Complete Reference)
       </button>
       <button onclick="switchTab('interactive')" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-[var(--app-muted-foreground)] hover:text-[var(--app-foreground)] whitespace-nowrap">
-        ⚡ Live Interactive Inspector & Converter
+        Live Interactive Inspector & Converter
       </button>
       <button onclick="switchTab('claims_837')" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-[var(--app-muted-foreground)] hover:text-[var(--app-foreground)] whitespace-nowrap">
         837 Claims
@@ -551,7 +551,7 @@
       <div class="bg-[var(--app-card)] border border-[var(--app-border)] rounded-2xl p-5 shadow-sm space-y-4">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-[var(--app-border)] pb-4">
           <div>
-            <h2 class="font-bold text-base text-[var(--app-foreground)]">⚡ Live EDI X12 Segment-to-JSON Visualizer</h2>
+            <h2 class="font-bold text-base text-[var(--app-foreground)]">Live EDI X12 Segment-to-JSON Visualizer</h2>
             <p class="text-xs text-[var(--app-muted-foreground)]">Click any sample transaction below to inspect how EDI segments map directly to structured JSON keys.</p>
           </div>
           <div class="flex items-center space-x-2">
@@ -693,7 +693,7 @@
 
     <!-- Footer Information -->
     <footer class="text-center text-xs text-[var(--app-muted-foreground)] pt-4 pb-2 border-t border-[var(--app-border)]">
-      EDI X12 (5010) & C-CDA R2.1 Semantic Mapping Engine &bull; Enterprise Canvas UI & Web Dashboard
+      EDI X12 (5010) & C-CDA R2.1 Semantic Mapping Engine &bull; Enterprise Visual UI & Web Dashboard
     </footer>
 
   </div>

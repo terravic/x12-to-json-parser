@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "name_for_human": "EDI X12 & C-CDA Healthcare Parser",
   "name_for_model": "X12_Healthcare_Parser",
-  "description_for_human": "Parse EDI X12 healthcare transactions (270, 271, 277, 275, 278, 837, 835), extract embedded C-CDA XML clinical payloads, and explore interactive Canvas UI visual mapping dashboards.",
+  "description_for_human": "Parse EDI X12 healthcare transactions (270, 271, 277, 275, 278, 837, 835), extract embedded C-CDA XML clinical payloads, and explore interactive visual mapping dashboards.",
   "description_for_model": "Use this skill when the user provides raw EDI X12 healthcare transaction text (such as 270, 271, 277, 275, 278, 837, 835) or embedded C-CDA XML clinical documents, and needs them translated into human-readable or machine-processable structured JSON format, or requests interactive visual mapping dashboards and field guides.",
   "auth": {
     "type": "none"

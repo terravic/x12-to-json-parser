@@ -2,7 +2,7 @@
 Production HTTP REST API Server for X12 Healthcare Parser.
 
 Zero-dependency implementation using standard library http.server,
-providing full OpenAPI 3.1 compliance and Gemini Enterprise Plugin endpoints.
+providing full OpenAPI 3.1 compliance and standard REST plugin endpoints.
 """
 
 import json

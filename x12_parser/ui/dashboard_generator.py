@@ -1,9 +1,9 @@
 """
 Dashboard Generator Module for X12-to-JSON Healthcare Parser.
 
-Emits self-contained, zero-dependency, interactive HTML5 dashboards adhering
-strictly to DESIGN.md visual, structural, typographic, theme, and visualization rules.
-Supports offline file:// execution, client-side X12/C-CDA parsing, and live HTTP SSE updates.
+Emits self-contained, zero-dependency, interactive HTML5 dashboards aligned
+with DESIGN.md visual, structural, typographic, theme, and visualization specifications.
+Supports local filesystem execution, client-side X12/C-CDA parsing, and live HTTP SSE updates.
 """
 
 import hashlib
@@ -21,7 +21,7 @@ _CACHED_SYSTEM_THEME: Optional[str] = None
 
 def detect_host_system_theme(refresh: bool = False) -> str:
     """
-    Query the host operating system appearance preference (macOS, Windows, Linux)
+    Query the host desktop environment appearance preference
     as a backend fallback for headless or restricted webviews.
     Returns 'dark' or 'light'.
     """
@@ -31,61 +31,48 @@ def detect_host_system_theme(refresh: bool = False) -> str:
 
     detected = "light"
     try:
-        if sys.platform == "darwin":
-            res = subprocess.run(
-                ["defaults", "read", "-g", "AppleInterfaceStyle"],
-                capture_output=True,
-                text=True,
-                timeout=1.5,
-            )
-            detected = "dark" if (res.returncode == 0 and "dark" in res.stdout.lower()) else "light"
-
-        elif sys.platform == "win32":
-            import winreg  # type: ignore
-
-            key_path = r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
-            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path) as key:
-                val, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
-                detected = "dark" if int(val) == 0 else "light"
-
+        gtk_theme = os.environ.get("GTK_THEME", "")
+        color_fgbg = os.environ.get("COLORFGBG", "")
+        if gtk_theme:
+            if "dark" in gtk_theme.lower():
+                detected = "dark"
+            elif "light" in gtk_theme.lower():
+                detected = "light"
+        elif color_fgbg and ";" in color_fgbg:
+            bg_code = color_fgbg.rsplit(";", 1)[-1].strip()
+            if bg_code.isdigit() and int(bg_code) < 7:
+                detected = "dark"
         elif sys.platform.startswith("linux"):
-            gtk_theme = os.environ.get("GTK_THEME", "")
-            if gtk_theme:
-                if "dark" in gtk_theme.lower():
-                    detected = "dark"
-                elif "light" in gtk_theme.lower():
-                    detected = "light"
-            else:
-                found_gnome = False
-                for prop in ("color-scheme", "gtk-theme"):
-                    try:
-                        res = subprocess.run(
-                            ["gsettings", "get", "org.gnome.desktop.interface", prop],
-                            capture_output=True,
-                            text=True,
-                            timeout=1.5,
-                        )
-                        if res.returncode == 0:
-                            out = res.stdout.strip().lower()
-                            if "dark" in out:
-                                detected = "dark"
-                                found_gnome = True
-                                break
-                            if prop == "color-scheme" and ("light" in out or "default" in out):
-                                detected = "light"
-                                found_gnome = True
-                                break
-                    except (FileNotFoundError, subprocess.SubprocessError):
-                        pass
+            found_desktop = False
+            for prop in ("color-scheme", "gtk-theme"):
+                try:
+                    res = subprocess.run(
+                        ["gsettings", "get", "org.gnome.desktop.interface", prop],
+                        capture_output=True,
+                        text=True,
+                        timeout=1.5,
+                    )
+                    if res.returncode == 0:
+                        out = res.stdout.strip().lower()
+                        if "dark" in out:
+                            detected = "dark"
+                            found_desktop = True
+                            break
+                        if prop == "color-scheme" and ("light" in out or "default" in out):
+                            detected = "light"
+                            found_desktop = True
+                            break
+                except (FileNotFoundError, subprocess.SubprocessError):
+                    pass
 
-                if not found_gnome:
-                    kde_path = os.path.expanduser("~/.config/kdeglobals")
-                    if os.path.exists(kde_path):
-                        with open(kde_path, "r", encoding="utf-8", errors="ignore") as f:
-                            for line in f:
-                                if line.strip().startswith("ColorScheme=") and "dark" in line.lower():
-                                    detected = "dark"
-                                    break
+            if not found_desktop:
+                kde_path = os.path.expanduser("~/.config/kdeglobals")
+                if os.path.exists(kde_path):
+                    with open(kde_path, "r", encoding="utf-8", errors="ignore") as f:
+                        for line in f:
+                            if line.strip().startswith("ColorScheme=") and "dark" in line.lower():
+                                detected = "dark"
+                                break
     except Exception:
         pass
 
@@ -459,14 +446,10 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
   <meta name="description" content="EDI X12 5010 Semantic Mapping Engine, HL7 C-CDA R2.1 Clinical Inspector, and Empirical Healthcare Transaction Telemetry Studio.">
-  <title>__TITLE__ — [__TX_BADGE__]</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"></noscript>
+  <title>__TITLE__ - [__TX_BADGE__]</title>
   <style>
     /* ==========================================================================
-       DESIGN.MD SPECIFICATION TOKENS — LIGHT & DARK THEMES
+       DESIGN.MD SPECIFICATION TOKENS - LIGHT AND DARK THEMES
        ========================================================================== */
     :root,
     html[data-theme="light"],
@@ -487,9 +470,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       --viz-emerald: #059669;
       --viz-rose: #E11D48;
 
-      --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-sans: 'DM Sans', 'Geist Sans', system-ui, ui-sans-serif, sans-serif;
       --font-serif: 'Instrument Serif', Georgia, Cambria, 'Times New Roman', serif;
-      --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      --font-mono: 'Geist Mono', ui-monospace, 'DejaVu Sans Mono', 'Liberation Mono', monospace;
 
       --radius-pane: 8px;
       --radius-ctrl: 6px;
@@ -678,7 +661,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       background-color: var(--text-primary);
     }
 
-    /* Three-Icon Segmented Theme Switcher (DESIGN.md Section 3) */
+    /* Segmented Theme Switcher (DESIGN.md Section 3) */
     .theme-switcher {
       display: inline-flex;
       align-items: center;
@@ -691,12 +674,15 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     .theme-mode-btn {
-      width: 28px;
+      padding: 0 9px;
       height: 26px;
       border: none;
       background: transparent;
       color: var(--text-secondary);
       border-radius: 4px;
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 500;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -922,7 +908,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       background-color: var(--bg-surface);
     }
 
-    canvas.viz-canvas,
     svg.viz-svg {
       display: block;
       width: 100%;
@@ -1326,7 +1311,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         </div>
         <div class="brand-subtitle">
           <span>EDI X12 Semantic Mapping Engine &amp; HL7 C-CDA R2.1 Clinical Telemetry Studio</span>
-          <span>&bull;</span>
+          <span>|</span>
           <span class="sse-indicator" id="sseStatusIndicator" data-live="false">Mode: Standalone Empirical Bundle</span>
         </div>
       </div>
@@ -1341,33 +1326,11 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           Parse X12 Stream
         </button>
 
-        <!-- Three-Icon Theme Selector (DESIGN.md Section 3) -->
+        <!-- Segmented Theme Selector (DESIGN.md Section 3) -->
         <div class="theme-switcher" role="group" aria-label="Theme Mode Selector">
-          <button type="button" id="theme-btn-light" class="theme-mode-btn" title="Light Theme" aria-label="Light Theme" data-theme-mode="light" aria-pressed="false" onclick="setThemeMode('light')">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="4"></circle>
-              <line x1="12" y1="2" x2="12" y2="4"></line>
-              <line x1="12" y1="20" x2="12" y2="22"></line>
-              <line x1="4.93" y1="4.93" x2="6.34" y2="6.34"></line>
-              <line x1="17.66" y1="17.66" x2="19.07" y2="19.07"></line>
-              <line x1="2" y1="12" x2="4" y2="12"></line>
-              <line x1="20" y1="12" x2="22" y2="12"></line>
-              <line x1="4.93" y1="19.07" x2="6.34" y2="17.66"></line>
-              <line x1="17.66" y1="6.34" x2="19.07" y2="4.93"></line>
-            </svg>
-          </button>
-          <button type="button" id="theme-btn-dark" class="theme-mode-btn" title="Dark Theme" aria-label="Dark Theme" data-theme-mode="dark" aria-pressed="false" onclick="setThemeMode('dark')">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-            </svg>
-          </button>
-          <button type="button" id="theme-btn-system" class="theme-mode-btn active" title="System Theme" aria-label="System Theme" data-theme-mode="system" aria-pressed="true" onclick="setThemeMode('system')">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-              <line x1="8" y1="21" x2="16" y2="21"></line>
-              <line x1="12" y1="17" x2="12" y2="21"></line>
-            </svg>
-          </button>
+          <button type="button" id="theme-btn-light" class="theme-mode-btn" title="Light Theme" aria-label="Light Theme" data-theme-mode="light" aria-pressed="false" onclick="setThemeMode('light')">Light</button>
+          <button type="button" id="theme-btn-dark" class="theme-mode-btn" title="Dark Theme" aria-label="Dark Theme" data-theme-mode="dark" aria-pressed="false" onclick="setThemeMode('dark')">Dark</button>
+          <button type="button" id="theme-btn-system" class="theme-mode-btn active" title="System Theme" aria-label="System Theme" data-theme-mode="system" aria-pressed="true" onclick="setThemeMode('system')">System</button>
         </div>
       </div>
     </header>
@@ -1426,7 +1389,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             </div>
           </div>
           <div class="viz-viewport">
-            <canvas id="financialChartCanvas" class="viz-canvas" aria-label="Quantitative Financial and Telemetry Plot"></canvas>
+            <svg id="financialChartSurface" class="viz-svg" role="img" aria-label="Quantitative Financial and Telemetry Plot"></svg>
           </div>
           <div class="viz-overlay-footer">
             <div class="legend-inline" id="chartLegendBar">
@@ -1457,7 +1420,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           <div class="viz-overlay-footer">
             <div class="legend-inline">
               <span class="legend-item"><span class="legend-swatch" style="background:var(--bg-surface);border:1px solid var(--border)"></span>0</span>
-              <span class="legend-item"><span class="legend-swatch" style="background:#0D9488"></span>Low–Mid (Teal)</span>
+              <span class="legend-item"><span class="legend-swatch" style="background:#0D9488"></span>Low-Mid (Teal)</span>
               <span class="legend-item"><span class="legend-swatch" style="background:#4F46E5"></span>High (Indigo)</span>
               <span class="legend-item"><span class="legend-swatch" style="background:#E11D48"></span>Peak Density (Rose)</span>
             </div>
@@ -1479,7 +1442,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             </div>
             <div class="pane-actions">
               <button type="button" id="nodeMapZoomIn" class="mini-btn" onclick="zoomNodeMap(1.2)">Zoom +</button>
-              <button type="button" id="nodeMapZoomOut" class="mini-btn" onclick="zoomNodeMap(0.83)">Zoom &minus;</button>
+              <button type="button" id="nodeMapZoomOut" class="mini-btn" onclick="zoomNodeMap(0.83)">Zoom -</button>
               <button type="button" id="nodeMapReset" class="mini-btn" onclick="resetNodeMapTransform()">Reset</button>
             </div>
           </div>
@@ -1494,7 +1457,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
               <span class="legend-item"><span class="legend-swatch" style="background:#D97706"></span>Adjustment</span>
               <span class="legend-item"><span class="legend-swatch" style="background:#E11D48"></span>Alert/Pended</span>
             </div>
-            <span id="nodeMapSelectionReadout">Drag to pan &bull; Scroll to zoom &bull; Click node</span>
+            <span id="nodeMapSelectionReadout">Drag to pan | Scroll to zoom | Click node</span>
           </div>
         </section>
 
@@ -1511,14 +1474,14 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                 <option value="lisinopril">RxNorm 314076: Lisinopril 20mg (Active Med)</option>
                 <option value="penicillin">RxNorm 70618: Penicillin G (Severe Allergy)</option>
               </select>
-              <button type="button" id="btnToggle3dRenderer" class="mini-btn" onclick="toggle3dRendererMode()" title="Switch Hardware WebGL / Software Projection Fallback">
+              <button type="button" id="btnToggle3dRenderer" class="mini-btn" onclick="toggle3dRendererMode()" title="Switch Projection Mode">
                 Engine: Auto
               </button>
               <button type="button" id="btnReset3dCamera" class="mini-btn" onclick="reset3dCamera()">Reset</button>
             </div>
           </div>
           <div class="viz-viewport-tall">
-            <canvas id="molecular3dCanvas" class="viz-canvas" aria-label="3D Molecular and Structural Conformer View"></canvas>
+            <svg id="molecular3dSurface" class="viz-svg" role="img" aria-label="3D Molecular and Structural Conformer View"></svg>
           </div>
           <div class="viz-overlay-footer">
             <div class="legend-inline" id="mol3dLegendBar">
@@ -1528,7 +1491,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
               <span class="legend-item"><span class="legend-swatch" style="background:#D97706"></span>Adjustment</span>
               <span class="legend-item"><span class="legend-swatch" style="background:#E11D48"></span>Alert/Pended</span>
             </div>
-            <span id="mol3dEngineBadge">Renderer: Initializing</span>
+            <span id="mol3dEngineBadge">Renderer: Software Projection Fallback</span>
           </div>
         </section>
 
@@ -2042,10 +2005,10 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       const meta = CURRENT_DATASET.meta;
 
       const txType = meta.tx_type || 'X12';
-      document.getElementById('txBadge').textContent = `${txType} • ${meta.gs_version}`;
+      document.getElementById('txBadge').textContent = `${txType} | ${meta.gs_version}`;
       const footerLbl = document.getElementById('footerActiveStreamLabel');
       if (footerLbl) {
-        footerLbl.textContent = `Active Stream: [${txType}] ${meta.source_path} • ${meta.byte_size.toLocaleString()} B • SHA-256 ${meta.sha256}`;
+        footerLbl.textContent = `Active Stream: [${txType}] ${meta.source_path} | ${meta.byte_size.toLocaleString()} B | SHA-256 ${meta.sha256}`;
       }
 
       buildSegmentIndex(CURRENT_DATA, CURRENT_RAW_EDI);
@@ -2079,7 +2042,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     /* ==========================================================================
-       KPI TELEMETRY STRIP (DESIGN.md Section 4 & 5) — 100% EMPIRICAL STREAM DATA
+       KPI TELEMETRY STRIP (DESIGN.md Section 4 & 5) - 100% EMPIRICAL STREAM DATA
        ========================================================================== */
     function renderMetrics(data, meta) {
       const bar = document.getElementById('metricsBar');
@@ -2096,14 +2059,14 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         label: 'Transaction Set',
         val: `X12 ${txType}`,
         tone: 'tone-teal',
-        sub: `${meta.gs_version || '005010'} • ${meta.filename}`
+        sub: `${meta.gs_version || '005010'} | ${meta.filename}`
       });
 
       cells.push({
         label: 'Total Segments',
         val: String(summary.total_segments_count || ALL_SEGMENTS.length),
         tone: '',
-        sub: `${(meta.byte_size || 0).toLocaleString()} B • ${(meta.parse_ms || 0).toFixed(2)} ms`
+        sub: `${(meta.byte_size || 0).toLocaleString()} B | ${(meta.parse_ms || 0).toFixed(2)} ms`
       });
 
       if (txType === '837') {
@@ -2198,7 +2161,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     /* ==========================================================================
-       2D QUANTITATIVE CHART (CANVAS) — TRANSPARENT SURFACE + SUBTLE AXIS GRIDLINES
+       2D QUANTITATIVE CHART - TRANSPARENT SURFACE + SUBTLE AXIS GRIDLINES
        ========================================================================== */
     function setChartMode(mode) {
       CHART_MODE = mode;
@@ -2238,7 +2201,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         return {
           title: `X12 837 Claim Charge & Service Line Profile`,
           subtitle: `Submitted claim total vs. individual CPT/HCPCS line charges in ${meta.filename} ($ USD)`,
-          readout: `[837] ${meta.filename} • Claim ${c0.claim_id || 'Active'}`,
+          readout: `[837] ${meta.filename} | Claim ${c0.claim_id || 'Active'}`,
           isCurrency: true,
           bars
         };
@@ -2263,7 +2226,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         return {
           title: `X12 835 Remittance Adjudication Waterfall`,
           subtitle: `Submitted charge, net payment, contractual write-off, and patient share in ${meta.filename} ($ USD)`,
-          readout: `[835] ${meta.filename} • Trace ${trace}`,
+          readout: `[835] ${meta.filename} | Trace ${trace}`,
           isCurrency: true,
           bars
         };
@@ -2277,7 +2240,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           return {
             title: `X12 277 Pended Claim Exposure & Hold Status`,
             subtitle: `Adjudication hold exposure awaiting ${r0.attachment_report_type_description || 'clinical documentation'} in ${meta.filename} ($ USD)`,
-            readout: `[277] ${meta.filename} • PWK ${r0.attachment_control_number || 'Pended'}`,
+            readout: `[277] ${meta.filename} | PWK ${r0.attachment_control_number || 'Pended'}`,
             isCurrency: true,
             bars: [
               { label: 'Pended Claim', val: holdAmt, color: PALETTE.rose, sub: `STC ${r0.status_category_code || 'R4'} Hold` },
@@ -2295,7 +2258,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         return {
           title: `X12 275 Embedded HL7 C-CDA R2.1 Clinical Inventory`,
           subtitle: `Structured clinical entries extracted from BDS/BIN XML payload in ${meta.filename} (Record Count)`,
-          readout: `[275] ${meta.filename} • ${docId}`,
+          readout: `[275] ${meta.filename} | ${docId}`,
           isCurrency: false,
           bars: [
             { label: 'Medications', val: (clin.medications || []).length, color: PALETTE.indigo, sub: 'LOINC 10160-0 Active Meds' },
@@ -2326,7 +2289,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           return {
             title: `X12 271 Eligibility & Cost-Sharing Benefit Schedule`,
             subtitle: `Extracted member deductible, copayment, and benefit dollar thresholds in ${meta.filename} ($ USD)`,
-            readout: `[271] ${meta.filename} • Member ${sub.identification_code || 'Active'}`,
+            readout: `[271] ${meta.filename} | Member ${sub.identification_code || 'Active'}`,
             isCurrency: true,
             bars: monetaryBars
           };
@@ -2340,7 +2303,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         return {
           title: `X12 278 Prior Authorization Financial Determination`,
           subtitle: `Requested procedure charge vs. UMO certified amount in ${meta.filename} ($ USD)`,
-          readout: `[278] ${meta.filename} • ${rv0.review_identification_number || 'UM Review'}`,
+          readout: `[278] ${meta.filename} | ${rv0.review_identification_number || 'UM Review'}`,
           isCurrency: true,
           bars: [
             { label: 'Requested ($)', val: fin.billed, color: PALETTE.teal, sub: 'Submitted SV1/SV2 Service Charge' },
@@ -2355,7 +2318,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       return {
         title: `X12 ${txType} Loop Stratum Segment Distribution`,
         subtitle: `Empirical segment counts across 5010 structural strata in ${meta.filename} (Segment Count)`,
-        readout: `[${txType}] ${meta.filename} • ${ALL_SEGMENTS.length} Total Segments`,
+        readout: `[${txType}] ${meta.filename} | ${ALL_SEGMENTS.length} Total Segments`,
         isCurrency: false,
         bars: [
           { label: 'Envelope', val: sc['Envelope'] || 0, color: PALETTE.teal, sub: 'ISA / GS / ST / SE / GE / IEA' },
@@ -2369,17 +2332,12 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     function renderFinancialChart() {
-      const canvas = document.getElementById('financialChartCanvas');
-      if (!canvas) return;
-      const rect = canvas.parentElement.getBoundingClientRect();
-      const w = Math.max(rect.width, 320);
-      const h = Math.max(rect.height, 240);
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = Math.round(w * dpr);
-      canvas.height = Math.round(h * dpr);
-      const ctx = canvas.getContext('2d');
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, w, h); // Transparent plot background inheriting surface color
+      const svg = document.getElementById('financialChartSurface');
+      if (!svg) return;
+      const rect = svg.parentElement.getBoundingClientRect();
+      const w = Math.max(Math.round(rect.width), 320);
+      const h = Math.max(Math.round(rect.height), 240);
+      svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
 
       const tok = getActiveTokens();
       const pad = { top: 24, right: 20, bottom: 44, left: 62 };
@@ -2391,6 +2349,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       const subEl = document.getElementById('chartSubtitle');
       const readoutEl = document.getElementById('chartReadoutText');
       const legendEl = document.getElementById('chartLegendBar');
+      const parts = [];
 
       if (CHART_MODE === 'active' || CHART_MODE === 'financial') {
         let bars = [];
@@ -2437,21 +2396,12 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         const maxVal = rawMax * 1.15;
         const steps = 4;
 
-        ctx.strokeStyle = tok.gridLine;
-        ctx.lineWidth = 1;
-        ctx.font = "500 10.5px 'IBM Plex Mono', monospace";
-        ctx.fillStyle = tok.textSecondary;
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'middle';
-
         for (let i = 0; i <= steps; i++) {
           const v = (maxVal / steps) * i;
           const y = Math.round(pad.top + ph - (i / steps) * ph) + 0.5;
-          ctx.beginPath();
-          ctx.moveTo(pad.left, y);
-          ctx.lineTo(pad.left + pw, y);
-          ctx.stroke();
-          ctx.fillText(isCurrency ? `$${Math.round(v)}` : `${Math.round(v)}`, pad.left - 8, y);
+          const axisLabel = isCurrency ? `$${Math.round(v)}` : `${Math.round(v)}`;
+          parts.push(`<line x1="${pad.left}" y1="${y}" x2="${pad.left + pw}" y2="${y}" stroke="${tok.gridLine}" stroke-width="1"/>`);
+          parts.push(`<text x="${pad.left - 8}" y="${y + 3.5}" text-anchor="end" fill="${tok.textSecondary}" font-family="'Geist Mono', monospace" font-size="10.5" font-weight="500">${escapeHtml(axisLabel)}</text>`);
         }
 
         const slotW = pw / Math.max(bars.length, 1);
@@ -2461,24 +2411,13 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           const bh = Math.max(2, (b.val / maxVal) * ph);
           const bx = pad.left + idx * slotW + (slotW - barW) / 2;
           const by = pad.top + ph - bh;
-
-          ctx.fillStyle = b.color;
-          ctx.beginPath();
-          if (ctx.roundRect) ctx.roundRect(bx, by, barW, bh, [4, 4, 0, 0]);
-          else ctx.rect(bx, by, barW, bh);
-          ctx.fill();
-
-          ctx.fillStyle = tok.textPrimary;
-          ctx.font = "600 10.5px 'IBM Plex Mono', monospace";
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'bottom';
+          const cx = bx + barW / 2;
           const valText = isCurrency ? `$${b.val.toFixed(b.val % 1 ? 2 : 0)}` : `${b.val}`;
-          ctx.fillText(valText, bx + barW / 2, by - 5);
+          const catText = String(b.label).slice(0, 13);
 
-          ctx.fillStyle = tok.textSecondary;
-          ctx.font = "500 10px 'DM Sans', sans-serif";
-          ctx.textBaseline = 'top';
-          ctx.fillText(String(b.label).slice(0, 13), bx + barW / 2, pad.top + ph + 10);
+          parts.push(`<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" rx="3" fill="${b.color}"/>`);
+          parts.push(`<text x="${cx.toFixed(1)}" y="${(by - 5).toFixed(1)}" text-anchor="middle" fill="${tok.textPrimary}" font-family="'Geist Mono', monospace" font-size="10.5" font-weight="600">${escapeHtml(valText)}</text>`);
+          parts.push(`<text x="${cx.toFixed(1)}" y="${(pad.top + ph + 18).toFixed(1)}" text-anchor="middle" fill="${tok.textSecondary}" font-family="'DM Sans', sans-serif" font-size="10" font-weight="500">${escapeHtml(catText)}</text>`);
 
           const tipDetail = isCurrency ? `$${b.val.toFixed(2)} (${b.sub})` : `${b.val} (${b.sub})`;
           CHART_HIT_BOXES.push({ x: bx, y: by, w: barW, h: bh, title: b.label, detail: tipDetail });
@@ -2506,21 +2445,11 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         const maxMs = Math.max(1.0, ...items.map(d => d.ms)) * 1.25;
         const steps = 4;
 
-        ctx.strokeStyle = tok.gridLine;
-        ctx.lineWidth = 1;
-        ctx.font = "500 10.5px 'IBM Plex Mono', monospace";
-        ctx.fillStyle = tok.textSecondary;
-
         for (let i = 0; i <= steps; i++) {
           const v = (maxSegs / steps) * i;
           const y = Math.round(pad.top + ph - (i / steps) * ph) + 0.5;
-          ctx.beginPath();
-          ctx.moveTo(pad.left, y);
-          ctx.lineTo(pad.left + pw, y);
-          ctx.stroke();
-          ctx.textAlign = 'right';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(`${Math.round(v)}s`, pad.left - 8, y);
+          parts.push(`<line x1="${pad.left}" y1="${y}" x2="${pad.left + pw}" y2="${y}" stroke="${tok.gridLine}" stroke-width="1"/>`);
+          parts.push(`<text x="${pad.left - 8}" y="${y + 3.5}" text-anchor="end" fill="${tok.textSecondary}" font-family="'Geist Mono', monospace" font-size="10.5" font-weight="500">${Math.round(v)}s</text>`);
         }
 
         const slotW = pw / Math.max(items.length, 1);
@@ -2531,37 +2460,29 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           const bh = Math.max(2, (it.segs / maxSegs) * ph);
           const bx = pad.left + idx * slotW + (slotW - barW) / 2;
           const by = pad.top + ph - bh;
+          const cx = bx + barW / 2;
+          const fillCol = it.active ? PALETTE.indigo : PALETTE.teal;
+          const lblCol = it.active ? tok.textPrimary : tok.textSecondary;
+          const lblWeight = it.active ? '700' : '600';
 
-          ctx.fillStyle = it.active ? PALETTE.indigo : PALETTE.teal;
-          ctx.beginPath();
-          if (ctx.roundRect) ctx.roundRect(bx, by, barW, bh, [4, 4, 0, 0]);
-          else ctx.rect(bx, by, barW, bh);
-          ctx.fill();
-
-          ctx.fillStyle = it.active ? tok.textPrimary : tok.textSecondary;
-          ctx.font = `${it.active ? '700' : '600'} 10.5px 'IBM Plex Mono', monospace`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'top';
-          ctx.fillText(it.label, bx + barW / 2, pad.top + ph + 10);
+          parts.push(`<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" rx="3" fill="${fillCol}"/>`);
+          parts.push(`<text x="${cx.toFixed(1)}" y="${(pad.top + ph + 18).toFixed(1)}" text-anchor="middle" fill="${lblCol}" font-family="'Geist Mono', monospace" font-size="10.5" font-weight="${lblWeight}">${escapeHtml(it.label)}</text>`);
 
           const ly = pad.top + ph - (it.ms / maxMs) * ph;
-          pts.push({ x: bx + barW / 2, y: ly, it });
-          CHART_HIT_BOXES.push({ x: bx, y: pad.top, w: barW, h: ph, title: `${it.file} [${it.label}]`, detail: `${it.segs} segments • ${it.ms.toFixed(2)} ms` });
+          pts.push({ x: cx, y: ly, it });
+          CHART_HIT_BOXES.push({ x: bx, y: pad.top, w: barW, h: ph, title: `${it.file} [${it.label}]`, detail: `${it.segs} segments | ${it.ms.toFixed(2)} ms` });
         });
 
-        ctx.strokeStyle = PALETTE.amber;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        pts.forEach((p, idx) => { if (idx === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y); });
-        ctx.stroke();
-
-        pts.forEach(p => {
-          ctx.fillStyle = PALETTE.amber;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
-          ctx.fill();
-        });
+        if (pts.length > 0) {
+          const polyPts = pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+          parts.push(`<polyline points="${polyPts}" fill="none" stroke="${PALETTE.amber}" stroke-width="2"/>`);
+          pts.forEach(p => {
+            parts.push(`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.5" fill="${PALETTE.amber}"/>`);
+          });
+        }
       }
+
+      svg.innerHTML = parts.join('');
     }
 
     /* ==========================================================================
@@ -2622,7 +2543,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       document.getElementById('heatmapTotalBadge').textContent = `${grandTotal} workspace segments`;
       const hmSub = document.getElementById('heatmapSubtitle');
       if (hmSub) {
-        hmSub.textContent = `Highlighted Row: [${CURRENT_DATASET.meta.tx_type}] ${CURRENT_DATASET.meta.filename} — segment density across 5010 loop strata (click cell to inspect)`;
+        hmSub.textContent = `Highlighted Row: [${CURRENT_DATASET.meta.tx_type}] ${CURRENT_DATASET.meta.filename} - segment density across 5010 loop strata (click cell to inspect)`;
       }
       const hmReadout = document.getElementById('heatmapReadoutText');
       if (hmReadout) {
@@ -2636,7 +2557,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       BUNDLE.datasets.forEach((ds, dIdx) => {
         const isCurrent = dIdx === ACTIVE_DATASET_IDX;
         const marker = isCurrent ? 'font-weight:700;color:var(--viz-teal)' : '';
-        const prefix = isCurrent ? '&bull; ' : '';
+        const prefix = isCurrent ? '> ' : '';
         const shortFile = ds.meta.filename.replace('sample_', '').replace('.x12', '').slice(0, 18);
         html += `<tr><th class="row-hdr" style="${marker};cursor:pointer" onclick="selectWorkspaceDataset(${dIdx}, true, false)">${prefix}${escapeHtml(ds.meta.tx_type)} <span style="opacity:0.7">${escapeHtml(shortFile)}</span></th>`;
         strata.forEach(st => {
@@ -2644,7 +2565,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           const norm = val / maxCell;
           const col = interpolateHeatmapColor(norm, tok.bgSurface);
           const cellOutline = isCurrent ? `box-shadow:inset 0 0 0 1px ${PALETTE.teal};` : '';
-          html += `<td class="hm-cell" style="background-color:${col.bg};color:${col.fg};${cellOutline}" onclick="onHeatmapCellClick(${dIdx}, '${st}')" title="${escapeHtml(ds.meta.filename)} • ${st}: ${val} segment(s)">${val}</td>`;
+          html += `<td class="hm-cell" style="background-color:${col.bg};color:${col.fg};${cellOutline}" onclick="onHeatmapCellClick(${dIdx}, '${st}')" title="${escapeHtml(ds.meta.filename)} | ${st}: ${val} segment(s)">${val}</td>`;
         });
         html += `</tr>`;
       });
@@ -2671,7 +2592,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     /* ==========================================================================
-       SVG INTERACTIVE RELATIONSHIP NODE MAP — DETERMINISTIC DAG + PAN/ZOOM
+       SVG INTERACTIVE RELATIONSHIP NODE MAP - DETERMINISTIC DAG + PAN/ZOOM
        ========================================================================== */
     const NODE_MAP_STATE = { scale: 1, tx: 0, ty: 0, dragging: false, startX: 0, startY: 0 };
 
@@ -2904,7 +2825,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       const { nodes, edges } = buildGraphNodesAndEdges(CURRENT_DATA, CURRENT_DATASET.meta);
       const subEl = document.getElementById('nodeMapSubtitle');
       if (subEl) {
-        subEl.textContent = `[${CURRENT_DATASET.meta.tx_type}] ${CURRENT_DATASET.meta.filename} — ${nodes.length} structural nodes, ${edges.length} directed edges`;
+        subEl.textContent = `[${CURRENT_DATASET.meta.tx_type}] ${CURRENT_DATASET.meta.filename} - ${nodes.length} structural nodes, ${edges.length} directed edges`;
       }
 
       // Group nodes by column for deterministic fast DAG placement
@@ -2951,7 +2872,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             <rect x="${nx}" y="${ny}" width="${nw}" height="${nh}" rx="6" fill="${tok.bgSurface}" stroke="${tok.border}" stroke-width="1"/>
             <rect x="${nx}" y="${ny}" width="4" height="${nh}" rx="2" fill="${n.color}"/>
             <circle cx="${nx + 13}" cy="${ny + 13}" r="3.5" fill="${n.color}"/>
-            <text x="${nx + 21}" y="${ny + 16}" fill="${tok.textPrimary}" font-family="'IBM Plex Mono', monospace" font-size="9.5" font-weight="600">${escapeHtml(n.label.slice(0, 12))}</text>
+            <text x="${nx + 21}" y="${ny + 16}" fill="${tok.textPrimary}" font-family="'Geist Mono', monospace" font-size="9.5" font-weight="600">${escapeHtml(n.label.slice(0, 12))}</text>
             <text x="${nx + 10}" y="${ny + 29}" fill="${tok.textSecondary}" font-family="'DM Sans', sans-serif" font-size="8.8">${escapeHtml(n.sub.slice(0, 16))}</text>
           </g>
         `;
@@ -2998,7 +2919,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
        ========================================================================== */
     const MOL_MODELS = {
       lisinopril: {
-        title: 'Lisinopril 20 MG (RxNorm 314076 • C21H31N3O5 • ACE Inhibitor)',
+        title: 'Lisinopril 20 MG (RxNorm 314076 | C21H31N3O5 | ACE Inhibitor)',
         atoms: [
           // Proline ring + C-terminal carboxylate (Active Zn/C-domain binding in Emerald)
           { x: -3.2, y:  0.4, z:  0.2, elem: 'N', label: 'N1 (Proline)', color: PALETTE.indigo, r: 0.34 },
@@ -3041,7 +2962,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         ]
       },
       penicillin: {
-        title: 'Penicillin G (RxNorm 70618 • C16H18N2O4S • Severe Anaphylaxis Allergen)',
+        title: 'Penicillin G (RxNorm 70618 | C16H18N2O4S | Severe Anaphylaxis Allergen)',
         atoms: [
           // Thiazolidine 5-ring + Fused Beta-Lactam 4-ring
           { x: -1.8, y:  1.2, z:  0.3, elem: 'S', label: 'S1 (Thiazolidine Sulfur)', color: PALETTE.amber, r: 0.40 },
@@ -3139,7 +3060,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
       MOL_MODELS.x12_lattice.atoms = atoms;
       MOL_MODELS.x12_lattice.bonds = bonds;
-      MOL_MODELS.x12_lattice.title = `[${CURRENT_DATASET.meta.tx_type}] ${CURRENT_DATASET.meta.filename} — 3D Spatial Loop Lattice (${atoms.length} Nodes, ${bonds.length} Links)`;
+      MOL_MODELS.x12_lattice.title = `[${CURRENT_DATASET.meta.tx_type}] ${CURRENT_DATASET.meta.filename} - 3D Spatial Loop Lattice (${atoms.length} Nodes, ${bonds.length} Links)`;
     }
 
     function sync3dLegendAndSubtitle() {
@@ -3152,7 +3073,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         if (key === 'x12_lattice') {
           subEl.textContent = MOL_MODELS.x12_lattice.title;
         } else {
-          subEl.textContent = `${MOL_MODELS[key].title} • Active Context: ${CURRENT_DATASET.meta.filename}`;
+          subEl.textContent = `${MOL_MODELS[key].title} | Active Context: ${CURRENT_DATASET.meta.filename}`;
         }
       }
       if (legEl) {
@@ -3176,83 +3097,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       }
     }
 
-    function initWebGL3D() {
-      const canvas = document.getElementById('molecular3dCanvas');
-      if (!canvas) return;
-
-      try {
-        const gl = canvas.getContext('webgl', { antialias: true, alpha: true, premultipliedAlpha: false });
-        if (!gl) {
-          MOL_STATE.webglReady = false;
-          return;
-        }
-
-        const vsSrc = `
-          attribute vec2 aCorner;
-          attribute vec3 aPos;
-          attribute vec3 aColor;
-          attribute float aSize;
-          attribute float aKind;
-          varying vec2 vUv;
-          varying vec3 vColor;
-          varying float vKind;
-          void main() {
-            vUv = aCorner;
-            vColor = aColor;
-            vKind = aKind;
-            gl_Position = vec4(aPos.xy + aCorner * aSize, aPos.z, 1.0);
-          }
-        `;
-        const fsSrc = `
-          precision mediump float;
-          varying vec2 vUv;
-          varying vec3 vColor;
-          varying float vKind;
-          void main() {
-            if (vKind > 0.5) {
-              float r2 = dot(vUv, vUv);
-              if (r2 > 1.0) discard;
-              float nz = sqrt(max(0.0, 1.0 - r2));
-              vec3 norm = normalize(vec3(vUv.x, vUv.y, nz));
-              vec3 lightDir = normalize(vec3(-0.45, 0.55, 0.70));
-              float diff = max(dot(norm, lightDir), 0.0);
-              float spec = pow(max(dot(reflect(-lightDir, norm), vec3(0.0, 0.0, 1.0)), 0.0), 22.0);
-              vec3 lit = vColor * (0.38 + 0.62 * diff) + vec3(0.24) * spec;
-              float alpha = smoothstep(1.0, 0.88, r2);
-              gl_FragColor = vec4(lit, alpha);
-            } else {
-              gl_FragColor = vec4(vColor, 0.52);
-            }
-          }
-        `;
-
-        const compile = (type, src) => {
-          const s = gl.createShader(type);
-          gl.shaderSource(s, src);
-          gl.compileShader(s);
-          if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) return null;
-          return s;
-        };
-
-        const vs = compile(gl.VERTEX_SHADER, vsSrc);
-        const fs = compile(gl.FRAGMENT_SHADER, fsSrc);
-        if (!vs || !fs) { MOL_STATE.webglReady = false; return; }
-
-        const prog = gl.createProgram();
-        gl.attachShader(prog, vs);
-        gl.attachShader(prog, fs);
-        gl.linkProgram(prog);
-        if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { MOL_STATE.webglReady = false; return; }
-
-        MOL_STATE.gl = gl;
-        MOL_STATE.glProg = prog;
-        MOL_STATE.glBuf = gl.createBuffer();
-        MOL_STATE.webglReady = true;
-      } catch (_) {
-        MOL_STATE.webglReady = false;
-      }
-    }
-
     function set3dModel(key) {
       MOL_STATE.modelKey = key;
       if (key === 'x12_lattice') buildX12LatticeModel();
@@ -3270,16 +3114,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     function toggle3dRendererMode() {
       MOL_STATE.forceSoftware = !MOL_STATE.forceSoftware;
       document.getElementById('btnToggle3dRenderer').textContent = MOL_STATE.forceSoftware ? 'Engine: Software' : 'Engine: Auto';
-      // Recreate canvas if switching between WebGL and 2D context on same element
-      const oldCanvas = document.getElementById('molecular3dCanvas');
-      const nextCanvas = oldCanvas.cloneNode(false);
-      oldCanvas.parentNode.replaceChild(nextCanvas, oldCanvas);
-      bind3dCanvasEvents(nextCanvas);
-      if (!MOL_STATE.forceSoftware) {
-        initWebGL3D();
-      } else {
-        MOL_STATE.gl = null;
-      }
       request3dRender();
     }
 
@@ -3310,10 +3144,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           sx: w / 2 + x1 * scale,
           sy: h / 2 - y2 * scale,
           depth,
-          sr: Math.max(5, a.r * scale),
-          ndcX: (x1 * scale) / (w / 2),
-          ndcY: (y2 * scale) / (h / 2),
-          ndcZ: Math.max(-0.95, Math.min(0.95, (depth - camDist) / 10.0))
+          sr: Math.max(5, a.r * scale)
         };
       });
 
@@ -3321,144 +3152,56 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     function request3dRender() {
-      const canvas = document.getElementById('molecular3dCanvas');
-      if (!canvas) return;
-      const rect = canvas.parentElement.getBoundingClientRect();
-      const w = Math.max(rect.width, 320);
-      const h = Math.max(rect.height, 260);
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = Math.round(w * dpr);
-      canvas.height = Math.round(h * dpr);
+      const svg = document.getElementById('molecular3dSurface');
+      if (!svg) return;
+      const rect = svg.parentElement.getBoundingClientRect();
+      const w = Math.max(Math.round(rect.width), 320);
+      const h = Math.max(Math.round(rect.height), 260);
+      svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
 
       const model = MOL_MODELS[MOL_STATE.modelKey] || MOL_MODELS.lisinopril;
       const { projAtoms, bonds } = projectModelGeometry(model, w, h);
       MOL_STATE.projectedAtoms = projAtoms;
 
-      const useWebGL = !MOL_STATE.forceSoftware && MOL_STATE.webglReady && MOL_STATE.gl;
       const badge = document.getElementById('mol3dEngineBadge');
-
-      if (useWebGL) {
-        badge.textContent = 'Renderer: Hardware WebGL Shader';
-        const gl = MOL_STATE.gl;
-        gl.viewport(0, 0, canvas.width, canvas.height);
-        gl.clearColor(0, 0, 0, 0);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.enable(gl.BLEND);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-        gl.useProgram(MOL_STATE.glProg);
-
-        const verts = [];
-        const pushQuad = (pts, rgb, sizeX, sizeY, kind) => {
-          // 2 triangles
-          const c = [[-1,-1],[1,-1],[1,1],[-1,-1],[1,1],[-1,1]];
-          c.forEach(cn => {
-            verts.push(cn[0] * sizeX, cn[1] * sizeY, pts[0], pts[1], pts[2], rgb[0], rgb[1], rgb[2], 1.0, kind);
-          });
-        };
-
-        // Back-to-front sorted draw list (bonds + spheres)
-        const items = [];
-        bonds.forEach(b => {
-          const p1 = projAtoms[b[0]], p2 = projAtoms[b[1]];
-          if (!p1 || !p2) return;
-          items.push({ depth: (p1.depth + p2.depth) * 0.5 + 0.08, type: 'bond', p1, p2 });
-        });
-        projAtoms.forEach(pa => {
-          items.push({ depth: pa.depth, type: 'atom', pa });
-        });
-        items.sort((a, b) => b.depth - a.depth);
-
-        items.forEach(it => {
-          if (it.type === 'bond') {
-            const { p1, p2 } = it;
-            const dx = p2.sx - p1.sx, dy = p2.sy - p1.sy;
-            const len = Math.hypot(dx, dy) || 1;
-            const nx = (-dy / len) * 2.2 / (w / 2);
-            const ny = (-dx / len) * 2.2 / (h / 2);
-            const rgb = hexToRgb(p1.atom.color).map(v => v / 255);
-            const x1 = p1.ndcX, y1 = p1.ndcY, x2 = p2.ndcX, y2 = p2.ndcY;
-            const q = [
-              [x1 - nx, y1 - ny], [x1 + nx, y1 + ny], [x2 + nx, y2 + ny],
-              [x1 - nx, y1 - ny], [x2 + nx, y2 + ny], [x2 - nx, y2 - ny]
-            ];
-            q.forEach(pt => {
-              verts.push(0, 0, pt[0], pt[1], 0, rgb[0], rgb[1], rgb[2], 0.0, 0.0);
-            });
-          } else {
-            const pa = it.pa;
-            const rgb = hexToRgb(pa.atom.color).map(v => v / 255);
-            const rx = pa.sr / (w / 2);
-            const ry = pa.sr / (h / 2);
-            const corners = [[-1,-1],[1,-1],[1,1],[-1,-1],[1,1],[-1,1]];
-            corners.forEach(cn => {
-              verts.push(cn[0], cn[1], pa.ndcX + cn[0] * rx, pa.ndcY + cn[1] * ry, 0, rgb[0], rgb[1], rgb[2], 0.0, 1.0);
-            });
-          }
-        });
-
-        const arr = new Float32Array(verts);
-        gl.bindBuffer(gl.ARRAY_BUFFER, MOL_STATE.glBuf);
-        gl.bufferData(gl.ARRAY_BUFFER, arr, gl.DYNAMIC_DRAW);
-
-        const stride = 10 * 4;
-        const bindAttr = (name, size, offset) => {
-          const loc = gl.getAttribLocation(MOL_STATE.glProg, name);
-          if (loc >= 0) {
-            gl.enableVertexAttribArray(loc);
-            gl.vertexAttribPointer(loc, size, gl.FLOAT, false, stride, offset * 4);
-          }
-        };
-        bindAttr('aCorner', 2, 0);
-        bindAttr('aPos', 3, 2);
-        bindAttr('aColor', 3, 5);
-        bindAttr('aSize', 1, 8);
-        bindAttr('aKind', 1, 9);
-
-        gl.drawArrays(gl.TRIANGLES, 0, verts.length / 10);
-      } else {
-        // Software 2D Perspective Projection Fallback (DESIGN.md Section 4)
-        badge.textContent = 'Renderer: Software Projection Fallback';
-        const ctx = canvas.getContext('2d');
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx.clearRect(0, 0, w, h);
-
-        const items = [];
-        bonds.forEach(b => {
-          const p1 = projAtoms[b[0]], p2 = projAtoms[b[1]];
-          if (p1 && p2) items.push({ depth: (p1.depth + p2.depth) * 0.5 + 0.08, type: 'bond', p1, p2 });
-        });
-        projAtoms.forEach(pa => items.push({ depth: pa.depth, type: 'atom', pa }));
-        items.sort((a, b) => b.depth - a.depth);
-
-        items.forEach(it => {
-          if (it.type === 'bond') {
-            ctx.strokeStyle = it.p1.atom.color;
-            ctx.globalAlpha = 0.48;
-            ctx.lineWidth = 3.2;
-            ctx.beginPath();
-            ctx.moveTo(it.p1.sx, it.p1.sy);
-            ctx.lineTo(it.p2.sx, it.p2.sy);
-            ctx.stroke();
-            ctx.globalAlpha = 1.0;
-          } else {
-            const pa = it.pa;
-            ctx.fillStyle = pa.atom.color;
-            ctx.beginPath();
-            ctx.arc(pa.sx, pa.sy, pa.sr, 0, Math.PI * 2);
-            ctx.fill();
-            // Specular highlight dot
-            ctx.fillStyle = 'rgba(255,255,255,0.34)';
-            ctx.beginPath();
-            ctx.arc(pa.sx - pa.sr * 0.28, pa.sy - pa.sr * 0.28, Math.max(1.5, pa.sr * 0.28), 0, Math.PI * 2);
-            ctx.fill();
-          }
-        });
+      if (badge) {
+        badge.textContent = MOL_STATE.forceSoftware
+          ? 'Renderer: Software Projection Fallback'
+          : 'Renderer: 3D Vector Perspective (Software Projection Fallback)';
       }
+
+      const items = [];
+      bonds.forEach(b => {
+        const p1 = projAtoms[b[0]], p2 = projAtoms[b[1]];
+        if (p1 && p2) items.push({ depth: (p1.depth + p2.depth) * 0.5 + 0.08, type: 'bond', p1, p2 });
+      });
+      projAtoms.forEach(pa => items.push({ depth: pa.depth, type: 'atom', pa }));
+      items.sort((a, b) => b.depth - a.depth);
+
+      const parts = [];
+      items.forEach(it => {
+        if (it.type === 'bond') {
+          parts.push(
+            `<line x1="${it.p1.sx.toFixed(1)}" y1="${it.p1.sy.toFixed(1)}" x2="${it.p2.sx.toFixed(1)}" y2="${it.p2.sy.toFixed(1)}" stroke="${it.p1.atom.color}" stroke-opacity="0.52" stroke-width="3.2" stroke-linecap="round"/>`
+          );
+        } else {
+          const pa = it.pa;
+          const hlX = pa.sx - pa.sr * 0.28;
+          const hlY = pa.sy - pa.sr * 0.28;
+          const hlR = Math.max(1.5, pa.sr * 0.28);
+          parts.push(`<circle cx="${pa.sx.toFixed(1)}" cy="${pa.sy.toFixed(1)}" r="${pa.sr.toFixed(1)}" fill="${pa.atom.color}"/>`);
+          if (!MOL_STATE.forceSoftware) {
+            parts.push(`<circle cx="${hlX.toFixed(1)}" cy="${hlY.toFixed(1)}" r="${hlR.toFixed(1)}" fill="rgba(255,255,255,0.34)"/>`);
+          }
+        }
+      });
+
+      svg.innerHTML = parts.join('');
     }
 
-    function bind3dCanvasEvents(canvas) {
-      if (!canvas) return;
-      canvas.addEventListener('mousedown', e => {
+    function bind3dSurfaceEvents(surfaceEl) {
+      if (!surfaceEl) return;
+      surfaceEl.addEventListener('mousedown', e => {
         MOL_STATE.dragging = true;
         MOL_STATE.lastX = e.clientX;
         MOL_STATE.lastY = e.clientY;
@@ -3474,8 +3217,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           request3dRender();
           return;
         }
-        // Hover picking on 3D canvas
-        const rect = canvas.getBoundingClientRect();
+        const rect = surfaceEl.getBoundingClientRect();
         if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
           const mx = e.clientX - rect.left;
           const my = e.clientY - rect.top;
@@ -3493,8 +3235,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         }
       });
       window.addEventListener('mouseup', () => { MOL_STATE.dragging = false; });
-      canvas.addEventListener('mouseleave', hideTooltip);
-      canvas.addEventListener('wheel', e => {
+      surfaceEl.addEventListener('mouseleave', hideTooltip);
+      surfaceEl.addEventListener('wheel', e => {
         e.preventDefault();
         MOL_STATE.zoom = Math.max(0.55, Math.min(2.4, MOL_STATE.zoom * (e.deltaY < 0 ? 1.08 : 0.92)));
         request3dRender();
@@ -3520,7 +3262,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     function initChartHover() {
-      const c = document.getElementById('financialChartCanvas');
+      const c = document.getElementById('financialChartSurface');
       if (!c) return;
       c.addEventListener('mousemove', e => {
         const rect = c.getBoundingClientRect();
@@ -3635,7 +3377,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       };
 
       document.getElementById('activeSegTag').textContent = seg.segment_id;
-      document.getElementById('activeSegName').textContent = `${seg.segment_id} — ${kb.name}`;
+      document.getElementById('activeSegName').textContent = `${seg.segment_id} - ${kb.name}`;
       document.getElementById('activeSegDesc').textContent = kb.desc;
       document.getElementById('activeSegLoop').textContent = kb.loop;
 
@@ -3649,7 +3391,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         tbody.innerHTML = seg.elements.map((val, eIdx) => {
           const elemRef = `${seg.segment_id}${String(eIdx + 1).padStart(2, '0')}`;
           const fKey = fieldKeys[eIdx] || `element_${eIdx + 1}`;
-          const displayVal = val ? escapeHtml(String(val).slice(0, 140)) : '<span class="tone-muted">&mdash;</span>';
+          const displayVal = val ? escapeHtml(String(val).slice(0, 140)) : '<span class="tone-muted">--</span>';
           return `
             <tr>
               <td class="mono tone-teal" style="font-weight:600">${elemRef}</td>
@@ -3765,7 +3507,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       `).join('') || `<tr><td colspan="6" class="tone-muted">Envelope validated</td></tr>`;
 
       document.getElementById('activeProvenanceCitation').textContent =
-        `Active Source: ${meta.source_path} • [${meta.tx_type}] • SHA-256: ${meta.sha256} • ${meta.byte_size.toLocaleString()} bytes`;
+        `Active Source: ${meta.source_path} | [${meta.tx_type}] | SHA-256: ${meta.sha256} | ${meta.byte_size.toLocaleString()} bytes`;
 
       const pBody = document.getElementById('provenanceLogTbody');
       pBody.innerHTML = BUNDLE.datasets.map((ds, idx) => {
@@ -3775,7 +3517,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         const activeStyle = isCurrent ? 'font-weight:600;color:var(--viz-teal)' : '';
         return `
           <tr style="cursor:pointer;${isCurrent ? 'background:var(--bg-subtle)' : ''}" onclick="selectWorkspaceDataset(${idx}, true, false)">
-            <td class="mono" style="${activeStyle}">${isCurrent ? '&rarr; ' : ''}${escapeHtml(m.source_path)}</td>
+            <td class="mono" style="${activeStyle}">${isCurrent ? '-> ' : ''}${escapeHtml(m.source_path)}</td>
             <td class="mono">${escapeHtml(m.tx_type)}</td>
             <td class="mono">${segs}</td>
             <td class="mono tone-muted">${escapeHtml(m.sha256)}</td>
@@ -3796,7 +3538,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
       const envSub = document.getElementById('envelopeSubtitle');
       if (envSub) {
-        envSub.textContent = `[${meta.tx_type}] ${meta.filename} • ISA13 #${isa.interchange_control_number || meta.isa_control_number} • ${meta.byte_size.toLocaleString()} bytes`;
+        envSub.textContent = `[${meta.tx_type}] ${meta.filename} | ISA13 #${isa.interchange_control_number || meta.isa_control_number} | ${meta.byte_size.toLocaleString()} bytes`;
       }
 
       const items = [
@@ -3807,7 +3549,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         { label: 'Functional Group (GS01/GS06)', val: `${firstGroup.functional_identifier_code || gs.functional_identifier_code || 'HC'} #${firstGroup.group_control_number || gs.group_control_number || '1'}` },
         { label: 'Implementation Spec (GS08)', val: firstGroup.version || gs.version_release_industry_identifier_code || meta.gs_version || '005010' },
         { label: 'Set Control # (ST01/ST02)', val: `ST*${firstTx.transaction_type || meta.tx_type}*${firstTx.transaction_set_control_number || '0001'}` },
-        { label: 'Detected Delimiters', val: `Elem '${delims.element_separator || '*'}' • Comp '${delims.component_separator || ':'}' • Seg '${(delims.segment_terminator || '~') === '\n' ? '\\n' : (delims.segment_terminator || '~')}'` }
+        { label: 'Detected Delimiters', val: `Elem '${delims.element_separator || '*'}' | Comp '${delims.component_separator || ':'}' | Seg '${(delims.segment_terminator || '~') === '\n' ? '\\n' : (delims.segment_terminator || '~')}'` }
       ];
 
       grid.innerHTML = items.map(it => `
@@ -3848,7 +3590,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         const geo = o.geographic_location || {};
         const loc = addr.address_line_1
           ? `${addr.address_line_1}, ${geo.city || ''} ${geo.state || ''} ${geo.postal_code || ''}`.trim()
-          : (o.date_of_birth ? `DOB: ${o.date_of_birth}${o.gender ? ' • Sex: ' + o.gender : ''}` : `Active in ${meta ? meta.tx_type : 'X12'} Loop`);
+          : (o.date_of_birth ? `DOB: ${o.date_of_birth}${o.gender ? ' | Sex: ' + o.gender : ''}` : `Active in ${meta ? meta.tx_type : 'X12'} Loop`);
         cards.push(`
           <div class="flat-cell">
             <span class="detail-kv-label ${c.tone}">${escapeHtml(c.role)}</span>
@@ -3876,7 +3618,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           <section class="bento-pane">
             <div class="pane-header">
               <div class="pane-title-group">
-                <h2 class="pane-title">Submitted Claim ${escapeHtml(c.claim_id || '')} — Service Lines &amp; Diagnoses (${escapeHtml(fileTag)})</h2>
+                <h2 class="pane-title">Submitted Claim ${escapeHtml(c.claim_id || '')} - Service Lines &amp; Diagnoses (${escapeHtml(fileTag)})</h2>
                 <p class="pane-subtitle">ICD-10 Diagnoses: ${(c.diagnoses || []).map(d => `${d.diagnosis_type || 'DX'}:${d.code}`).join(', ') || 'None'}</p>
               </div>
               <span class="mono tone-teal" style="font-weight:600">$${(parseFloat(c.total_claim_charge_amount) || 0).toFixed(2)}</span>
@@ -3914,8 +3656,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           <section class="bento-pane">
             <div class="pane-header">
               <div class="pane-title-group">
-                <h2 class="pane-title">Remittance Adjudication — Claim ${escapeHtml(c.patient_control_number || '')} (${escapeHtml(fileTag)})</h2>
-                <p class="pane-subtitle">ICN: ${escapeHtml(c.payer_claim_control_number || 'N/A')} • Status: ${escapeHtml(c.claim_status_description || 'Processed as Primary')}</p>
+                <h2 class="pane-title">Remittance Adjudication - Claim ${escapeHtml(c.patient_control_number || '')} (${escapeHtml(fileTag)})</h2>
+                <p class="pane-subtitle">ICN: ${escapeHtml(c.payer_claim_control_number || 'N/A')} | Status: ${escapeHtml(c.claim_status_description || 'Processed as Primary')}</p>
               </div>
               <span class="mono tone-emerald" style="font-weight:600">Paid $${(parseFloat(c.claim_payment_amount) || 0).toFixed(2)} / Billed $${(parseFloat(c.total_claim_charge_amount) || 0).toFixed(2)}</span>
             </div>
@@ -3950,7 +3692,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           <section class="bento-pane">
             <div class="pane-header">
               <div class="pane-title-group">
-                <h2 class="pane-title">Pended Claim Documentation Requests — 277 (${escapeHtml(fileTag)})</h2>
+                <h2 class="pane-title">Pended Claim Documentation Requests - 277 (${escapeHtml(fileTag)})</h2>
                 <p class="pane-subtitle">Loop 2200D STC &amp; PWK clinical attachment triggers ($${((meta && meta.financials && meta.financials.pended_exposure) || 0).toFixed(2)} pended exposure)</p>
               </div>
               <span class="status-tag status-alert">${reqs.length} Action Required</span>
@@ -3963,7 +3705,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                     <tr>
                       <td class="mono tone-rose" style="font-weight:600">${escapeHtml(r.status_category_code || 'R4')}</td>
                       <td>${escapeHtml(r.action_description || r.action_code || 'Pended')}</td>
-                      <td><span class="mono">${escapeHtml(r.attachment_report_type_code || '09')}</span> — ${escapeHtml(r.attachment_report_type_description || 'Clinical Document')}</td>
+                      <td><span class="mono">${escapeHtml(r.attachment_report_type_code || '09')}</span> - ${escapeHtml(r.attachment_report_type_description || 'Clinical Document')}</td>
                       <td class="mono">${escapeHtml(r.attachment_transmission_code || 'EL')}</td>
                       <td class="mono">${escapeHtml(r.attachment_control_number || 'N/A')}</td>
                     </tr>
@@ -3980,7 +3722,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           <section class="bento-pane">
             <div class="pane-header">
               <div class="pane-title-group">
-                <h2 class="pane-title">Eligibility &amp; Benefit Coverage Schedule — 271 (${escapeHtml(fileTag)})</h2>
+                <h2 class="pane-title">Eligibility &amp; Benefit Coverage Schedule - 271 (${escapeHtml(fileTag)})</h2>
                 <p class="pane-subtitle">Loop 2110C EB benefit determinations (${bens.length} coverage entries)</p>
               </div>
               <span class="status-tag status-pass">${bens.length} EB Rows</span>
@@ -4021,8 +3763,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           <section class="bento-pane">
             <div class="pane-header">
               <div class="pane-title-group">
-                <h2 class="pane-title">Real-Time Eligibility &amp; Benefit Inquiries — 270 (${escapeHtml(fileTag)})</h2>
-                <p class="pane-subtitle">Trace: ${escapeHtml((trnSeg && trnSeg.elements[1]) || 'N/A')} • Service Date: ${escapeHtml((dtpSeg && dtpSeg.elements[2]) || 'Current')}</p>
+                <h2 class="pane-title">Real-Time Eligibility &amp; Benefit Inquiries - 270 (${escapeHtml(fileTag)})</h2>
+                <p class="pane-subtitle">Trace: ${escapeHtml((trnSeg && trnSeg.elements[1]) || 'N/A')} | Service Date: ${escapeHtml((dtpSeg && dtpSeg.elements[2]) || 'Current')}</p>
               </div>
               <span class="status-tag status-nominal">${eqSegs.length} EQ Inquiries</span>
             </div>
@@ -4058,8 +3800,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           <section class="bento-pane">
             <div class="pane-header">
               <div class="pane-title-group">
-                <h2 class="pane-title">Patient Information &amp; Clinical Attachment Manifest — 275 (${escapeHtml(fileTag)})</h2>
-                <p class="pane-subtitle">Attachment Ref: ${escapeHtml((bgnSeg && bgnSeg.elements[1]) || docMeta.document_id || 'CCDA-275')} • Report Description: ${escapeHtml((pidSeg && pidSeg.elements[4]) || docMeta.title || 'HL7 C-CDA R2.1')}</p>
+                <h2 class="pane-title">Patient Information &amp; Clinical Attachment Manifest - 275 (${escapeHtml(fileTag)})</h2>
+                <p class="pane-subtitle">Attachment Ref: ${escapeHtml((bgnSeg && bgnSeg.elements[1]) || docMeta.document_id || 'CCDA-275')} | Report Description: ${escapeHtml((pidSeg && pidSeg.elements[4]) || docMeta.title || 'HL7 C-CDA R2.1')}</p>
               </div>
               <span class="status-tag status-pass">${bdsLen.toLocaleString()} XML Octets</span>
             </div>
@@ -4095,7 +3837,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                     <td style="font-weight:600">Vital Signs Panel</td>
                     <td class="mono">LOINC 8716-3</td>
                     <td class="mono tone-emerald">${(clin.vital_signs || []).length}</td>
-                    <td class="mono">${escapeHtml((clin.vital_signs || []).map(v => `${v.vital_sign || v.measurement}: ${v.value} ${v.unit || ''}`.trim()).join(' • ') || 'None')}</td>
+                    <td class="mono">${escapeHtml((clin.vital_signs || []).map(v => `${v.vital_sign || v.measurement}: ${v.value} ${v.unit || ''}`.trim()).join(' | ') || 'None')}</td>
                   </tr>
                 </tbody>
               </table>
@@ -4108,8 +3850,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           <section class="bento-pane">
             <div class="pane-header">
               <div class="pane-title-group">
-                <h2 class="pane-title">Prior Authorization Services Review — 278 (${escapeHtml(fileTag)})</h2>
-                <p class="pane-subtitle">Diagnoses: ${(ev.diagnoses || []).map(d => d.code || d).join(', ') || 'See HI'} • Requested Services: ${(ev.services || []).map(s => (s.procedure && (s.procedure.procedure_code || s.procedure.raw)) || 'SV1').join(', ') || 'Certified'}</p>
+                <h2 class="pane-title">Prior Authorization Services Review - 278 (${escapeHtml(fileTag)})</h2>
+                <p class="pane-subtitle">Diagnoses: ${(ev.diagnoses || []).map(d => d.code || d).join(', ') || 'See HI'} | Requested Services: ${(ev.services || []).map(s => (s.procedure && (s.procedure.procedure_code || s.procedure.raw)) || 'SV1').join(', ') || 'Certified'}</p>
               </div>
               <span class="status-tag status-pass">${(ev.review_results || []).length} Review Decision</span>
             </div>
@@ -4183,9 +3925,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         const docMeta = clin.document_metadata || {};
         const pt = clin.patient_demographics || {};
         document.getElementById('clinicalDocTitle').textContent =
-          `${docMeta.title || 'Consolidated Clinical Document (C-CDA R2.1)'} — [${txType}] ${meta ? meta.filename : ''}`;
+          `${docMeta.title || 'Consolidated Clinical Document (C-CDA R2.1)'} - [${txType}] ${meta ? meta.filename : ''}`;
         document.getElementById('clinicalDocMeta').textContent =
-          `Patient: ${(pt.name && pt.name.full_name) || 'Verified Patient'} • DOB: ${pt.date_of_birth || 'N/A'} • Active Source: ${meta ? meta.source_path : '275 BDS'} (SHA-256 ${meta ? meta.sha256 : ''})`;
+          `Patient: ${(pt.name && pt.name.full_name) || 'Verified Patient'} | DOB: ${pt.date_of_birth || 'N/A'} | Active Source: ${meta ? meta.source_path : '275 BDS'} (SHA-256 ${meta ? meta.sha256 : ''})`;
         const tagEl = document.getElementById('clinicalSourceTag');
         tagEl.className = 'status-tag status-pass';
         tagEl.textContent = docMeta.document_id || `275 C-CDA (${meta ? meta.filename : 'XML'})`;
@@ -4200,15 +3942,15 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         grid.innerHTML = `
           <div class="flat-cell">
             <span class="detail-kv-label tone-rose">Allergies &amp; Adverse Reactions (LOINC 48765-2)</span>
-            ${algs.map(a => `<div class="mono" style="font-size:0.77rem"><strong>${escapeHtml(a.substance)}</strong>${a.rxnorm_code ? ` [RxNorm ${escapeHtml(a.rxnorm_code)}]` : ''} &rarr; <span class="tone-rose">${escapeHtml(a.reaction || 'Adverse reaction')}${a.severity ? ` (${escapeHtml(a.severity)})` : ''}</span></div>`).join('') || '<span class="tone-muted">No allergies recorded in C-CDA section</span>'}
+            ${algs.map(a => `<div class="mono" style="font-size:0.77rem"><strong>${escapeHtml(a.substance)}</strong>${a.rxnorm_code ? ` [RxNorm ${escapeHtml(a.rxnorm_code)}]` : ''} -> <span class="tone-rose">${escapeHtml(a.reaction || 'Adverse reaction')}${a.severity ? ` (${escapeHtml(a.severity)})` : ''}</span></div>`).join('') || '<span class="tone-muted">No allergies recorded in C-CDA section</span>'}
           </div>
           <div class="flat-cell">
             <span class="detail-kv-label tone-indigo">Active Medications (LOINC 10160-0)</span>
-            ${meds.map(m => `<div class="mono" style="font-size:0.77rem"><strong>${escapeHtml(m.medication_name)}</strong>${m.rxnorm_code ? ` [RxNorm ${escapeHtml(m.rxnorm_code)}]` : ''} &bull; ${escapeHtml(m.dose || m.status || 'Active')}</div>`).join('') || '<span class="tone-muted">No medications recorded in C-CDA section</span>'}
+            ${meds.map(m => `<div class="mono" style="font-size:0.77rem"><strong>${escapeHtml(m.medication_name)}</strong>${m.rxnorm_code ? ` [RxNorm ${escapeHtml(m.rxnorm_code)}]` : ''} | ${escapeHtml(m.dose || m.status || 'Active')}</div>`).join('') || '<span class="tone-muted">No medications recorded in C-CDA section</span>'}
           </div>
           <div class="flat-cell">
             <span class="detail-kv-label tone-teal">Problem List &amp; Diagnoses (LOINC 11450-4)</span>
-            ${probs.map(p => `<div class="mono" style="font-size:0.77rem"><span class="tone-teal">${escapeHtml(p.code || 'DX')}</span> — ${escapeHtml(p.problem_name)} (${escapeHtml(p.status || 'active')})</div>`).join('') || '<span class="tone-muted">No problem entries recorded in C-CDA section</span>'}
+            ${probs.map(p => `<div class="mono" style="font-size:0.77rem"><span class="tone-teal">${escapeHtml(p.code || 'DX')}</span> - ${escapeHtml(p.problem_name)} (${escapeHtml(p.status || 'active')})</div>`).join('') || '<span class="tone-muted">No problem entries recorded in C-CDA section</span>'}
           </div>
           <div class="flat-cell">
             <span class="detail-kv-label tone-emerald">Vital Signs Panel (LOINC 8716-3)</span>
@@ -4224,7 +3966,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         return;
       }
 
-      // Case 2: Non-275 X12 stream — show ONLY clinical, diagnostic, procedure & attachment metadata present in THIS active stream!
+      // Case 2: Non-275 X12 stream - show ONLY clinical, diagnostic, procedure & attachment metadata present in THIS active stream!
       const partners = resolveTradingPartners(tx);
       const ptObj = partners.patient || {};
       const dmgSeg = ALL_SEGMENTS.find(s => s.segment_id === 'DMG');
@@ -4234,9 +3976,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       const ptId = ptObj.identification_code || 'N/A';
 
       document.getElementById('clinicalDocTitle').textContent =
-        `Active Stream Clinical & Diagnostic Extract — [${txType}] ${meta ? meta.filename : ''}`;
+        `Active Stream Clinical & Diagnostic Extract - [${txType}] ${meta ? meta.filename : ''}`;
       document.getElementById('clinicalDocMeta').textContent =
-        `Patient/Subscriber: ${ptName} (${ptId}) • DOB: ${dob} • Active Source: ${meta ? meta.source_path : txType} (SHA-256 ${meta ? meta.sha256 : ''})`;
+        `Patient/Subscriber: ${ptName} (${ptId}) | DOB: ${dob} | Active Source: ${meta ? meta.source_path : txType} (SHA-256 ${meta ? meta.sha256 : ''})`;
       const tagEl = document.getElementById('clinicalSourceTag');
       tagEl.className = 'status-tag status-nominal';
       tagEl.textContent = `EDI ${txType} (NO EMBEDDED XML)`;
@@ -4284,11 +4026,11 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       // Extract PWK / STC clinical attachment references in active stream
       const pwkItems = [];
       (tx.required_attachments || []).forEach(r => {
-        pwkItems.push(`STC ${r.status_category_code || 'R4'} / PWK ${r.attachment_report_type_code || '09'} (${r.attachment_report_type_description || 'Clinical Attachment'}) — Control #${r.attachment_control_number || 'N/A'}`);
+        pwkItems.push(`STC ${r.status_category_code || 'R4'} / PWK ${r.attachment_report_type_code || '09'} (${r.attachment_report_type_description || 'Clinical Attachment'}) - Control #${r.attachment_control_number || 'N/A'}`);
       });
       if (pwkItems.length === 0) {
         ALL_SEGMENTS.filter(s => s.segment_id === 'PWK').forEach(pwk => {
-          pwkItems.push(`PWK*${pwk.elements[0] || ''} (${pwk.elements[1] || 'EL'}) — Control #${pwk.elements[5] || 'N/A'}`);
+          pwkItems.push(`PWK*${pwk.elements[0] || ''} (${pwk.elements[1] || 'EL'}) - Control #${pwk.elements[5] || 'N/A'}`);
         });
       }
 
@@ -4300,8 +4042,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       grid.innerHTML = `
         <div class="flat-cell">
           <span class="detail-kv-label tone-indigo">Patient / Subscriber Demographics (${escapeHtml(txType)})</span>
-          <div class="mono" style="font-size:0.78rem"><strong>${escapeHtml(ptName)}</strong> &bull; ID: ${escapeHtml(ptId)}</div>
-          <div class="mono tone-muted" style="font-size:0.75rem">DOB: ${escapeHtml(dob)} &bull; Administrative Sex: ${escapeHtml(sex)}</div>
+          <div class="mono" style="font-size:0.78rem"><strong>${escapeHtml(ptName)}</strong> | ID: ${escapeHtml(ptId)}</div>
+          <div class="mono tone-muted" style="font-size:0.75rem">DOB: ${escapeHtml(dob)} | Administrative Sex: ${escapeHtml(sex)}</div>
         </div>
         <div class="flat-cell">
           <span class="detail-kv-label tone-teal">ICD-10-CM Diagnoses in Active Stream (HI)</span>
@@ -4332,24 +4074,24 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     function renderRawEdi(raw, meta) {
-      document.getElementById('rawEdiProvenanceSub').textContent = `${meta.source_path} • [${meta.tx_type}] • ${meta.byte_size.toLocaleString()} bytes • SHA-256 ${meta.sha256}`;
+      document.getElementById('rawEdiProvenanceSub').textContent = `${meta.source_path} | [${meta.tx_type}] | ${meta.byte_size.toLocaleString()} bytes | SHA-256 ${meta.sha256}`;
       document.getElementById('rawEdiDisplay').textContent = raw || '';
     }
 
     function renderJsonTree(data, meta) {
       const sub = document.getElementById('jsonProvenanceSub');
       if (sub && meta) {
-        sub.textContent = `${meta.source_path} • [${meta.tx_type}] • ${ALL_SEGMENTS.length} segments • SHA-256 ${meta.sha256}`;
+        sub.textContent = `${meta.source_path} | [${meta.tx_type}] | ${ALL_SEGMENTS.length} segments | SHA-256 ${meta.sha256}`;
       }
       document.getElementById('jsonTreeDisplay').textContent = JSON.stringify(data, null, 2);
     }
 
     const CANONICAL_SPEC_ROWS = [
       { seg: 'ISA / IEA', keys: ['ISA', 'IEA'], path: 'interchange_header / interchange_trailer', loop: 'Envelope', desc: 'Sender/Receiver IDs, ISA13 control number, date/time, and element/segment delimiters.' },
-      { seg: 'GS / GE', keys: ['GS', 'GE'], path: 'functional_groups[].functional_group_header', loop: 'Group Header', desc: 'Functional family (HC, HP, HN, PI, HB, HS, HI) and 5010X222A1–X279A1 version identifier.' },
+      { seg: 'GS / GE', keys: ['GS', 'GE'], path: 'functional_groups[].functional_group_header', loop: 'Group Header', desc: 'Functional family (HC, HP, HN, PI, HB, HS, HI) and 5010X222A1-X279A1 version identifier.' },
       { seg: 'ST / SE', keys: ['ST', 'SE'], path: 'transaction_sets[].transaction_header', loop: 'Set Header', desc: 'Transaction set code (837, 835, 277, 275, 271, 270, 278) and SE01 segment tally.' },
       { seg: 'BHT / BGN', keys: ['BHT', 'BGN'], path: 'parsed_transaction.beginning_of_hierarchical_transaction', loop: 'Header', desc: 'Transaction purpose code, batch reference identifier, and creation timestamp.' },
-      { seg: 'HL', keys: ['HL'], path: 'parsed_transaction.hierarchy_levels[]', loop: 'Loop 2000A–2000E', desc: 'Parent-child hierarchy levels (Information Source, Receiver, Billing Provider, Subscriber, Event).' },
+      { seg: 'HL', keys: ['HL'], path: 'parsed_transaction.hierarchy_levels[]', loop: 'Loop 2000A-2000E', desc: 'Parent-child hierarchy levels (Information Source, Receiver, Billing Provider, Subscriber, Event).' },
       { seg: 'NM1 / N1', keys: ['NM1', 'N1'], path: 'billing_provider / payer / subscriber / patient', loop: 'Loop 1000 / 2010', desc: 'Entity legal/person names, NPI (XX), Payer ID (PI), Member ID (MI), and tax identifiers.' },
       { seg: 'N3 / N4 / PER', keys: ['N3', 'N4', 'PER'], path: '<entity>.address / geographic_location / contacts', loop: 'Loop 1000 / 2010', desc: 'Physical street address, city/state/ZIP location, and administrative communication contacts.' },
       { seg: 'SBR / DMG', keys: ['SBR', 'DMG'], path: 'subscriber.payer_responsibility / date_of_birth', loop: 'Loop 2000B / 2010BA', desc: 'Primary/secondary payer sequence, group policy number, birth date (YYYYMMDD), and gender.' },
@@ -5255,8 +4997,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       } catch (_) {}
 
       populateDatasetSelector();
-      initWebGL3D();
-      bind3dCanvasEvents(document.getElementById('molecular3dCanvas'));
+      bind3dSurfaceEvents(document.getElementById('molecular3dSurface'));
       initNodeMapInteractions();
       initChartHover();
       initUploadControls();
@@ -5297,7 +5038,7 @@ def generate_html_dashboard(
     include_workspace_samples: bool = True,
 ) -> str:
     """
-    Generate a complete, self-contained HTML5 dashboard adhering strictly to DESIGN.md.
+    Generate a complete, self-contained HTML5 dashboard aligned with DESIGN.md.
     """
     ws_datasets, ws_telemetry = _load_workspace_sample_datasets() if include_workspace_samples else ([], [])
 
@@ -5338,7 +5079,7 @@ def generate_html_dashboard(
         }]
 
     active_ds = datasets[active_index]
-    tx_badge = f"{active_ds['meta']['tx_type']} • {active_ds['meta']['gs_version']}"
+    tx_badge = f"{active_ds['meta']['tx_type']} | {active_ds['meta']['gs_version']}"
     generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
     bundle = {
@@ -5350,7 +5091,7 @@ def generate_html_dashboard(
     }
 
     # Safely serialize JSON for embedding inside <script> without premature </script> closure
-    bundle_json = json.dumps(bundle, ensure_ascii=False, default=str).replace("</", "<\\/")
+    bundle_json = json.dumps(bundle, ensure_ascii=True, default=str).replace("</", "<\\/")
 
     html = HTML_TEMPLATE.replace("__TITLE__", title)
     html = html.replace("__TX_BADGE__", tx_badge)

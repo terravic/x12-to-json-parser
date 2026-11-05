@@ -1,286 +1,291 @@
-# Production-Ready EDI X12-to-JSON Healthcare Parser and C-CDA XML Integration Engine
+# EDI X12-to-JSON Healthcare Parser and HL7 C-CDA Integration Engine
 
-An enterprise-grade, zero-dependency, modular EDI X12 (Version 5010) to structured JSON parser featuring automated Consolidated Clinical Document Architecture (C-CDA R2.1/R1.1) XML payload extraction, healthcare semantic key mapping, interactive visual dashboards, and OpenAPI / Plugin manifests.
-
-<p align="center">
-  <img src="docs/images/x12_skill_demo.jpg" alt="EDI X12 Healthcare Parser and Interactive Visual Dashboard Overview" width="100%">
-</p>
+A zero-dependency, modular ANSI ASC X12 (Version 5010) to structured JSON parser featuring HL7 Consolidated Clinical Document Architecture (C-CDA R2.1 and R1.1) XML payload extraction, semantic healthcare field mapping, standalone interactive HTML5 dashboards (`dashboard.html`), and an HTTP REST and Server-Sent Events (SSE) API service.
 
 ---
 
-## 1. Non-Technical Overview: How to Use This Skill
+## 1. Non-Technical User Guide: How to Use This Skill
 
 ### What is EDI X12?
-In the United States healthcare system, hospitals, doctor offices, pharmacies, clearinghouses, and insurance companies exchange administrative and clinical information using an electronic standard called **EDI X12** (Electronic Data Interchange, Version 5010).
+Hospitals, medical clinics, pharmacies, billing clearinghouses, and health plans exchange administrative and clinical records using an electronic standard called **EDI X12** (Electronic Data Interchange, Version 5010).
 
-Raw EDI files are composed of short, coded text segments separated by asterisks and tildes (for example: `CLM*98124*450.00***11:B:1*Y*A*Y*Y~`). While computers process these formats efficiently, humans cannot easily read them without consulting specialized technical manuals.
+Raw EDI files consist of compact, coded text segments separated by punctuation characters such as asterisks and tildes (for example: `CLM*98124*450.00***11:B:1*Y*A*Y*Y~`). Software systems transmit these files directly, whereas people reviewing claims, payments, or clinical requests normally have to look up code tables to read them.
 
 ### What Does This Skill Do?
-This skill translates cryptic healthcare EDI files into plain English, structured JSON data, and visual dashboards. It automatically:
-- Identifies who is sending and receiving the information (such as doctors, clinics, patients, and insurance payers).
-- Extracts billing numbers, dollar amounts, procedure codes, diagnosis codes, and payment decisions.
-- Highlights whether an insurance claim was approved, paid in full, partially paid, or denied.
-- Detects requests for missing medical records and unpackages embedded doctor notes, patient vitals, medication lists, and allergy records.
-- Generates interactive, visual web dashboards that allow anyone to view and inspect transaction details in a standard web browser.
+This skill converts raw healthcare EDI files and attached clinical XML documents into readable summaries, structured JSON records, and interactive web dashboards. Specifically, it:
+- Identifies the organizations and individuals involved in a transaction, including clinics, physicians, subscribers, patients, and health plans.
+- Extracts claim numbers, billed charges, procedure codes, diagnosis codes, benefit coverage terms, and payment totals.
+- Shows whether a claim was approved, paid in full, reduced by contractual adjustments, or pended for review.
+- Flags requests for additional medical documentation and decodes attached clinical progress notes, vital signs, medication lists, and allergy records.
+- Produces standalone `.html` dashboard files that open directly in any standard web browser without installing extra software.
+
+### Real-World Examples for Non-Technical Users
+
+#### Example 1: Checking Patient Insurance Coverage Before an Appointment (`270` Inquiry and `271` Response)
+- **Scenario**: A clinic front-desk coordinator wants to confirm whether a patient's health plan is active and check the office visit copay and annual deductible before a scheduled visit.
+- **How to Use**: Open `dashboard.html` in a web browser and select `[271] sample_271_response.x12` from the top dropdown menu (or upload the clinic's `.x12` response file using **Parse X12 Stream**).
+- **What You See**:
+  - Confirmation of active coverage under the patient's plan (such as Comprehensive Major Medical).
+  - Clear dollar and percentage figures for office visit copayments ($25.00), remaining deductibles ($500.00), and coinsurance rates (20%).
+  - Verified subscriber demographics, member ID, and date of birth.
+
+#### Example 2: Understanding an Insurance Payment and Write-Off (`835` Remittance Advice)
+- **Scenario**: A medical billing specialist receives an electronic payment file (`835`) where the clinic billed $1,500.00, received $950.00 by bank transfer, and needs to know why $550.00 was not paid.
+- **How to Use**: Select `[835] sample_835_remittance.x12` in `dashboard.html` (or run `python3 -m x12_parser.cli sample_data/sample_835_remittance.x12 --html docs/dashboard_835_remittance.html` and open the generated file).
+- **What You See**:
+  - The total payment transferred ($950.00 via ACH) and bank trace number (`CHK78912345`).
+  - A side-by-side breakdown of billed charges ($1,500.00), payer payment ($950.00), contractual write-offs ($450.00), and the amount owed by the patient ($100.00 for deductible and coinsurance).
+  - Plain-language descriptions for every adjustment reason code instead of raw `CAS` segment codes.
+
+#### Example 3: Finding Out Why a Claim is on Hold (`277` Status Request)
+- **Scenario**: A claim has not been paid because the health plan placed it on hold pending additional clinical documentation.
+- **How to Use**: Load the `277` file in `dashboard.html` or pass `sample_data/sample_277_request.x12` to the skill.
+- **What You See**:
+  - A pended claim alert showing the dollar amount on hold ($1,500.00) and the payer's claim control number.
+  - The exact type of record requested (for example, `Progress Report`, code `09`).
+  - How the clinic should send the record (`Electronic Only`) and the attachment tracking number (`ATT-REF-99214-CCDA`) to include on the response.
+
+#### Example 4: Reading Attached Medical Records (`275` Patient Information with C-CDA XML)
+- **Scenario**: A utilization review nurse needs to read the clinical progress note, vital signs, medications, and allergies sent inside an electronic `275` attachment envelope.
+- **How to Use**: Open `dashboard.html`, select `[275] sample_275_ccda_response.x12` (or upload a `.x12` attachment file), and click the **C-CDA Clinical Payload** tab.
+- **What You See**:
+  - **Patient Demographics**: Full name, date of birth, medical record number, address, and phone number.
+  - **Allergies**: Recorded allergens, RxNorm codes, reactions, and severity levels (for example, severe anaphylaxis reaction to Penicillin G).
+  - **Active Medications**: Current prescriptions, dosages, and schedules (for example, Lisinopril 20 MG once daily).
+  - **Diagnoses and Vital Signs**: Active ICD-10 conditions alongside blood pressure, heart rate, oxygen saturation, and weight measurements.
+  - **Clinical Notes**: The physician's narrative evaluation explaining medical necessity.
+
+#### Example 5: Exploring Your Own EDI File in the Browser Without Writing Code
+1. Open `dashboard.html` from the project root directory in any standard web browser.
+2. Click **Parse X12 Stream** in the top navigation bar.
+3. Drag and drop an `.x12`, `.edi`, or `.txt` file into the upload area (or paste the raw EDI text) and click **Parse & Update Studio**.
+4. Every chart, summary card, clinical view, segment inspector, raw file view, JSON tree, and field mapping table updates immediately to display the uploaded file. Use `Light`, `Dark`, or `System` in the top-right corner to adjust screen contrast, and click **Download .json** on the **Structured JSON** tab to save the converted data.
 
 ---
 
-### Non-Technical Examples
+## 2. Supported EDI X12 Transaction Sets (Version 5010)
 
-#### Example 1: Reviewing an Insurance Payment and Denial (835 Remittance Advice)
-- **The Situation**: An insurance payer sends a payment notification file (`835`), but some claims were only partially paid or rejected.
-- **How to Use**: Provide the raw text or file to the skill (or run `python3 -m x12_parser.cli sample_data/sample_835_remittance.x12 --html payment_summary.html`).
-- **What You See**:
-  - The total dollar amount transferred via ACH or check.
-  - A clean breakdown of each patient claim, showing the amount billed by the clinic ($450.00), the amount paid by the insurance company ($375.00), and the patient responsibility ($75.00).
-  - Clear explanations of adjustment reason codes (such as contractual write-offs or deductible obligations) rather than raw codes like `CAS*CO*45`.
-
-#### Example 2: Checking Why a Claim is Pending and What Records are Needed (277 Status Request)
-- **The Situation**: A healthcare claim is stuck in a "pended" state because the insurance company requires additional proof before approving coverage.
-- **How to Use**: Pass the status notification file to the parser or view its generated dashboard.
-- **What You See**:
-  - A clear alert stating that documentation is required.
-  - The exact type of medical record requested (for example: "Code 09: Medical Necessity Progress Note").
-  - The required electronic transmission method and tracking control numbers.
-
-#### Example 3: Inspecting Attached Medical Records (275 Attachment with C-CDA XML)
-- **The Situation**: A clinic sends patient clinical history and justification attached directly inside an electronic envelope (`275`).
-- **How to Use**: Parse the file using the CLI, API, or visual dashboard.
-- **What You See**:
-  - The embedded clinical document is automatically extracted, decoded, and organized into readable sections:
-    - **Patient Demographics**: Name, date of birth, gender, and contact details.
-    - **Active Medications**: Prescriptions, dosages, and RxNorm codes (such as Lisinopril 20mg).
-    - **Allergies and Reactions**: Substances and recorded adverse reactions (such as Penicillin hives).
-    - **Medical Diagnoses**: Documented conditions and ICD-10 codes (such as Essential Hypertension).
-    - **Doctor Evaluation Notes**: The full physician narrative explaining why the treatment is medically necessary.
-
-#### Example 4: Using the Visual Web Dashboard Without Writing Code
-- **How to Use**: Open any of the pre-generated dashboards in `docs/` (e.g., `docs/dashboard_837_claim.html` or `docs/x12_mapping_dashboard.html`) in Google Chrome, Safari, or Microsoft Edge.
-- **What You Can Do**:
-  - Toggle between Light and Dark modes.
-  - Drag and drop your own `.x12` or `.edi` file to immediately view its metrics, participant cards, and financial breakdown.
-  - Search for specific terms, codes, or patient names using the real-time search bar.
-  - Copy or download the clean structured JSON file with a single click.
-
----
-
-## 2. Supported EDI X12 Transaction Sets (5010)
-
-| Category | Transaction Set | Description | Implementation Spec |
+| Category | Transaction Set | Description | Implementation Guide |
 | :--- | :--- | :--- | :--- |
-| **Eligibility Checking** | **270** | Health Care Eligibility Benefit Inquiry | `005010X279A1` |
+| **Eligibility** | **270** | Health Care Eligibility Benefit Inquiry | `005010X279A1` |
 | | **271** | Health Care Eligibility Benefit Response | `005010X279A1` |
-| **Prior Authorization** | **278** | Health Care Services Review (Request / Response) | `005010X217` |
-| **Billing and Payment** | **837** | Health Care Claim (Professional / Institutional) | `005010X222A1` / `005010X223A2` |
-| | **835** | Health Care Claim Payment / Remittance Advice | `005010X221A1` |
-| **Clinical Attachments** | **277** | Request for Additional Information / Claim Status | `005010X212` / `005010X214` |
-| | **275** | Patient Information Attachment Envelope | `005010X210` / `005010X218` |
+| **Prior Authorization** | **278** | Health Care Services Review (Request and Response) | `005010X217` |
+| **Claims and Remittance** | **837** | Health Care Claim (Professional and Institutional) | `005010X222A1` / `005010X223A2` |
+| | **835** | Health Care Claim Payment and Remittance Advice | `005010X221A1` |
+| **Clinical Attachments** | **277** | Health Care Information Status and Documentation Request | `005010X212` / `005010X214` |
+| | **275** | Patient Information Attachment Envelope (with HL7 C-CDA) | `005010X210` / `005010X218` |
 
 ---
 
-## 3. Core Architecture and Processing Pipeline
+## 3. System Architecture and Processing Pipeline
 
 ```mermaid
 graph TD
-    Raw[Raw X12 5010 Text] --> Delim[Delimiter and Envelope Detector<br>ISA/GS/ST/SE/GE/IEA]
-    Delim --> Tok[Stream Tokenizer and Segment Parser]
-    Tok --> Dict[X12 Semantic Dictionary and Element Mapper]
-    Dict --> Loop[Hierarchical Loop Builder<br>2000, 2010, 2300, 2400]
-    
-    Loop --> Route{Transaction Set Identifier}
-    Route -->|837| P837[Claims 837 Parser]
-    Route -->|835| P835[Remittance 835 Parser]
-    Route -->|270/271| P270[Eligibility 270/271 Parser]
-    Route -->|278| P278[Prior Auth 278 Parser]
-    Route -->|277| P277[Status and Request 277 Parser<br>Flag required_attachments]
-    Route -->|275| P275[Attachment 275 Parser<br>Extract BDS/BIN Payload]
-    
-    P275 --> XMLDetect{Plain XML or Base64?}
-    XMLDetect -->|Decode and Parse| CCDA[C-CDA XML Parser]
-    CCDA --> ClinJSON[attached_clinical_data JSON<br>Demographics, Meds, Allergies, Problems, Vitals, Notes]
-    
-    P837 --> Output[Master Structured JSON]
+    Raw["Raw X12 5010 Stream"] --> Delim["Delimiter and Envelope Detector (ISA/GS/ST/SE/GE/IEA)"]
+    Delim --> Tok["Stream Tokenizer and Segment Parser"]
+    Tok --> Dict["X12 5010 Data Dictionary and Semantic Mapper"]
+    Dict --> Loop["Hierarchical Loop Builder (2000, 2010, 2100, 2300, 2400)"]
+
+    Loop --> Route{"Transaction Set ID"}
+    Route -->|837| P837["Claims 837 Parser"]
+    Route -->|835| P835["Remittance 835 Parser"]
+    Route -->|270 / 271| P270["Eligibility 270/271 Parser"]
+    Route -->|278| P278["Prior Auth 278 Parser"]
+    Route -->|277| P277["Status Request 277 Parser (required_attachments)"]
+    Route -->|275| P275["Attachment 275 Parser (BDS/BIN Extractor)"]
+
+    P275 --> XMLDetect{"Raw XML or Base64?"}
+    XMLDetect -->|Decode and Parse| CCDA["HL7 C-CDA R2.1/R1.1 XML Parser"]
+    CCDA --> ClinJSON["attached_clinical_data JSON"]
+
+    P837 --> Output["Structured Hierarchical JSON"]
     P835 --> Output
     P270 --> Output
     P278 --> Output
     P277 --> Output
     ClinJSON --> Output
-    
-    Output --> DashGen[Dashboard Generator<br>x12_parser.ui]
-    DashGen --> HTMLDash[Standalone Visual Dashboard<br>docs/dashboard_*.html]
+
+    Output --> DashGen["Dashboard Generator (x12_parser.ui)"]
+    DashGen --> HTMLDash["Standalone HTML5 Studio (dashboard.html, docs/*.html)"]
 ```
 
-### A. Base X12 to JSON Engine
-- **Delimiter Auto-Detection**: Dynamically extracts element separator (`*`), component sub-delimiter (`:`), repetition separator (`^`), and segment terminators (`~`, `\n`) from the standard 106-character `ISA` header.
-- **Hierarchical Loop Assembly**: Groups segments into standard loops (`Loop 2000A`, `2000B`, `2010AA`, `2300`, `2400`) instead of flat lists.
-- **Human-Readable Key Mapping**: Resolves cryptic segment and element IDs (e.g., `BHT02` to `beginning_transaction_purpose_code`, `CLM02` to `total_claim_charge_amount`, `CLP04` to `claim_payment_amount`).
-
-### B. C-CDA XML Integration Logic (277/275 Loop)
-- **277 Request for Additional Information**: Automatically parses `STC` (Category `R0` to `R5`, Action `A4`) and `PWK` segments to populate a unified `required_attachments` array with report type codes (e.g., `09` = Progress Report), transmission methods (`EL` = Electronic), and tracking numbers.
-- **275 Attachment Payload Extraction**: Locates `BDS` and `BIN` segments, identifies whether the payload is raw C-CDA XML or Base64-encoded, and passes it to the `CCDAParser`.
+### Core Engine Capabilities
+- **Automatic Delimiter Detection**: Reads element (`*`), component (`:`), repetition (`^`), and segment (`~`) delimiters directly from the 106-character `ISA` header, supporting non-standard custom delimiters while preserving embedded XML payloads inside `BDS`/`BIN` segments.
+- **Hierarchical Loop Assembly**: Organizes segments into nested 5010 loop structures (`Loop 1000`, `2000`, `2010`, `2100`, `2300`, `2400`) and `HL` parent-child hierarchies.
+- **Semantic Field Mapping**: Translates positional element codes (`BHT02`, `CLM02`, `CLP04`, `SV101`, `STC01`) into descriptive JSON property names and code descriptions.
+- **277/275 Clinical Attachment Correlation**: Flags requested clinical documentation on `277` transactions (`required_attachments`) and extracts raw or Base64-encoded HL7 C-CDA XML clinical records from `275` transactions (`attached_clinical_data`).
 
 ---
 
-## 4. Current Project Structure and File Tree
+## 4. Project Structure and Directory Tree
 
-```
-x12-to-json-parser/
-├── LICENSE                             # Apache 2.0 Open Source License
-├── README.md                           # Comprehensive documentation and non-technical guide
-├── requirements.txt                    # Python package dependencies (Standard library core)
-├── setup.py                            # Package installation and setup configuration
-├── docs/                               # Documentation, visual guides, and rendered dashboards
-│   ├── dashboard_275_ccda.html         # Interactive dashboard for 275 C-CDA clinical response
-│   ├── dashboard_277_request.html      # Interactive dashboard for 277 attachment request
-│   ├── dashboard_835_remittance.html   # Interactive dashboard for 835 claim payment/remittance
-│   ├── dashboard_837_claim.html        # Interactive dashboard for 837 healthcare claim
-│   ├── x12_mapping_dashboard.html      # Master semantic field dictionary and live converter
-│   └── images/
-│       └── x12_skill_demo.jpg          # Enterprise overview and architecture visual
-├── sample_data/                        # Realistic EDI X12 5010 sample transaction files
-│   ├── sample_270_inquiry.x12          # 270 Eligibility Benefit Inquiry
-│   ├── sample_271_response.x12         # 271 Eligibility Benefit Response
-│   ├── sample_275_ccda_response.x12    # 275 Clinical Attachment with embedded C-CDA XML
-│   ├── sample_277_request.x12          # 277 Claim Status Request flagging required records
-│   ├── sample_278_prior_auth.x12       # 278 Prior Authorization Request
-│   ├── sample_835_remittance.x12       # 835 Remittance Advice with adjudications and CARC codes
-│   └── sample_837_claim.x12            # 837 Professional/Institutional Health Care Claim
-├── skills/                             # Agent Skill Definitions
-│   └── x12-healthcare-parser/
-│       ├── SKILL.md                    # Skill specification and visual dashboard instructions
-│       ├── scripts/
-│       │   └── generate_visual_dashboard.py # Executable dashboard generator script
-│       ├── references/
-│       │   ├── visual_dashboard_guide.md    # Visual dashboard architecture guide
-│       │   └── x12_json_mapping_specs.md    # Field-by-field X12 to JSON mapping specs
-│       └── examples/
-│           └── parse_and_visualize_example.py # Python end-to-end example
-├── tests/                              # Comprehensive test suite (22 automated unit tests)
-│   ├── run_all_tests.py                # Master test runner with execution summary
-│   ├── test_277_attachment_request.py  # Tests for 277 status and required attachment flagging
-│   ├── test_api_and_manifests.py       # Tests for REST API, manifests, and dashboard generation
-│   ├── test_ccda_extraction.py         # Tests for 275 C-CDA XML and Base64 payload extraction
-│   ├── test_data_integrity.py          # Data integrity tests for 837, 835, 270, 271, 278
-│   └── test_engine_structure.py        # Tokenizer, custom delimiters, and envelope tests
-├── x12_parser/                         # Core Python Package Source Code
-│   ├── __init__.py                     # Library exports (X12Parser, CCDAParser, generate_html_dashboard)
-│   ├── cli.py                          # Command-line interface with --html and --summary support
-│   ├── api/                            # HTTP REST API Server and OpenAPI Definitions
-│   │   ├── openapi.json                # OpenAPI 3.1.0 JSON specification
-│   │   ├── openapi.yaml                # OpenAPI 3.1.0 YAML specification
-│   │   └── server.py                   # Zero-dependency HTTP REST API server
-│   ├── clinical_parsers/               # Clinical XML Extractors
-│   │   └── ccda_parser.py              # HL7 C-CDA R2.1/R1.1 structured XML parser
-│   ├── engine/                         # Base Parsing Engine and Orchestrators
-│   │   ├── base_parser.py              # Master X12Parser coordinator and dashboard API
-│   │   ├── dictionary.py               # 5010 data dictionary and semantic field mappings
-│   │   ├── loop_builder.py             # Hierarchical loop tree constructor
-│   │   ├── segment_parser.py           # Element and composite sub-element parser
-│   │   └── tokenizer.py                # Stream tokenizer and dynamic delimiter detector
-│   ├── manifests/                      # Plugin and Skill Manifests
-│   │   ├── ai-plugin.json              # Enterprise AI Plugin manifest
-│   │   └── skill-manifest.json         # Skill Manifest with visual dashboard configuration
-│   ├── transaction_parsers/            # Specialized 5010 Transaction Handlers
-│   │   ├── attachment_275.py           # 275 Attachment Parser and BDS/BIN extractor
-│   │   ├── claims_837.py               # 837 Claims Parser (Loop 2000A/B, 2300, 2400)
-│   │   ├── eligibility_270_271.py       # 270 Inquiry and 271 Response Parser
-│   │   ├── prior_auth_278.py           # 278 Prior Authorization Parser
-│   │   ├── remittance_835.py           # 835 Remittance Advice Parser (BPR, CLP, CAS, SVC)
-│   │   └── status_request_277.py       # 277 Status Request and attachment flagger
-│   └── ui/                             # Visual Dashboard Generator
-│       ├── dashboard_generator.py      # Standalone HTML dashboard generation engine
-│       └── x12_mapping_dashboard.html  # Master semantic field dictionary web asset
-└── scripts/
-    └── copy_to_local.sh                # Archive and synchronization helper script
+All paths below are relative to the project root directory:
+
+```text
+.
+|-- .gitignore
+|-- DESIGN.md                                        # Visual, typographic, theme, and layout specification
+|-- LICENSE                                          # Apache 2.0 License
+|-- README.md                                        # Project documentation and non-technical user guide
+|-- dashboard.html                                   # Standalone multi-transaction interactive HTML5 studio
+|-- prd.md                                           # Product Requirements Document
+|-- requirements.txt                                 # Optional development dependencies (stdlib core)
+|-- setup.py                                         # Python package installation configuration
+|-- docs/                                            # Pre-generated standalone transaction dashboards
+|   |-- dashboard_271_eligibility.html               # 271 Eligibility Benefit Response dashboard
+|   |-- dashboard_275_ccda.html                      # 275 Clinical Attachment and C-CDA dashboard
+|   |-- dashboard_277_request.html                   # 277 Claim Status and Attachment Request dashboard
+|   |-- dashboard_278_prior_auth.html                # 278 Prior Authorization Review dashboard
+|   |-- dashboard_835_remittance.html                # 835 Electronic Remittance Advice dashboard
+|   |-- dashboard_837_claim.html                     # 837 Health Care Claim dashboard
+|   `-- x12_mapping_dashboard.html                   # Workspace semantic mapping and telemetry dashboard
+|-- sample_data/                                     # Synthetic EDI X12 5010 sample transactions
+|   |-- __init__.py                                  # Sample file path and reader helpers
+|   |-- sample_270_inquiry.x12                       # 270 Eligibility Benefit Inquiry
+|   |-- sample_271_response.x12                      # 271 Eligibility Benefit Response
+|   |-- sample_275_ccda_response.x12                 # 275 Attachment Envelope with embedded C-CDA XML
+|   |-- sample_277_request.x12                       # 277 Claim Status Request flagging required records
+|   |-- sample_278_prior_auth.x12                    # 278 Prior Authorization Request and Certification
+|   |-- sample_835_remittance.x12                    # 835 Remittance Advice with CARC/RARC adjustments
+|   `-- sample_837_claim.x12                         # 837 Professional Health Care Claim
+|-- scripts/                                         # Project utility scripts
+|   `-- copy_to_local.sh                             # Relative-path synchronization and tarball helper
+|-- skills/                                          # Agent skill definitions and references
+|   `-- x12-healthcare-parser/
+|       |-- SKILL.md                                 # Skill workflow and dashboard generation guide
+|       |-- examples/
+|       |   `-- parse_and_visualize_example.py       # End-to-end Python parsing and dashboard example
+|       |-- references/
+|       |   |-- visual_dashboard_guide.md            # Dashboard architecture and token reference
+|       |   `-- x12_json_mapping_specs.md            # Field-by-field X12 5010 to JSON mapping reference
+|       `-- scripts/
+|           `-- generate_visual_dashboard.py         # CLI helper for generating HTML dashboards
+|-- tests/                                           # Automated unit and integration test suite (25 tests)
+|   |-- run_all_tests.py                             # Test suite runner and summary reporter
+|   |-- test_277_attachment_request.py               # 277 status category and PWK attachment flag tests
+|   |-- test_api_and_manifests.py                    # REST API, SSE stream, manifest, and DESIGN.md tests
+|   |-- test_ccda_extraction.py                      # 275 raw XML and Base64 C-CDA extraction tests
+|   |-- test_data_integrity.py                       # 837, 835, 270, 271, and 278 semantic mapping tests
+|   `-- test_engine_structure.py                     # Delimiter detection, custom separators, envelope tests
+`-- x12_parser/                                      # Core Python package
+    |-- __init__.py                                  # Public package exports
+    |-- cli.py                                       # Command-line interface (--summary, --pretty, --html)
+    |-- api/                                         # HTTP REST and SSE server + OpenAPI schemas
+    |   |-- openapi.json                             # OpenAPI 3.1.0 specification (JSON)
+    |   |-- openapi.yaml                             # OpenAPI 3.1.0 specification (YAML)
+    |   `-- server.py                                # Multi-threaded HTTP and SSE server
+    |-- clinical_parsers/                            # Clinical XML extractors
+    |   |-- __init__.py
+    |   `-- ccda_parser.py                           # HL7 C-CDA R2.1 and R1.1 XML parser
+    |-- engine/                                      # Core X12 tokenization and loop assembly engine
+    |   |-- __init__.py
+    |   |-- base_parser.py                           # Master X12Parser orchestrator
+    |   |-- dictionary.py                            # 5010 segment, element, and qualifier dictionary
+    |   |-- loop_builder.py                          # Hierarchical loop tree builder
+    |   |-- segment_parser.py                        # Segment and composite sub-element parser
+    |   `-- tokenizer.py                             # ISA delimiter detector and stream tokenizer
+    |-- manifests/                                   # Plugin and skill manifests
+    |   |-- ai-plugin.json                           # AI plugin manifest
+    |   `-- skill-manifest.json                      # Skill manifest and dashboard configuration
+    |-- transaction_parsers/                         # Specialized X12 5010 transaction handlers
+    |   |-- __init__.py
+    |   |-- attachment_275.py                        # 275 Attachment Envelope and BDS/BIN parser
+    |   |-- claims_837.py                            # 837 Professional and Institutional Claim parser
+    |   |-- eligibility_270_271.py                   # 270 Inquiry and 271 Benefit Response parser
+    |   |-- prior_auth_278.py                        # 278 Services Review and Prior Auth parser
+    |   |-- remittance_835.py                        # 835 Electronic Remittance Advice parser
+    |   `-- status_request_277.py                    # 277 Claim Status and Attachment Request parser
+    `-- ui/                                          # Interactive HTML5 dashboard generator
+        |-- dashboard_generator.py                   # Self-contained HTML/CSS/JS studio generator
+        `-- x12_mapping_dashboard.html               # Generated default mapping studio bundle
 ```
 
 ---
 
-## 5. Usage and Quickstart
+## 5. Technical Usage and Quickstart
 
-### Python Library Usage
+### Python Library API
 
 ```python
 from x12_parser import X12Parser
+from sample_data import read_sample
 
-raw_x12 = """ISA*00*          *00*          *ZZ*SUBMITTER123   *ZZ*RECEIVER456    *260814*1430*^*00501*000000001*0*P*:~
-GS*HC*SUBMITTER123*RECEIVER456*20260814*1430*1*X*005010X222A1~
-ST*837*0001*005010X222A1~
-...
-SE*26*0001~
-GE*1*1~
-IEA*1*000000001~"""
+raw_x12 = read_sample("sample_837_claim.x12")
 
-# Option 1: Parse to Python dictionary / JSON
+# Parse X12 5010 content into a structured Python dictionary
 parsed = X12Parser.parse(raw_x12)
 print(parsed["summary"])
 print(parsed["functional_groups"][0]["transaction_sets"][0]["parsed_transaction"])
 
-# Option 2: Generate an interactive visual HTML dashboard for this transaction
-html_dashboard = X12Parser.generate_dashboard(raw_x12, output_path="docs/claim_dashboard.html")
+# Generate a standalone interactive HTML5 dashboard
+X12Parser.generate_dashboard(
+    parsed,
+    output_path="docs/dashboard_837_claim.html",
+    raw_x12=raw_x12,
+    title="Dashboard - Sample 837 Claim"
+)
 ```
 
-### Command Line Interface (CLI)
+### Command-Line Interface (CLI)
 
 ```bash
-# Print a human-readable summary of transaction contents
+# Print a structured ASCII summary of transaction sets
 python3 -m x12_parser.cli sample_data/sample_837_claim.x12 --summary
 
-# Parse any X12 file and generate an interactive HTML visual dashboard
-python3 -m x12_parser.cli sample_data/sample_837_claim.x12 --html docs/dashboard_837.html
+# Parse an X12 file and generate an interactive HTML dashboard
+python3 -m x12_parser.cli sample_data/sample_837_claim.x12 --html docs/dashboard_837_claim.html
 
-# Parse to a formatted JSON file
-python3 -m x12_parser.cli sample_data/sample_275_ccda_response.x12 -o output_275.json --pretty
+# Regenerate the root multi-dataset dashboard.html bundle
+python3 -m x12_parser.ui.dashboard_generator dashboard.html
 
-# Pipe raw X12 directly from stdin
-cat sample_data/sample_835_remittance.x12 | python3 -m x12_parser.cli - --html docs/dashboard_835.html
+# Write formatted JSON output to a relative path
+python3 -m x12_parser.cli sample_data/sample_275_ccda_response.x12 -o dist/output_275.json --pretty
+
+# Read raw X12 directly from standard input
+cat sample_data/sample_835_remittance.x12 | python3 -m x12_parser.cli - --summary
 ```
 
-### Interactive Visual Dashboards
-
-The project provides interactive, responsive visual dashboards designed for browser viewing and modern agent environments:
-- **Interactive Segment-to-JSON Inspector**: Click any raw EDI segment to highlight its target JSON property, loop definition, and syntax rules.
-- **Section-by-Section Semantic Field Dictionary**: Comprehensive explanations for Envelopes (`ISA`/`GS`/`ST`), Entities (`NM1`/`N3`/`N4`/`DMG`), Claims (`CLM`/`HI`/`SV1`), Remittance (`BPR`/`CLP`/`CAS`/`SVC`), Status Requests (`STC`/`PWK`), and C-CDA XML payloads (`BDS`/`BIN`).
-- **Theme Switcher**: Native Light/Dark toggle supporting standard CSS theme variables.
-- **Live Search and Filter**: Real-time lookup by segment ID, JSON key, or healthcare business term.
-- **Custom File Drag-and-Drop**: Upload or paste any custom `.x12` file to generate and inspect its dashboard in real time.
-
----
-
-### Running the HTTP REST API Server
+### HTTP REST and SSE Streaming Server
 
 ```bash
-# Launch server on port 8000
+# Start server on port 8000
 python3 -m x12_parser.api.server 8000
 ```
 
-Endpoints:
-- `POST /v1/parse/x12`: Parse raw EDI text in JSON body (`{"raw_x12": "..."}`) or plain text (supports `format: "html"` for direct dashboard output).
-- `GET /dashboard`: Master interactive visual mapping dashboard.
-- `GET /v1/health`: Service health check.
+Available HTTP endpoints:
+- `GET /dashboard`: Serves `dashboard.html`.
+- `GET /v1/events`: Server-Sent Events (`text/event-stream`) broadcasting live `parse_update` records to connected dashboards.
+- `POST /v1/parse/x12`: Parses raw EDI X12 submitted as `application/json` (`{"raw_x12": "..."}`) or `text/plain`. Supports `?format=html` for HTML dashboard output and `?include_telemetry=1` for telemetry-enriched dataset records.
+- `GET /v1/health`: Service health status JSON.
 - `GET /openapi.json`: OpenAPI 3.1.0 specification.
-- `GET /.well-known/ai-plugin.json`: AI Plugin manifest.
+- `GET /.well-known/ai-plugin.json`: Plugin manifest.
 - `GET /skill-manifest.json`: Skill manifest.
 
 ---
 
-## 6. Running the Test Suite
+## 6. Running the Automated Test Suite
 
-Execute all 22 unit and integration test cases:
+Run all 25 unit and integration tests from the project root directory:
 
 ```bash
-python3 tests/run_all_tests.py
+PYTHONDONTWRITEBYTECODE=1 python3 tests/run_all_tests.py
 ```
 
-Expected Output:
-```
+Expected output summary:
+```text
 ======================================================================
 RUNNING X12 HEALTHCARE PARSER & C-CDA TEST SUITE
 ======================================================================
-Ran 22 tests in 0.67s
+Ran 25 tests in ...s
 
 OK
+
 ======================================================================
->> ALL TEST CASES PASSED SUCCESSFULLY (100% SUCCESS RATE) <<
+TEST SUITE EXECUTION SUMMARY
+======================================================================
+Total Tests Executed: 25
+Passed:               25
+Failures:             0
+Errors:               0
 ======================================================================
 ```

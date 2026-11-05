@@ -8,7 +8,7 @@ from ..engine.dictionary import get_code_description
 
 
 class Claims837Parser:
-    """Parses X12 837 claims (837P and 837I) into rich hierarchical JSON structures."""
+    """Parses X12 837 claims (837P and 837I) into hierarchical JSON structures."""
 
     @classmethod
     def parse_837(cls, segments: List[ParsedSegment]) -> Dict[str, Any]:

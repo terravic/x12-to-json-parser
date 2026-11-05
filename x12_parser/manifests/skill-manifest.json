@@ -2,34 +2,34 @@
   "schema_version": "1.0",
   "name": "x12-healthcare-parser",
   "name_for_model": "X12_Healthcare_Parser",
-  "display_name": "EDI X12 Healthcare Transaction & Clinical C-CDA Parser",
-  "description": "Production-ready EDI X12 (5010) and C-CDA XML parser for health plans, clearinghouses, and provider systems.",
-  "description_for_model": "Use this skill when the user provides raw EDI X12 healthcare transaction text (such as 270, 271, 277, 275, 278, 837, 835) or embedded C-CDA XML clinical documents, and needs them translated into human-readable or machine-processable structured JSON format.",
+  "display_name": "EDI X12 Healthcare Transaction and Clinical C-CDA Parser",
+  "description": "EDI X12 (5010) and HL7 C-CDA XML parser for health plans, clearinghouses, and clinical billing systems.",
+  "description_for_model": "Parses raw EDI X12 healthcare transaction text (270, 271, 277, 275, 278, 837, 835) and embedded C-CDA XML clinical documents into structured JSON format.",
   "category": "Healthcare Interoperability",
   "version": "1.0.0",
   "ui_dashboard": {
     "supported": true,
-    "entrypoint": "docs/x12_mapping_dashboard.html",
+    "entrypoint": "dashboard.html",
     "theme_support": ["light", "dark", "system"],
     "interactive_features": ["segment_inspector", "live_converter", "search_filter", "theme_toggle"],
-    "embed_tag": "<agent-embed src=\"docs/x12_mapping_dashboard.html\" height=\"600px\"></agent-embed>"
+    "embed_tag": "<iframe src=\"dashboard.html\" height=\"600\" width=\"100%\"></iframe>"
   },
   "endpoints": [
     {
       "path": "/v1/parse/x12",
       "method": "POST",
       "summary": "Parse raw EDI X12 text and return structured JSON",
-      "description": "Takes raw EDI X12 content string in request body and returns hierarchically grouped JSON with mapped business entities, claim details, payment breakdowns, attachment flags (277), and parsed C-CDA clinical documents (275).",
+      "description": "Accepts a raw EDI X12 content string in the request body and returns hierarchically grouped JSON with mapped business entities, claim details, payment breakdowns, attachment flags (277), and parsed C-CDA clinical documents (275).",
       "parameters": {
         "raw_x12": {
           "type": "string",
           "required": true,
-          "description": "The complete raw EDI X12 string (e.g., starting with ISA*...)"
+          "description": "Complete raw EDI X12 string starting with ISA."
         },
         "context": {
           "type": "string",
           "required": false,
-          "description": "Optional background or workflow context about the transaction"
+          "description": "Optional workflow context label associated with the request."
         }
       },
       "routing_keywords": [
@@ -54,8 +54,8 @@
     {
       "path": "/dashboard",
       "method": "GET",
-      "summary": "Get interactive visual mapping dashboard",
-      "description": "Returns self-contained HTML/JS/CSS dashboard showing complete EDI X12 to JSON semantic mappings, field explanations, and interactive live converter.",
+      "summary": "Retrieve interactive HTML mapping dashboard",
+      "description": "Returns the self-contained HTML, CSS, and JavaScript dashboard displaying EDI X12 to JSON semantic mappings, telemetry plots, and live stream inspection.",
       "parameters": {},
       "routing_keywords": [
         "dashboard",

@@ -1,5 +1,5 @@
-# Zero mandatory external dependencies for core parser and HTTP server (uses Python 3.8+ Standard Library)
-# Optional developer and enterprise framework dependencies:
+# Core parser and HTTP server use the Python 3.8+ standard library with zero external runtime dependencies.
+# Optional development and integration testing packages:
 pytest>=8.0.0
 fastapi>=0.110.0
 uvicorn>=0.28.0

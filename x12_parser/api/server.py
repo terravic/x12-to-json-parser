@@ -1,9 +1,8 @@
 """
-Production HTTP REST API & SSE Streaming Server for X12 Healthcare Parser.
+HTTP REST API and SSE Streaming Server for X12 Healthcare Parser.
 
-Zero-dependency implementation using standard library http.server,
-providing full OpenAPI 3.1 compliance, Server-Sent Events (/v1/events),
-and standalone dashboard serving.
+Standard library http.server implementation providing OpenAPI 3.1 endpoints,
+Server-Sent Events (/v1/events), and standalone dashboard serving.
 """
 
 import json

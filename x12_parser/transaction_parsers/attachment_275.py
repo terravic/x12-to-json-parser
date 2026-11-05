@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class Attachment275Parser:
-    """Parses X12 275 Attachment Envelopes and seamlessly parses embedded C-CDA XML payloads."""
+    """Parses X12 275 Attachment Envelopes and extracts embedded C-CDA XML payloads."""
 
     @classmethod
     def parse_275(cls, segments: List[ParsedSegment]) -> Dict[str, Any]:

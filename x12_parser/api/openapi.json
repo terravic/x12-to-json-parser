@@ -3,7 +3,7 @@
   "info": {
     "title": "X12 Healthcare EDI & Clinical C-CDA Parser API",
     "version": "1.0.0",
-    "description": "Enterprise EDI X12 (Version 5010) to structured JSON parser with automated C-CDA XML clinical payload extraction and attachment loop correlation."
+    "description": "EDI X12 (Version 5010) to structured JSON parser with automated HL7 C-CDA XML clinical payload extraction and attachment loop correlation."
   },
   "servers": [
     {

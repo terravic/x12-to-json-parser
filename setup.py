@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name="x12-to-json-parser",
     version="1.0.0",
-    description="Enterprise EDI X12 (5010) to structured JSON parser with C-CDA XML clinical integration.",
+    description="EDI X12 (5010) to structured JSON parser with HL7 C-CDA XML clinical payload extraction.",
     author="Healthcare Interoperability Engineering",
     license="Apache-2.0",
     packages=find_packages(),

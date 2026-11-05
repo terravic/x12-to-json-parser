@@ -1,72 +1,57 @@
 ---
 name: x12-healthcare-parser
-description: Production-ready EDI X12 (5010) and C-CDA XML healthcare transaction parser with interactive visual mapping dashboards, field-by-field semantic dictionaries, and live translation inspectors.
+description: EDI X12 (5010) and HL7 C-CDA XML healthcare transaction parser with interactive HTML mapping dashboards, field-by-field semantic dictionaries, and synchronized segment inspection.
 ---
 
-# EDI X12 & C-CDA Healthcare Parser Skill
+# EDI X12 and C-CDA Healthcare Parser Skill
 
-This skill enables autonomous agents and users to parse raw EDI X12 healthcare transactions (`837`, `835`, `270`, `271`, `277`, `275`, `278`) and embedded C-CDA XML clinical documents into structured JSON, as well as render interactive, business-ready visual dashboards.
-
----
-
-## 1. Visual Dashboard Capabilities
-
-Enterprise AI environments render custom visual UI widgets using a sandboxed `<iframe>` container.
-
-### How Dashboard Rendering Works
-1. **Self-Contained Vanilla HTML5/CSS/JS Execution**: Renders standalone single-page dashboards (`dashboard.html`) offline (`file://`) and over HTTP with zero external framework CDNs.
-2. **Dual-Mode Clinical Palette (`DESIGN.md`)**: Warm alabaster (`#FAFAF9`) and pure white (`#FFFFFF`) surfaces in Light Mode; carbon slate (`#0D0E11`) and obsidian (`#16171D`) surfaces in Dark Mode, paired with `DM Sans`, `Instrument Serif`, and tabular `IBM Plex Mono`.
-3. **Three-Icon Segmented Theme Selector**: Adapts to Light (`#theme-btn-light`), Dark (`#theme-btn-dark`), and System (`#theme-btn-system`) preferences via `localStorage`, real-time `matchMedia('(prefers-color-scheme: dark)')`, and host OS backend detection.
-4. **Live SSE Telemetry & Multi-Modal Visualization**: Includes 2D revenue waterfall canvas, segment concentration heatmap, SVG `"Interactive Relationship Node Map"`, WebGL + 2D software-fallback `"Structural Data Diagram"`, and `/v1/events` SSE streaming.
-
-For architecture and sandbox details, see the [Visual Dashboard Guide](skills/x12-healthcare-parser/references/visual_dashboard_guide.md).
+This skill parses raw EDI X12 healthcare transactions (`837`, `835`, `270`, `271`, `277`, `275`, `278`) and embedded HL7 C-CDA XML clinical documents into structured JSON and generates standalone interactive HTML dashboards (`dashboard.html`).
 
 ---
 
-## 2. Interactive Visual Dashboard Features
+## 1. Visual Dashboard Architecture
 
-The visual dashboard provides:
+1. **Self-Contained HTML5, CSS, and JavaScript Execution**: Renders standalone single-page dashboards (`dashboard.html`) directly from local disk or over HTTP without external framework CDNs.
+2. **Light, Dark, and System Palette (`DESIGN.md`)**: Uses `#FAFAF9` and `#FFFFFF` surfaces in Light Mode and `#0D0E11` and `#16171D` surfaces in Dark Mode, paired with `DM Sans`, `Instrument Serif`, and tabular `Geist Mono`.
+3. **Segmented Theme Selector**: Switches between Light (`#theme-btn-light`), Dark (`#theme-btn-dark`), and System (`#theme-btn-system`) preferences via `localStorage`, real-time `matchMedia('(prefers-color-scheme: dark)')`, and host desktop environment detection.
+4. **Live SSE Telemetry and Multi-Modal Visualization**: Includes a 2D quantitative financial and domain chart, loop concentration heatmap, SVG `Interactive Relationship Node Map`, 3D perspective `Structural Data Diagram`, and `/v1/events` Server-Sent Events streaming.
 
-1. **Interactive X12 & JSON Synchronized Inspector**:
-   - **Clickable Segment Stream**: Click any segment (`ISA`, `GS`, `ST`, `CLM`, `NM1`, `SV1`, `CLP`, `CAS`, `STC`, `BDS`, etc.) to inspect its details.
-   - **Healthcare Business Meaning Card**: Displays segment tag, official name, healthcare workflow purpose, EDI 5010 loop name, target JSON key path, and element-by-element value breakdown table.
-   - **JSON Equivalent Subtree**: Displays the exact JSON node corresponding to the clicked segment with one-click copy.
-2. **Transaction Details & Metrics**:
-   - KPI metrics bar (Transaction Type, Billed/Paid Amount, Claims, Service Lines, Flagged Attachments, Clinical records).
-   - Envelope grids (ISA, GS, ST, SE, GE, IEA).
-   - Business Entities cards (Submitter, Receiver, Billing Provider, Subscriber, Patient, Payers).
-   - Transaction-specific tables for 837 Claims, 835 Remittance, 277 Attachment requests, 270/271 Eligibility, and 278 Prior Authorization.
-3. **C-CDA Clinical Payload Viewer (for 275 transactions)**:
-   - Formatted clinical document viewer displaying Patient Demographics, Allergies, Active Medications, Problem List / Diagnoses, Vital Signs, and Clinical Notes.
-4. **Raw X12 File Viewer**:
-   - Line numbering, syntax highlighting, search/filter, copy EDI text, and download `.x12` file.
-5. **Structured JSON Viewer**:
-   - Complete hierarchical JSON output with syntax highlighting, search/filter, copy JSON, and download `.json` file.
-6. **Field Mapping Specification**:
-   - Complete searchable dictionary of standard X12 segments to JSON mappings.
-7. **Live In-Dashboard Parser & Sample Switcher**:
-   - Drag-and-drop or paste any custom X12 transaction directly in the UI to re-parse and re-render on the fly.
+For technical specifications, see [visual_dashboard_guide.md](skills/x12-healthcare-parser/references/visual_dashboard_guide.md).
 
 ---
 
-## 3. Workflow: Parsing & Generating Visual Dashboards
+## 2. Dashboard Tabs and Capabilities
 
-When the user provides an X12 file or asks to parse/inspect EDI transactions:
+1. **Workspace Studio**:
+   - Six-cell KPI summary strip (`tabular-nums`), 2D quantitative domain chart, loop concentration matrix, interactive directed graph, and 3D spatial conformer projection.
+2. **Interactive X12 and JSON Explorer**:
+   - Clickable raw X12 segment stream synchronized with segment definitions, element-by-element parsed tables, and target JSON subtrees.
+3. **Transaction and Provenance**:
+   - SHA-256 digests, parse timings, envelope parity checks (`ISA`/`GS`/`ST`/`SE`/`GE`/`IEA`), business entity cards, and transaction-specific detail tables for `837`, `835`, `277`, `275`, `271`, `270`, and `278`.
+4. **C-CDA Clinical Payload**:
+   - Decoded HL7 C-CDA R2.1 clinical summary for `275` envelopes (demographics, allergies, active medications, diagnoses, vital signs, clinical notes) and diagnostic/clinical extracts for non-`275` streams.
+5. **Raw X12 File**:
+   - Line-numbered raw EDI stream viewer with search filtering, clipboard copy, and `.x12` download.
+6. **Structured JSON**:
+   - Complete parsed JSON tree with search filtering, clipboard copy, and `.json` download.
+7. **Field Mapping Spec**:
+   - Searchable X12 5010 to JSON dictionary highlighting segments active in the selected transaction stream.
 
-### Step 1: Execute Parser & Dashboard Generator
-Run the executable generator helper script:
+---
+
+## 3. Execution Workflow
+
+### Command-Line Dashboard Generation
 ```bash
-python3 skills/x12-healthcare-parser/scripts/generate_visual_dashboard.py <path_to_file.x12> -o docs/x12_dashboard.html
+python3 skills/x12-healthcare-parser/scripts/generate_visual_dashboard.py sample_data/sample_837_claim.x12 -o docs/dashboard_837_claim.html
 ```
 
-Or from Python:
+### Python Library Execution
 ```python
 from x12_parser import X12Parser
 
-# Parse to structured JSON
 parsed_data = X12Parser.parse(raw_x12_content)
 
-# Generate interactive visual dashboard
 X12Parser.generate_dashboard(
     parsed_data,
     output_path="docs/x12_dashboard.html",
@@ -75,18 +60,11 @@ X12Parser.generate_dashboard(
 )
 ```
 
-### Step 2: Present Results to User
-1. Summarize the transaction type, key metrics (billed charges, paid amounts, claims count, clinical findings).
-2. Provide a relative path link to open the visual dashboard:
-   ```markdown
-   [Open Interactive Visual Dashboard](docs/x12_dashboard.html)
-   ```
-
 ---
 
-## 4. Helper Scripts & References
+## 4. Reference Files
 
-- **Executable Helper Script**: [generate_visual_dashboard.py](skills/x12-healthcare-parser/scripts/generate_visual_dashboard.py)
+- **Dashboard Generator Script**: [generate_visual_dashboard.py](skills/x12-healthcare-parser/scripts/generate_visual_dashboard.py)
 - **Visual Dashboard Guide**: [visual_dashboard_guide.md](skills/x12-healthcare-parser/references/visual_dashboard_guide.md)
 - **EDI to JSON Mapping Specifications**: [x12_json_mapping_specs.md](skills/x12-healthcare-parser/references/x12_json_mapping_specs.md)
 - **Python Usage Example**: [parse_and_visualize_example.py](skills/x12-healthcare-parser/examples/parse_and_visualize_example.py)

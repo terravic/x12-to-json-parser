@@ -14,7 +14,7 @@ from .engine.base_parser import X12Parser
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Enterprise EDI X12 (5010) to JSON Parser with C-CDA XML Integration."
+        description="EDI X12 (5010) to JSON Parser with HL7 C-CDA XML Integration."
     )
     parser.add_argument("input_file", nargs="?", help="Path to input X12 EDI raw file (or '-' for stdin)")
     parser.add_argument("-o", "--output", help="Path to write output JSON file (default: stdout)")
@@ -59,7 +59,7 @@ def main():
             for tx_idx, tx in enumerate(group.get("transaction_sets", []), start=1):
                 tx_type = tx.get("transaction_type")
                 tx_ctrl = tx.get("transaction_set_control_number")
-                print(f"  └─ Transaction #{tx_idx}: Type={tx_type} ControlNo={tx_ctrl}")
+                print(f"  -> Transaction #{tx_idx}: Type={tx_type} ControlNo={tx_ctrl}")
                 
                 parsed_tx = tx.get("parsed_transaction", {})
                 if tx_type == "837":

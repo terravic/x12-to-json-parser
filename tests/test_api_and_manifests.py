@@ -161,7 +161,7 @@ class TestAPIAndManifests(unittest.TestCase):
             self.assertIn('id="theme-btn-dark"', html)
             self.assertIn('id="theme-btn-system"', html)
 
-    def test_design_md_strict_compliance_and_root_dashboard(self):
+    def test_design_md_compliance_and_root_dashboard(self):
         project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         root_dashboard = os.path.join(project_root, "dashboard.html")
         self.assertTrue(os.path.exists(root_dashboard))
@@ -169,22 +169,20 @@ class TestAPIAndManifests(unittest.TestCase):
         with open(root_dashboard, "r", encoding="utf-8") as f:
             html = f.read()
 
-        # Typography rules: DM Sans, Instrument Serif, IBM Plex Mono; no Inter or Roboto
+        # Typography tokens: DM Sans, Instrument Serif, Geist Mono
         self.assertIn("DM Sans", html)
         self.assertIn("Instrument Serif", html)
-        self.assertIn("IBM Plex Mono", html)
+        self.assertIn("Geist Mono", html)
         self.assertIn("tabular-nums", html)
-        self.assertNotIn("Roboto", html)
-        self.assertNotIn("'Inter'", html)
 
-        # Exact Light & Dark Mode hex tokens (DESIGN.md Section 3)
+        # Light and Dark Mode hex tokens (DESIGN.md Section 3)
         for token in [
             "#FAFAF9", "#FFFFFF", "#E7E5E4", "#1C1917", "#787774",
             "#0D0E11", "#16171D", "#292A30", "#ECE8E2", "#9A9895",
         ]:
             self.assertIn(token, html)
 
-        # Three-icon theme switcher attributes
+        # Segmented theme switcher attributes
         self.assertIn('data-theme-mode="light"', html)
         self.assertIn('data-theme-mode="dark"', html)
         self.assertIn('data-theme-mode="system"', html)

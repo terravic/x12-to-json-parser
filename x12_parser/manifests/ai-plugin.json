@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
-  "name_for_human": "EDI X12 & C-CDA Healthcare Parser",
+  "name_for_human": "EDI X12 and C-CDA Healthcare Parser",
   "name_for_model": "X12_Healthcare_Parser",
-  "description_for_human": "Parse EDI X12 healthcare transactions (270, 271, 277, 275, 278, 837, 835), extract embedded C-CDA XML clinical payloads, and explore interactive visual mapping dashboards.",
-  "description_for_model": "Use this skill when the user provides raw EDI X12 healthcare transaction text (such as 270, 271, 277, 275, 278, 837, 835) or embedded C-CDA XML clinical documents, and needs them translated into human-readable or machine-processable structured JSON format, or requests interactive visual mapping dashboards and field guides.",
+  "description_for_human": "Parse EDI X12 5010 healthcare transactions (270, 271, 277, 275, 278, 837, 835), extract embedded HL7 C-CDA XML clinical payloads, and generate interactive HTML mapping dashboards.",
+  "description_for_model": "Parses raw EDI X12 healthcare transaction text (270, 271, 277, 275, 278, 837, 835) and embedded C-CDA XML clinical documents into structured JSON and interactive HTML mapping dashboards.",
   "auth": {
     "type": "none"
   },
@@ -12,7 +12,6 @@
     "url": "http://localhost:8000/openapi.json",
     "has_user_authentication": false
   },
-  "logo_url": "https://raw.githubusercontent.com/google/material-design-icons/master/png/action/receipt/materialicons/48dp/2x/baseline_receipt_black_48dp.png",
-  "contact_email": "support@healthcare-interop.example.com",
-  "legal_info_url": "https://example.com/terms/"
+  "contact_email": "interop@healthcare-parser.example",
+  "legal_info_url": "http://localhost:8000/v1/health"
 }

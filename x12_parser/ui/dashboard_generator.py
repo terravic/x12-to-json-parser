@@ -462,7 +462,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   <title>__TITLE__ — [__TX_BADGE__]</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"></noscript>
   <style>
     /* ==========================================================================
        DESIGN.MD SPECIFICATION TOKENS — LIGHT & DARK THEMES
@@ -1415,12 +1416,13 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         <section class="bento-pane" id="paneFinancialChart">
           <div class="pane-header">
             <div class="pane-title-group">
-              <h2 class="pane-title">Financial Adjudication &amp; Parse Telemetry</h2>
-              <p class="pane-subtitle" id="chartSubtitle">Empirical claim charge, remittance settlement, adjustment, and pended exposure ($ USD)</p>
+              <h2 class="pane-title" id="chartPaneTitle">Active Transaction Financial &amp; Domain Profile</h2>
+              <p class="pane-subtitle" id="chartSubtitle">Empirical claim charge, line breakdown, remittance settlement, and benefit metrics</p>
             </div>
             <div class="pane-actions">
-              <button type="button" id="chartModeFinancial" class="mini-btn active" onclick="setChartMode('financial')">Adjudication ($)</button>
-              <button type="button" id="chartModeTelemetry" class="mini-btn" onclick="setChartMode('telemetry')">Segment Latency</button>
+              <button type="button" id="chartModeActive" class="mini-btn active" onclick="setChartMode('active')">Selected Stream</button>
+              <button type="button" id="chartModeFinancial" class="mini-btn" onclick="setChartMode('financial')">Episode ($)</button>
+              <button type="button" id="chartModeTelemetry" class="mini-btn" onclick="setChartMode('telemetry')">Latency</button>
             </div>
           </div>
           <div class="viz-viewport">
@@ -1434,7 +1436,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
               <span class="legend-item"><span class="legend-swatch" style="background:#D97706"></span>Patient Resp</span>
               <span class="legend-item"><span class="legend-swatch" style="background:#E11D48"></span>Pended Alert</span>
             </div>
-            <span id="chartReadoutText">Episode Claim CLM-2026-98124</span>
+            <span id="chartReadoutText">Active Stream</span>
           </div>
         </section>
 
@@ -1443,7 +1445,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           <div class="pane-header">
             <div class="pane-title-group">
               <h2 class="pane-title">Loop Stratum Concentration Matrix</h2>
-              <p class="pane-subtitle">Empirical segment density across workspace transactions and 5010 loop strata (click cell to inspect)</p>
+              <p class="pane-subtitle" id="heatmapSubtitle">Empirical segment density across workspace transactions and 5010 loop strata (click cell to inspect)</p>
             </div>
             <div class="pane-actions">
               <span class="mono" style="font-size:0.7rem;color:var(--text-secondary)" id="heatmapTotalBadge">0 total segments</span>
@@ -1459,7 +1461,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
               <span class="legend-item"><span class="legend-swatch" style="background:#4F46E5"></span>High (Indigo)</span>
               <span class="legend-item"><span class="legend-swatch" style="background:#E11D48"></span>Peak Density (Rose)</span>
             </div>
-            <span>Click row/cell to switch dataset</span>
+            <span id="heatmapReadoutText">Click row/cell to switch dataset</span>
           </div>
         </section>
 
@@ -1501,13 +1503,13 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           <div class="pane-header">
             <div class="pane-title-group">
               <h2 class="pane-title">Structural Data Diagram</h2>
-              <p class="pane-subtitle" id="mol3dSubtitle">3D C-CDA RxNorm pharmacophore conformers &amp; X12 spatial loop topology</p>
+              <p class="pane-subtitle" id="mol3dSubtitle">3D X12 spatial loop topology &amp; C-CDA RxNorm pharmacophore conformers</p>
             </div>
             <div class="pane-actions">
-              <select id="molModelSelect" class="ctrl-select" style="height:26px;font-size:0.71rem;padding:0 8px" title="Select 3D Conformer or Structural Lattice" onchange="set3dModel(this.value)">
+              <select id="molModelSelect" class="ctrl-select" style="height:26px;font-size:0.71rem;padding:0 8px" title="Select 3D Structural Lattice or C-CDA Conformer" onchange="set3dModel(this.value, true)">
+                <option value="x12_lattice">Active X12 Spatial Loop Lattice</option>
                 <option value="lisinopril">RxNorm 314076: Lisinopril 20mg (Active Med)</option>
                 <option value="penicillin">RxNorm 70618: Penicillin G (Severe Allergy)</option>
-                <option value="x12_lattice">Active X12 Spatial Loop Lattice</option>
               </select>
               <button type="button" id="btnToggle3dRenderer" class="mini-btn" onclick="toggle3dRendererMode()" title="Switch Hardware WebGL / Software Projection Fallback">
                 Engine: Auto
@@ -1519,12 +1521,12 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             <canvas id="molecular3dCanvas" class="viz-canvas" aria-label="3D Molecular and Structural Conformer View"></canvas>
           </div>
           <div class="viz-overlay-footer">
-            <div class="legend-inline">
-              <span class="legend-item"><span class="legend-swatch" style="background:#0D9488"></span>C / Backbone</span>
-              <span class="legend-item"><span class="legend-swatch" style="background:#4F46E5"></span>N / Amine</span>
-              <span class="legend-item"><span class="legend-swatch" style="background:#E11D48"></span>O / Carbonyl</span>
-              <span class="legend-item"><span class="legend-swatch" style="background:#D97706"></span>S / Ring</span>
-              <span class="legend-item"><span class="legend-swatch" style="background:#059669"></span>Active Site</span>
+            <div class="legend-inline" id="mol3dLegendBar">
+              <span class="legend-item"><span class="legend-swatch" style="background:#0D9488"></span>Envelope/Line</span>
+              <span class="legend-item"><span class="legend-swatch" style="background:#4F46E5"></span>Entity/Clinical</span>
+              <span class="legend-item"><span class="legend-swatch" style="background:#059669"></span>Claim/Paid</span>
+              <span class="legend-item"><span class="legend-swatch" style="background:#D97706"></span>Adjustment</span>
+              <span class="legend-item"><span class="legend-swatch" style="background:#E11D48"></span>Alert/Pended</span>
             </div>
             <span id="mol3dEngineBadge">Renderer: Initializing</span>
           </div>
@@ -1617,7 +1619,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           <div class="pane-header">
             <div class="pane-title-group">
               <h2 class="pane-title">Envelope &amp; Domain Validation Records</h2>
-              <p class="pane-subtitle">Automated HIPAA 5010 control parity, charge reconciliation, and clinical alert checks</p>
+              <p class="pane-subtitle" id="validationSubtitle">Automated HIPAA 5010 control parity, charge reconciliation, and clinical alert checks</p>
             </div>
             <span class="status-tag status-pass" id="overallValidationBadge">PASS</span>
           </div>
@@ -1670,7 +1672,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         <div class="pane-header">
           <div class="pane-title-group">
             <h2 class="pane-title">Interchange &amp; Functional Group Envelopes</h2>
-            <p class="pane-subtitle">Parsed ISA, GS, and ST header routing attributes and detected delimiters</p>
+            <p class="pane-subtitle" id="envelopeSubtitle">Parsed ISA, GS, and ST header routing attributes and detected delimiters</p>
           </div>
         </div>
         <div id="envelopeGrid" class="flat-cell-grid-4"></div>
@@ -1681,7 +1683,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         <div class="pane-header">
           <div class="pane-title-group">
             <h2 class="pane-title">Business Entities &amp; Trading Participants</h2>
-            <p class="pane-subtitle">Extracted Loop 1000 / 2010 organizations, providers, payers, and subscribers</p>
+            <p class="pane-subtitle" id="entitiesSubtitle">Extracted Loop 1000 / 2010 organizations, providers, payers, and subscribers</p>
           </div>
         </div>
         <div id="entitiesGrid" class="flat-cell-grid-3"></div>
@@ -1730,7 +1732,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       <div class="pane-header">
         <div class="pane-title-group">
           <h2 class="pane-title">Hierarchical Structured JSON Output</h2>
-          <p class="pane-subtitle">Complete parsed interchange, functional groups, loops, and semantic fields</p>
+          <p class="pane-subtitle" id="jsonProvenanceSub">Complete parsed interchange, functional groups, loops, and semantic fields</p>
         </div>
         <div class="pane-actions">
           <button type="button" id="btnCopyJsonFull" class="mini-btn" onclick="copyJsonOutput()">Copy JSON</button>
@@ -1747,7 +1749,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       <div class="pane-header">
         <div class="pane-title-group">
           <h2 class="pane-title">EDI 5010 &amp; HL7 C-CDA Semantic Key Reference</h2>
-          <p class="pane-subtitle">Deterministic field dictionary mapping X12 segments to structured JSON paths</p>
+          <p class="pane-subtitle" id="specSubtitle">Deterministic field dictionary mapping X12 segments to structured JSON paths</p>
         </div>
         <div class="pane-actions">
           <input type="text" id="specFilterInput" class="ctrl-input" style="height:28px;width:230px;font-size:0.75rem" onkeyup="filterSpecTable()" placeholder="Search segment or JSON path...">
@@ -1758,36 +1760,20 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           <thead>
             <tr>
               <th>Segment</th>
+              <th>Observed in Active Stream</th>
               <th>Target JSON Key Path</th>
               <th>5010 Loop / Standard</th>
               <th>Healthcare Business Semantics</th>
             </tr>
           </thead>
-          <tbody>
-            <tr><td class="mono tone-teal">ISA</td><td class="mono">interchange_header.fields</td><td class="mono">Envelope</td><td>Trading partner sender/receiver IDs (ISA06/ISA08), delimiter definition, and control number (ISA13).</td></tr>
-            <tr><td class="mono tone-teal">GS</td><td class="mono">functional_groups[].functional_group_header</td><td class="mono">Group Header</td><td>Functional identifier (HC, HP, HN, PI, HB, HS, HI) and 005010 implementation version (GS08).</td></tr>
-            <tr><td class="mono tone-teal">ST / SE</td><td class="mono">transaction_sets[].transaction_header</td><td class="mono">Set Envelope</td><td>Transaction set code (837, 835, 277, 275, 271, 270, 278), control number, and segment count audit.</td></tr>
-            <tr><td class="mono tone-teal">BHT</td><td class="mono">parsed_transaction.beginning_of_hierarchical_transaction</td><td class="mono">Header</td><td>Hierarchical structure code, purpose code, batch reference ID, and creation timestamp.</td></tr>
-            <tr><td class="mono tone-indigo">NM1 / N3 / N4</td><td class="mono">billing_provider / payer / subscriber / patient</td><td class="mono">Loop 1000 / 2010</td><td>Entity role (85, PR, IL, QC, 41, 1P), NPI/Member ID (NM109), street address, and postal location.</td></tr>
-            <tr><td class="mono tone-indigo">DMG</td><td class="mono">subscriber.demographics / patient.demographics</td><td class="mono">Loop 2010BA/CA</td><td>Birth date (YYYYMMDD) and administrative gender code for subscriber or patient.</td></tr>
-            <tr><td class="mono tone-teal">CLM</td><td class="mono">claims[].total_claim_charge_amount</td><td class="mono">Loop 2300 (837)</td><td>Patient control number (CLM01), total billed charge (CLM02), place of service, and assignment flags.</td></tr>
-            <tr><td class="mono tone-teal">HI</td><td class="mono">claims[].diagnoses[]</td><td class="mono">Loop 2300 (837)</td><td>Principal (ABK) and secondary (ABF) ICD-10-CM diagnostic codes.</td></tr>
-            <tr><td class="mono tone-teal">LX / SV1 / SV2</td><td class="mono">claims[].service_lines[]</td><td class="mono">Loop 2400 (837)</td><td>CPT/HCPCS procedure code, modifiers, line item charge amount, and service units.</td></tr>
-            <tr><td class="mono tone-emerald">BPR / TRN</td><td class="mono">financial_information / reassociation_trace</td><td class="mono">Header (835)</td><td>Total EFT/check settlement amount (BPR02), payment method (ACH), routing numbers, and trace number.</td></tr>
-            <tr><td class="mono tone-emerald">CLP / SVC</td><td class="mono">claims[].claim_payment_amount / service_lines[]</td><td class="mono">Loop 2100/2110 (835)</td><td>Adjudication status, net paid amount, patient responsibility, and line-level remittance breakdown.</td></tr>
-            <tr><td class="mono tone-amber">CAS</td><td class="mono">claims[].adjustments[]</td><td class="mono">Loop 2100/2110 (835)</td><td>Adjustment group codes (CO, PR, OA) and CARC reason codes (45, 96, 1, 2) with dollar reductions.</td></tr>
-            <tr><td class="mono tone-rose">STC / PWK</td><td class="mono">required_attachments[]</td><td class="mono">Loop 2200D (277)</td><td>Pended claim status category (R4) and required clinical attachment report code (09 = Progress Note).</td></tr>
-            <tr><td class="mono tone-indigo">BDS / BIN</td><td class="mono">attached_clinical_data</td><td class="mono">Loop 2000 (275)</td><td>Embedded plain or Base64 HL7 C-CDA R2.1 XML clinical document (medications, allergies, problems, vitals, notes).</td></tr>
-            <tr><td class="mono tone-teal">EB / EQ</td><td class="mono">subscriber.eligibility_benefits[] / inquiries[]</td><td class="mono">Loop 2110C (270/271)</td><td>Plan coverage status, co-payment ($25), deductible ($500), coinsurance (20%), and benefit inquiry codes.</td></tr>
-            <tr><td class="mono tone-emerald">UM / HCR</td><td class="mono">events[].review_results[]</td><td class="mono">Loop 2000E (278)</td><td>Prior authorization service category, certification action (A1 = Certified in Total), and authorization ID.</td></tr>
-          </tbody>
+          <tbody id="specTableTbody"></tbody>
         </table>
       </div>
     </section>
 
     <!-- FOOTER -->
     <footer class="footer-bar">
-      <span>EDI X12 (005010) &amp; HL7 C-CDA R2.1 Empirical Parser Studio</span>
+      <span id="footerActiveStreamLabel">EDI X12 (005010) &amp; HL7 C-CDA R2.1 Empirical Parser Studio</span>
       <span class="mono" id="footerProvenanceStamp">Generated: __GENERATED_AT__</span>
     </footer>
 
@@ -1802,23 +1788,27 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       <div class="pane-header">
         <div class="pane-title-group">
           <h2 class="pane-title" id="uploadModalTitle">Parse Custom EDI X12 File or Stream</h2>
-          <p class="pane-subtitle">Executes via REST API (/v1/parse/x12) when served over HTTP, or built-in client-side 5010 parser offline</p>
+          <p class="pane-subtitle">Executes via REST API (/v1/parse/x12) when served over HTTP, or built-in client-side 5010 + C-CDA parser offline</p>
         </div>
         <button type="button" class="mini-btn" id="btnCloseUploadModalTop" onclick="closeUploadModal()">Close</button>
       </div>
       <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
         <div id="dropZone" class="drop-area">
           <p style="font-weight:600;font-size:0.82rem">Drop any .x12, .edi, or .txt transaction file here, or click to select</p>
-          <p style="font-size:0.74rem;color:var(--text-secondary);margin-top:3px">Supports 837, 835, 270, 271, 277, 275 (HL7 C-CDA XML), and 278</p>
+          <p style="font-size:0.74rem;color:var(--text-secondary);margin-top:3px">Supports 837, 835, 270, 271, 277, 275 (raw or Base64 HL7 C-CDA XML), and 278</p>
+          <p id="uploadedFileBadge" class="mono tone-teal" style="font-size:0.74rem;margin-top:6px"></p>
           <input type="file" id="fileInput" class="hidden" accept=".x12,.edi,.txt">
         </div>
         <div>
           <label for="rawInputArea" class="detail-kv-label">Raw EDI X12 Segment Stream</label>
           <textarea id="rawInputArea" class="edi-textarea" placeholder="ISA*00*          *00*          *ZZ*SUBMITTER123   *ZZ*RECEIVER456    *260814*1430*^*00501*000000001*0*P*:~"></textarea>
         </div>
-        <div style="display:flex;justify-content:flex-end;gap:8px;padding-top:4px">
-          <button type="button" class="ctrl-btn" id="btnCancelUpload" onclick="closeUploadModal()">Cancel</button>
-          <button type="button" class="ctrl-btn ctrl-btn-primary" id="btnExecuteParse" onclick="parseCustomX12()">Parse &amp; Update Studio</button>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding-top:4px">
+          <button type="button" class="mini-btn" id="btnClearUploadArea" onclick="clearUploadArea()">Clear Stream</button>
+          <div style="display:flex;gap:8px">
+            <button type="button" class="ctrl-btn" id="btnCancelUpload" onclick="closeUploadModal()">Cancel</button>
+            <button type="button" class="ctrl-btn ctrl-btn-primary" id="btnExecuteParse" onclick="parseCustomX12()">Parse &amp; Update Studio</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1866,8 +1856,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     let FILTERED_SEGMENTS = [];
     let SELECTED_SEG_INDEX = 0;
     let ACTIVE_TAB = 'studio';
-    let CHART_MODE = 'financial';
+    let CHART_MODE = 'active';
     let CHART_HIT_BOXES = [];
+    let PENDING_UPLOAD_FILENAME = '';
 
     /* Segment Knowledge Base */
     const SEGMENT_KB = {
@@ -1989,13 +1980,32 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       BUNDLE.datasets.forEach((ds, idx) => {
         const opt = document.createElement('option');
         opt.value = String(idx);
-        opt.textContent = `[${ds.meta.tx_type}] ${ds.meta.filename} (${(ds.parsed_data.summary || {}).total_segments_count || 0} segs)`;
+        const segCount = (ds.parsed_data.summary || {}).total_segments_count || 0;
+        opt.textContent = `[${ds.meta.tx_type}] ${ds.meta.filename} (${segCount} segs)`;
         if (idx === ACTIVE_DATASET_IDX) opt.selected = true;
         sel.appendChild(opt);
       });
     }
 
-    function selectWorkspaceDataset(indexOrId, preserveViewport = true) {
+    function autoSelect3dModelForDataset(data, meta) {
+      const txType = meta.tx_type || 'X12';
+      const clin = (((((data.functional_groups || [])[0] || {}).transaction_sets || [])[0] || {}).parsed_transaction || {}).attached_clinical_data || {};
+      if (txType === '275' && clin && Object.keys(clin).length > 0) {
+        const meds = clin.medications || [];
+        const algs = clin.allergies || [];
+        const hasLisinopril = meds.some(m => String(m.rxnorm_code || '') === '314076' || /lisinopril/i.test(m.medication_name || ''));
+        const hasPenicillin = algs.some(a => String(a.rxnorm_code || '') === '70618' || /penicillin/i.test(a.substance || ''));
+        if (hasLisinopril) MOL_STATE.modelKey = 'lisinopril';
+        else if (hasPenicillin) MOL_STATE.modelKey = 'penicillin';
+        else MOL_STATE.modelKey = 'x12_lattice';
+      } else {
+        MOL_STATE.modelKey = 'x12_lattice';
+      }
+      const sel3d = document.getElementById('molModelSelect');
+      if (sel3d) sel3d.value = MOL_STATE.modelKey;
+    }
+
+    function selectWorkspaceDataset(indexOrId, preserveScroll = true, keepFilter = false) {
       const scrollY = window.scrollY;
       let idx = typeof indexOrId === 'number' ? indexOrId : parseInt(indexOrId, 10);
       if (isNaN(idx)) {
@@ -2011,8 +2021,16 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       const sel = document.getElementById('datasetSelector');
       if (sel) sel.value = String(idx);
 
-      refreshAllComponents(preserveViewport);
-      if (preserveViewport) {
+      if (!keepFilter) {
+        const qInput = document.getElementById('segFilterInput');
+        if (qInput) qInput.value = '';
+      }
+
+      SELECTED_SEG_INDEX = 0;
+      autoSelect3dModelForDataset(CURRENT_DATA, CURRENT_DATASET.meta);
+      refreshAllComponents(false);
+
+      if (preserveScroll) {
         window.scrollTo(0, scrollY);
       }
     }
@@ -2021,19 +2039,25 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       const prevSegIdx = preserveSelection ? SELECTED_SEG_INDEX : 0;
       const segListEl = document.getElementById('segmentListContainer');
       const prevSegScroll = preserveSelection && segListEl ? segListEl.scrollTop : 0;
+      const meta = CURRENT_DATASET.meta;
 
-      const txType = CURRENT_DATASET.meta.tx_type || 'X12';
-      document.getElementById('txBadge').textContent = `${txType} • ${CURRENT_DATASET.meta.gs_version}`;
+      const txType = meta.tx_type || 'X12';
+      document.getElementById('txBadge').textContent = `${txType} • ${meta.gs_version}`;
+      const footerLbl = document.getElementById('footerActiveStreamLabel');
+      if (footerLbl) {
+        footerLbl.textContent = `Active Stream: [${txType}] ${meta.source_path} • ${meta.byte_size.toLocaleString()} B • SHA-256 ${meta.sha256}`;
+      }
 
       buildSegmentIndex(CURRENT_DATA, CURRENT_RAW_EDI);
-      renderMetrics(CURRENT_DATA, CURRENT_DATASET.meta);
+      renderMetrics(CURRENT_DATA, meta);
       renderValidationAndProvenance();
-      renderEnvelopes(CURRENT_DATA, CURRENT_DATASET.meta);
-      renderEntities(CURRENT_DATA);
-      renderTxSpecific(CURRENT_DATA);
-      renderClinicalSection(CURRENT_DATA);
-      renderRawEdi(CURRENT_RAW_EDI, CURRENT_DATASET.meta);
-      renderJsonTree(CURRENT_DATA);
+      renderEnvelopes(CURRENT_DATA, meta);
+      renderEntities(CURRENT_DATA, meta);
+      renderTxSpecific(CURRENT_DATA, meta);
+      renderClinicalSection(CURRENT_DATA, meta);
+      renderRawEdi(CURRENT_RAW_EDI, meta);
+      renderJsonTree(CURRENT_DATA, meta);
+      renderMappingSpec(CURRENT_DATA, meta);
 
       filterSegments(true);
       const safeIdx = Math.min(prevSegIdx, Math.max(ALL_SEGMENTS.length - 1, 0));
@@ -2042,19 +2066,20 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       }
       if (preserveSelection && segListEl) {
         segListEl.scrollTop = prevSegScroll;
+      } else if (segListEl) {
+        segListEl.scrollTop = 0;
       }
 
       renderFinancialChart();
       renderHeatmapMatrix();
       renderRelationshipNodeMap(!preserveSelection);
-      if (MOL_STATE.modelKey === 'x12_lattice') {
-        buildX12LatticeModel();
-      }
+      buildX12LatticeModel();
+      sync3dLegendAndSubtitle();
       request3dRender();
     }
 
     /* ==========================================================================
-       KPI TELEMETRY STRIP (DESIGN.md Section 4 & 5)
+       KPI TELEMETRY STRIP (DESIGN.md Section 4 & 5) — 100% EMPIRICAL STREAM DATA
        ========================================================================== */
     function renderMetrics(data, meta) {
       const bar = document.getElementById('metricsBar');
@@ -2063,6 +2088,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       const firstTx = (firstGroup.transaction_sets || [])[0] || {};
       const parsedTx = firstTx.parsed_transaction || {};
       const txType = firstTx.transaction_type || meta.tx_type || 'X12';
+      const finMeta = meta.financials || { billed: 0, paid: 0, adjustments: 0, patient_responsibility: 0, pended_exposure: 0 };
 
       const cells = [];
 
@@ -2077,50 +2103,81 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         label: 'Total Segments',
         val: String(summary.total_segments_count || ALL_SEGMENTS.length),
         tone: '',
-        sub: `${meta.byte_size.toLocaleString()} B • ${meta.parse_ms.toFixed(2)} ms`
+        sub: `${(meta.byte_size || 0).toLocaleString()} B • ${(meta.parse_ms || 0).toFixed(2)} ms`
       });
 
       if (txType === '837') {
         const claims = parsedTx.claims || [];
         const charge = claims.reduce((a, c) => a + (parseFloat(c.total_claim_charge_amount) || 0), 0);
         const lines = claims.reduce((a, c) => a + (c.service_lines || []).length, 0);
-        const diags = claims.reduce((a, c) => a + (c.diagnoses || []).length, 0);
-        cells.push({ label: 'Submitted Claims', val: `${claims.length} (${lines} Lines)`, tone: '', sub: `ID: ${(claims[0] && claims[0].claim_id) || 'N/A'}` });
+        const allDiags = [];
+        claims.forEach(c => (c.diagnoses || []).forEach(d => { if (d.code) allDiags.push(d.code); }));
+        cells.push({ label: 'Submitted Claims', val: `${claims.length} (${lines} Line${lines === 1 ? '' : 's'})`, tone: '', sub: `ID: ${(claims[0] && claims[0].claim_id) || 'N/A'}` });
         cells.push({ label: 'Total Billed Charges', val: `$${charge.toFixed(2)}`, tone: 'tone-teal', sub: 'Loop 2300 CLM02 Verified' });
-        cells.push({ label: 'ICD-10 Diagnoses', val: `${diags} Codes`, tone: 'tone-indigo', sub: (claims[0] && (claims[0].diagnoses || []).map(d => d.code).join(', ')) || 'None' });
+        cells.push({ label: 'ICD-10 Diagnoses', val: `${allDiags.length} Code${allDiags.length === 1 ? '' : 's'}`, tone: 'tone-indigo', sub: allDiags.slice(0, 4).join(', ') || 'None' });
       } else if (txType === '835') {
         const fin = parsedTx.financial_information || {};
-        const paid = parseFloat(fin.total_payment_amount) || 0;
+        const paid = parseFloat(fin.total_payment_amount) || finMeta.paid || 0;
         const claims = parsedTx.claims || [];
+        const coWriteOff = Math.max(0, (finMeta.adjustments || 0) - (finMeta.patient_responsibility || 0));
         cells.push({ label: 'Payment Total', val: `$${paid.toFixed(2)}`, tone: 'tone-emerald', sub: `Method: ${fin.payment_method_code || fin.payment_method || 'ACH'}` });
-        cells.push({ label: 'Contractual Write-Off', val: `$${meta.financials.adjustments.toFixed(2)}`, tone: 'tone-indigo', sub: `CARC Adjustments (${claims.length} Claim)` });
-        cells.push({ label: 'Patient Responsibility', val: `$${meta.financials.patient_responsibility.toFixed(2)}`, tone: 'tone-amber', sub: 'Deductible + Coinsurance' });
+        cells.push({ label: 'Contractual Write-Off', val: `$${coWriteOff.toFixed(2)}`, tone: 'tone-indigo', sub: `CARC Adjustments (${claims.length} Claim${claims.length === 1 ? '' : 's'})` });
+        cells.push({ label: 'Patient Responsibility', val: `$${(finMeta.patient_responsibility || 0).toFixed(2)}`, tone: 'tone-amber', sub: 'Deductible + Coinsurance' });
       } else if (txType === '277') {
         const req = parsedTx.required_attachments || [];
-        cells.push({ label: 'Required Attachments', val: `${req.length} Flagged`, tone: 'tone-rose', sub: 'STC R4 / Action A4 Pended' });
-        cells.push({ label: 'Pended Exposure', val: `$${meta.financials.pended_exposure.toFixed(2)}`, tone: 'tone-amber', sub: (req[0] && `PWK ${req[0].attachment_report_type_code}: ${req[0].attachment_transmission_code}`) || 'Electronic' });
+        const statuses = parsedTx.claim_statuses || [];
+        cells.push({ label: 'Required Attachments', val: `${req.length} Flagged`, tone: 'tone-rose', sub: req[0] ? `STC ${req[0].status_category_code || 'R4'} / Action ${req[0].action_code || 'A4'}` : `${statuses.length} Status Rows` });
+        cells.push({ label: 'Pended Exposure', val: `$${(finMeta.pended_exposure || 0).toFixed(2)}`, tone: 'tone-amber', sub: (req[0] && `PWK ${req[0].attachment_report_type_code || '09'}: ${req[0].attachment_transmission_code || 'EL'}`) || 'Electronic' });
         cells.push({ label: 'Tracking Reference', val: (req[0] && req[0].attachment_control_number) || 'ATT-REF', tone: '', sub: 'Loop 2200D PWK06' });
       } else if (txType === '275') {
         const clin = parsedTx.attached_clinical_data || {};
         const meds = clin.medications || [];
         const algs = clin.allergies || [];
         const vitals = clin.vital_signs || [];
-        cells.push({ label: 'C-CDA Medications', val: `${meds.length} Active`, tone: 'tone-indigo', sub: (meds[0] && `RxNorm ${meds[0].rxnorm_code}`) || 'Extracted' });
-        cells.push({ label: 'Allergy Alerts', val: `${algs.length} Severe`, tone: 'tone-rose', sub: (algs[0] && `${algs[0].substance} (${algs[0].reaction})`) || 'Screened' });
-        cells.push({ label: 'Vital Observations', val: `${vitals.length} Recorded`, tone: 'tone-emerald', sub: 'LOINC 8716-3 Panel' });
-      } else if (txType === '271' || txType === '270') {
+        const probs = clin.problems_and_diagnoses || [];
+        cells.push({ label: 'C-CDA Medications', val: `${meds.length} Active`, tone: 'tone-indigo', sub: (meds[0] && `${meds[0].medication_name || 'Rx'} (${meds[0].rxnorm_code || 'RxNorm'})`) || 'Medication Section' });
+        cells.push({ label: 'Allergy Alerts', val: `${algs.length} Recorded`, tone: algs.length > 0 ? 'tone-rose' : 'tone-emerald', sub: (algs[0] && `${algs[0].substance} (${algs[0].severity || algs[0].reaction || 'Alert'})`) || 'No Known Allergies' });
+        cells.push({ label: 'Problems & Vitals', val: `${probs.length} Dx / ${vitals.length} Vitals`, tone: 'tone-emerald', sub: (probs[0] && `Primary: ${probs[0].code}`) || 'LOINC Clinical Summary' });
+      } else if (txType === '271') {
         const sub = parsedTx.subscriber || {};
         const bens = sub.eligibility_benefits || parsedTx.eligibility_benefits || [];
-        const inqs = parsedTx.inquiries || sub.inquiries || [];
-        cells.push({ label: txType === '271' ? 'Benefit Rows' : 'Service Inquiries', val: String(txType === '271' ? bens.length : Math.max(inqs.length, 2)), tone: 'tone-emerald', sub: 'HIPAA 5010X279A1' });
-        cells.push({ label: 'Coverage Status', val: txType === '271' ? 'Active (EB*1)' : 'Inquiry (EQ)', tone: 'tone-teal', sub: 'Major Medical CI' });
-        cells.push({ label: 'Cost Sharing', val: txType === '271' ? '$25 / $500' : 'Types 30, 98', tone: 'tone-amber', sub: txType === '271' ? 'Copay / Deductible' : 'Plan & Office Visit' });
+        const activeBen = bens.find(b => b.eligibility_code === '1');
+        const copayBen = bens.find(b => b.eligibility_code === 'B' && b.monetary_amount !== null && b.monetary_amount !== undefined);
+        const dedBen = bens.find(b => b.eligibility_code === 'C' && b.monetary_amount !== null && b.monetary_amount !== undefined);
+        const coinsBen = bens.find(b => b.eligibility_code === 'A' && b.percent !== null && b.percent !== undefined);
+        const costParts = [];
+        if (copayBen) costParts.push(`$${Number(copayBen.monetary_amount).toFixed(0)} Copay`);
+        if (dedBen) costParts.push(`$${Number(dedBen.monetary_amount).toFixed(0)} Ded`);
+        if (!costParts.length && coinsBen) costParts.push(`${(Number(coinsBen.percent) * 100).toFixed(0)}% Coins`);
+        cells.push({ label: 'Benefit Rows', val: `${bens.length} EB Loops`, tone: 'tone-emerald', sub: `Member: ${sub.identification_code || 'Verified'}` });
+        cells.push({ label: 'Coverage Status', val: activeBen ? 'Active (EB*1)' : (bens[0] ? `EB*${bens[0].eligibility_code}` : 'Response'), tone: 'tone-teal', sub: (activeBen && activeBen.plan_coverage_description) || 'Eligibility Response' });
+        cells.push({ label: 'Cost Sharing', val: costParts.join(' / ') || `${bens.length} Terms`, tone: 'tone-amber', sub: coinsBen ? `${(Number(coinsBen.percent) * 100).toFixed(0)}% Coinsurance` : 'Loop 2110C Schedule' });
+      } else if (txType === '270') {
+        const sub = parsedTx.subscriber || {};
+        const inqs = (sub.inquiries && sub.inquiries.length ? sub.inquiries : parsedTx.inquiries) || [];
+        const eqSegs = ALL_SEGMENTS.filter(s => s.segment_id === 'EQ');
+        const eqCodes = inqs.length ? inqs.map(q => q.service_type_code || q.code).filter(Boolean) : eqSegs.map(s => s.elements[0]).filter(Boolean);
+        cells.push({ label: 'Service Inquiries', val: `${Math.max(inqs.length, eqSegs.length)} EQ Loop${Math.max(inqs.length, eqSegs.length) === 1 ? '' : 's'}`, tone: 'tone-emerald', sub: `Member: ${sub.identification_code || 'Inquiry'}` });
+        cells.push({ label: 'Inquiry Mode', val: 'Real-Time (EQ)', tone: 'tone-teal', sub: `${meta.gs_version || '005010X279A1'}` });
+        cells.push({ label: 'Service Types', val: eqCodes.length ? `Types ${eqCodes.join(', ')}` : 'General (30)', tone: 'tone-amber', sub: 'Loop 2110C Verification' });
       } else if (txType === '278') {
         const evs = parsedTx.events || [];
-        const revs = (evs[0] && evs[0].review_results) || [];
-        cells.push({ label: 'Review Decision', val: (revs[0] && revs[0].approval_status) || 'Certified (A1)', tone: 'tone-emerald', sub: (revs[0] && revs[0].review_identification_number) || 'Loop 2000E' });
-        cells.push({ label: 'Authorized Amount', val: `$${meta.financials.billed.toFixed(2)}`, tone: 'tone-teal', sub: 'CPT 93000 Approved' });
-        cells.push({ label: 'Clinical Basis', val: 'I10, R07.9', tone: 'tone-indigo', sub: 'Loop 2000E HI Codes' });
+        const ev0 = evs[0] || {};
+        const revs = ev0.review_results || [];
+        const svcs = ev0.services || [];
+        const diags = (ev0.diagnoses || []).map(d => d.code).filter(Boolean);
+        const procCodes = svcs.map(s => (s.procedure && (s.procedure.procedure_code || s.procedure.code)) || s.procedure_code).filter(Boolean);
+        const hiFallback = diags.length ? diags : ALL_SEGMENTS.filter(s => s.segment_id === 'HI').flatMap(s => s.elements.map(el => (el.split(':')[1] || ''))).filter(Boolean);
+        const svFallback = procCodes.length ? procCodes : ALL_SEGMENTS.filter(s => s.segment_id === 'SV1' || s.segment_id === 'SV2').map(s => ((s.elements[0] || '').split(':')[1] || s.elements[0])).filter(Boolean);
+        cells.push({ label: 'Review Decision', val: (revs[0] && (revs[0].approval_status || revs[0].action_description || `HCR*${revs[0].action_code}`)) || `UM*${ev0.request_category_code || 'SC'}`, tone: 'tone-emerald', sub: (revs[0] && revs[0].review_identification_number) || 'Loop 2000E Review' });
+        cells.push({ label: 'Authorized Amount', val: `$${(finMeta.billed || 0).toFixed(2)}`, tone: 'tone-teal', sub: svFallback.length ? `CPT ${svFallback.join(', ')}` : `${evs.length} Review Event` });
+        cells.push({ label: 'Clinical Basis', val: hiFallback.length ? hiFallback.join(', ') : `${ALL_SEGMENTS.length} Segs`, tone: 'tone-indigo', sub: 'Loop 2000E HI Diagnoses' });
+      } else {
+        const partners = resolveTradingPartners(parsedTx);
+        const distinctSegs = new Set(ALL_SEGMENTS.map(s => s.segment_id)).size;
+        cells.push({ label: 'Distinct Segments', val: `${distinctSegs} Types`, tone: 'tone-indigo', sub: `Control #${firstTx.transaction_set_control_number || '0001'}` });
+        cells.push({ label: 'Primary Entity', val: (partners.provider && partners.provider._displayName) || (partners.payer && partners.payer._displayName) || 'Interchange', tone: 'tone-teal', sub: `ISA #${meta.isa_control_number}` });
+        cells.push({ label: 'Financial Total', val: `$${((finMeta.billed || 0) + (finMeta.paid || 0)).toFixed(2)}`, tone: 'tone-emerald', sub: 'Parsed Stream Summary' });
       }
 
       const vTone = meta.validation_status === 'PASS' ? 'tone-emerald' : (meta.validation_status === 'WARN' ? 'tone-amber' : 'tone-rose');
@@ -2145,9 +2202,170 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
        ========================================================================== */
     function setChartMode(mode) {
       CHART_MODE = mode;
-      document.getElementById('chartModeFinancial').classList.toggle('active', mode === 'financial');
-      document.getElementById('chartModeTelemetry').classList.toggle('active', mode === 'telemetry');
+      ['active', 'financial', 'telemetry'].forEach(m => {
+        const id = m === 'active' ? 'chartModeActive' : (m === 'financial' ? 'chartModeFinancial' : 'chartModeTelemetry');
+        const btn = document.getElementById(id);
+        if (btn) btn.classList.toggle('active', mode === m);
+      });
       renderFinancialChart();
+    }
+
+    function buildActiveStreamChartSpec() {
+      const meta = CURRENT_DATASET.meta;
+      const fg = (CURRENT_DATA.functional_groups || [])[0] || {};
+      const ts = (fg.transaction_sets || [])[0] || {};
+      const tx = ts.parsed_transaction || {};
+      const txType = ts.transaction_type || meta.tx_type || 'X12';
+      const fin = meta.financials || { billed: 0, paid: 0, adjustments: 0, patient_responsibility: 0, pended_exposure: 0 };
+
+      if (txType === '837') {
+        const claims = tx.claims || [];
+        const c0 = claims[0] || {};
+        const bars = [
+          { label: 'Total Billed', val: fin.billed || parseFloat(c0.total_claim_charge_amount || 0), color: PALETTE.teal, sub: `Claim ${c0.claim_id || 'CLM'}` }
+        ];
+        (c0.service_lines || []).slice(0, 4).forEach((sl, idx) => {
+          const code = (sl.procedure && (sl.procedure.procedure_code || sl.procedure.code)) || `Line ${idx + 1}`;
+          bars.push({
+            label: `CPT ${code}`,
+            val: parseFloat(sl.charge_amount || 0),
+            color: idx % 2 === 0 ? PALETTE.emerald : PALETTE.indigo,
+            sub: `Service Line #${sl.line_number || (idx + 1)}`
+          });
+        });
+        const lineSum = (c0.service_lines || []).reduce((a, s) => a + (parseFloat(s.charge_amount) || 0), 0);
+        bars.push({ label: 'Line Sum', val: lineSum, color: PALETTE.amber, sub: 'Sum(SV102/SV203) Audit' });
+        return {
+          title: `X12 837 Claim Charge & Service Line Profile`,
+          subtitle: `Submitted claim total vs. individual CPT/HCPCS line charges in ${meta.filename} ($ USD)`,
+          readout: `[837] ${meta.filename} • Claim ${c0.claim_id || 'Active'}`,
+          isCurrency: true,
+          bars
+        };
+      }
+
+      if (txType === '835') {
+        const c0 = (tx.claims || [])[0] || {};
+        const trace = (tx.reassociation_trace && tx.reassociation_trace.check_or_eft_trace_number) || 'EFT';
+        const coWriteOff = Math.max(0, (fin.adjustments || 0) - (fin.patient_responsibility || 0));
+        const bars = [
+          { label: 'CLP Billed', val: fin.billed || parseFloat(c0.total_claim_charge_amount || 0), color: PALETTE.teal, sub: 'Submitted Charge (CLP03)' },
+          { label: 'Net Paid', val: fin.paid || parseFloat(c0.claim_payment_amount || 0), color: PALETTE.emerald, sub: 'EFT Settlement (BPR02/CLP04)' },
+          { label: 'CO Write-Off', val: coWriteOff, color: PALETTE.indigo, sub: 'Contractual Obligation (CAS*CO)' },
+          { label: 'Patient Resp', val: fin.patient_responsibility || parseFloat(c0.patient_responsibility_amount || 0), color: PALETTE.amber, sub: 'Deductible/Coins (CAS*PR)' }
+        ];
+        (c0.service_lines || []).slice(0, 2).forEach(sl => {
+          const code = (sl.procedure && (sl.procedure.code || sl.procedure.procedure_code)) || sl.procedure_code || 'SVC';
+          const linePaid = parseFloat(sl.line_payment_amount ?? sl.payment_amount ?? sl.line_item_provider_payment_amount ?? 0) || 0;
+          const lineChg = parseFloat(sl.line_charge_amount ?? sl.charge_amount ?? sl.line_item_charge_amount ?? 0) || 0;
+          bars.push({ label: `Paid ${code}`, val: linePaid, color: PALETTE.teal, sub: `Line Paid (Billed $${lineChg.toFixed(0)})` });
+        });
+        return {
+          title: `X12 835 Remittance Adjudication Waterfall`,
+          subtitle: `Submitted charge, net payment, contractual write-off, and patient share in ${meta.filename} ($ USD)`,
+          readout: `[835] ${meta.filename} • Trace ${trace}`,
+          isCurrency: true,
+          bars
+        };
+      }
+
+      if (txType === '277') {
+        const reqs = tx.required_attachments || [];
+        const r0 = reqs[0] || {};
+        const holdAmt = fin.pended_exposure || parseFloat(r0.claim_charge_amount || 0);
+        if (holdAmt > 0) {
+          return {
+            title: `X12 277 Pended Claim Exposure & Hold Status`,
+            subtitle: `Adjudication hold exposure awaiting ${r0.attachment_report_type_description || 'clinical documentation'} in ${meta.filename} ($ USD)`,
+            readout: `[277] ${meta.filename} • PWK ${r0.attachment_control_number || 'Pended'}`,
+            isCurrency: true,
+            bars: [
+              { label: 'Pended Claim', val: holdAmt, color: PALETTE.rose, sub: `STC ${r0.status_category_code || 'R4'} Hold` },
+              { label: 'Doc Hold ($)', val: holdAmt, color: PALETTE.amber, sub: `PWK ${r0.attachment_report_type_code || '09'} Required` },
+              { label: 'Released ($)', val: 0, color: PALETTE.emerald, sub: 'Awaiting 275 Attachment' }
+            ]
+          };
+        }
+      }
+
+      if (txType === '275') {
+        const clin = tx.attached_clinical_data || {};
+        const docId = (clin.document_metadata && clin.document_metadata.document_id) || 'C-CDA R2.1';
+        const notesCount = Object.keys(clin.clinical_notes_and_evaluations || {}).filter(k => Boolean(clin.clinical_notes_and_evaluations[k])).length;
+        return {
+          title: `X12 275 Embedded HL7 C-CDA R2.1 Clinical Inventory`,
+          subtitle: `Structured clinical entries extracted from BDS/BIN XML payload in ${meta.filename} (Record Count)`,
+          readout: `[275] ${meta.filename} • ${docId}`,
+          isCurrency: false,
+          bars: [
+            { label: 'Medications', val: (clin.medications || []).length, color: PALETTE.indigo, sub: 'LOINC 10160-0 Active Meds' },
+            { label: 'Allergies', val: (clin.allergies || []).length, color: PALETTE.rose, sub: 'LOINC 48765-2 Alerts' },
+            { label: 'Problems/Dx', val: (clin.problems_and_diagnoses || []).length, color: PALETTE.teal, sub: 'LOINC 11450-4 Diagnoses' },
+            { label: 'Vital Signs', val: (clin.vital_signs || []).length, color: PALETTE.emerald, sub: 'LOINC 8716-3 Observations' },
+            { label: 'Narrative', val: notesCount, color: PALETTE.amber, sub: 'LOINC 11506-3 Notes' }
+          ]
+        };
+      }
+
+      if (txType === '271') {
+        const sub = tx.subscriber || {};
+        const bens = sub.eligibility_benefits || tx.eligibility_benefits || [];
+        const monetaryBars = [];
+        bens.forEach((b, i) => {
+          if (b.monetary_amount !== null && b.monetary_amount !== undefined && !isNaN(Number(b.monetary_amount))) {
+            const codeLbl = b.eligibility_code === 'C' ? 'Deductible' : (b.eligibility_code === 'B' ? 'Copayment' : (b.eligibility_code === 'G' ? 'Out-of-Pocket' : `EB*${b.eligibility_code}`));
+            monetaryBars.push({
+              label: `${codeLbl} (${b.service_type_code || '30'})`,
+              val: Number(b.monetary_amount),
+              color: b.eligibility_code === 'C' ? PALETTE.amber : (b.eligibility_code === 'B' ? PALETTE.teal : PALETTE.indigo),
+              sub: b.eligibility_description || 'Benefit Monetary Term'
+            });
+          }
+        });
+        if (monetaryBars.length > 0) {
+          return {
+            title: `X12 271 Eligibility & Cost-Sharing Benefit Schedule`,
+            subtitle: `Extracted member deductible, copayment, and benefit dollar thresholds in ${meta.filename} ($ USD)`,
+            readout: `[271] ${meta.filename} • Member ${sub.identification_code || 'Active'}`,
+            isCurrency: true,
+            bars: monetaryBars
+          };
+        }
+      }
+
+      if (txType === '278' && (fin.billed > 0)) {
+        const ev0 = (tx.events || [])[0] || {};
+        const rv0 = (ev0.review_results || [])[0] || {};
+        const isCert = !rv0.action_code || rv0.action_code === 'A1' || rv0.action_code === 'A2';
+        return {
+          title: `X12 278 Prior Authorization Financial Determination`,
+          subtitle: `Requested procedure charge vs. UMO certified amount in ${meta.filename} ($ USD)`,
+          readout: `[278] ${meta.filename} • ${rv0.review_identification_number || 'UM Review'}`,
+          isCurrency: true,
+          bars: [
+            { label: 'Requested ($)', val: fin.billed, color: PALETTE.teal, sub: 'Submitted SV1/SV2 Service Charge' },
+            { label: 'Certified ($)', val: isCert ? fin.billed : 0, color: PALETTE.emerald, sub: `Decision ${rv0.action_code || 'A1'}` },
+            { label: 'Denied/Hold', val: isCert ? 0 : fin.billed, color: PALETTE.rose, sub: 'Adverse Determination' }
+          ]
+        };
+      }
+
+      // Default quantitative breakdown for 270 Inquiry & custom X12 streams: 5010 Loop Stratum Segment Counts
+      const sc = meta.stratum_counts || {};
+      return {
+        title: `X12 ${txType} Loop Stratum Segment Distribution`,
+        subtitle: `Empirical segment counts across 5010 structural strata in ${meta.filename} (Segment Count)`,
+        readout: `[${txType}] ${meta.filename} • ${ALL_SEGMENTS.length} Total Segments`,
+        isCurrency: false,
+        bars: [
+          { label: 'Envelope', val: sc['Envelope'] || 0, color: PALETTE.teal, sub: 'ISA / GS / ST / SE / GE / IEA' },
+          { label: 'Header', val: sc['Header'] || 0, color: PALETTE.emerald, sub: 'BHT / BPR / TRN / BGN' },
+          { label: '1000/2000', val: sc['Loop 1000/2000'] || 0, color: PALETTE.indigo, sub: 'Hierarchy & Subscriber' },
+          { label: '2010 Entity', val: sc['Loop 2010 Entities'] || 0, color: PALETTE.indigo, sub: 'NM1 / N1 / N3 / N4 / DMG' },
+          { label: 'Core Loop', val: sc['Loop 2300/2100 Core'] || 0, color: PALETTE.amber, sub: 'EQ / EB / CLM / CLP / UM / STC' },
+          { label: 'Detail/Clin', val: sc['Loop 2400/Clinical'] || 0, color: PALETTE.rose, sub: 'SV1 / SVC / CAS / PWK / BDS' }
+        ]
+      };
     }
 
     function renderFinancialChart() {
@@ -2169,41 +2387,56 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       const ph = h - pad.top - pad.bottom;
       CHART_HIT_BOXES = [];
 
-      if (CHART_MODE === 'financial') {
-        document.getElementById('chartSubtitle').textContent = 'Empirical claim charge, remittance settlement, write-off, patient share, and pended exposure ($ USD)';
-        // Aggregate workspace episode financial series or current transaction
-        let billed = 0, paid = 0, writeOff = 0, patResp = 0, pended = 0;
-        if (BUNDLE.datasets.length > 1) {
-          BUNDLE.datasets.forEach(ds => {
-            if (ds.meta.tx_type === '837') billed += ds.meta.financials.billed;
-            if (ds.meta.tx_type === '835') {
-              paid += ds.meta.financials.paid;
-              writeOff += Math.max(0, ds.meta.financials.adjustments - ds.meta.financials.patient_responsibility);
-              patResp += ds.meta.financials.patient_responsibility;
-            }
-            if (ds.meta.tx_type === '277') pended += ds.meta.financials.pended_exposure;
-          });
+      const titleEl = document.getElementById('chartPaneTitle');
+      const subEl = document.getElementById('chartSubtitle');
+      const readoutEl = document.getElementById('chartReadoutText');
+      const legendEl = document.getElementById('chartLegendBar');
+
+      if (CHART_MODE === 'active' || CHART_MODE === 'financial') {
+        let bars = [];
+        let isCurrency = true;
+
+        if (CHART_MODE === 'active') {
+          const spec = buildActiveStreamChartSpec();
+          bars = spec.bars;
+          isCurrency = spec.isCurrency;
+          if (titleEl) titleEl.textContent = spec.title;
+          if (subEl) subEl.textContent = spec.subtitle;
+          if (readoutEl) readoutEl.textContent = spec.readout;
         } else {
-          const f = CURRENT_DATASET.meta.financials;
-          billed = f.billed;
-          paid = f.paid;
-          writeOff = Math.max(0, f.adjustments - f.patient_responsibility);
-          patResp = f.patient_responsibility;
-          pended = f.pended_exposure;
+          if (titleEl) titleEl.textContent = 'Workspace Episode Financial Adjudication';
+          if (subEl) subEl.textContent = 'Aggregated claim charge, remittance settlement, write-off, patient share, and pended exposure ($ USD)';
+          if (readoutEl) readoutEl.textContent = `Workspace (${BUNDLE.datasets.length} Streams)`;
+          let billed = 0, paid = 0, writeOff = 0, patResp = 0, pended = 0;
+          BUNDLE.datasets.forEach(ds => {
+            const f = ds.meta.financials || {};
+            if (ds.meta.tx_type === '837') billed += (f.billed || 0);
+            if (ds.meta.tx_type === '835') {
+              paid += (f.paid || 0);
+              writeOff += Math.max(0, (f.adjustments || 0) - (f.patient_responsibility || 0));
+              patResp += (f.patient_responsibility || 0);
+            }
+            if (ds.meta.tx_type === '277') pended += (f.pended_exposure || 0);
+          });
+          bars = [
+            { label: '837 Billed', val: billed, color: PALETTE.teal, sub: 'Submitted CLM02' },
+            { label: '835 Paid', val: paid, color: PALETTE.emerald, sub: 'Net EFT Settlement' },
+            { label: 'CO Write-Off', val: writeOff, color: PALETTE.indigo, sub: 'CARC Contractual' },
+            { label: 'Patient Resp', val: patResp, color: PALETTE.amber, sub: 'Deductible + Coins' },
+            { label: '277 Pended', val: pended, color: PALETTE.rose, sub: 'STC R4/A4 Hold' }
+          ];
         }
 
-        const bars = [
-          { label: '837 Billed', val: billed || 1500, color: PALETTE.teal, sub: 'Submitted CLM02' },
-          { label: '835 Paid', val: paid, color: PALETTE.emerald, sub: 'Net EFT Settlement' },
-          { label: 'CO Write-Off', val: writeOff, color: PALETTE.indigo, sub: 'CARC 45 + 96' },
-          { label: 'Patient Resp', val: patResp, color: PALETTE.amber, sub: 'CARC 1 + 2' },
-          { label: '277 Pended', val: pended, color: PALETTE.rose, sub: 'STC R4/A4 Hold' }
-        ];
+        if (legendEl) {
+          legendEl.innerHTML = bars.slice(0, 5).map(b =>
+            `<span class="legend-item"><span class="legend-swatch" style="background:${b.color}"></span>${escapeHtml(b.label)}</span>`
+          ).join('');
+        }
 
-        const maxVal = Math.max(1600, ...bars.map(b => b.val)) * 1.08;
+        const rawMax = Math.max(...bars.map(b => b.val), isCurrency ? 100 : 4);
+        const maxVal = rawMax * 1.15;
         const steps = 4;
 
-        // Axis gridlines (#E7E5E4 in light mode, #292A30 in dark mode)
         ctx.strokeStyle = tok.gridLine;
         ctx.lineWidth = 1;
         ctx.font = "500 10.5px 'IBM Plex Mono', monospace";
@@ -2218,10 +2451,10 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           ctx.moveTo(pad.left, y);
           ctx.lineTo(pad.left + pw, y);
           ctx.stroke();
-          ctx.fillText(`$${Math.round(v)}`, pad.left - 8, y);
+          ctx.fillText(isCurrency ? `$${Math.round(v)}` : `${Math.round(v)}`, pad.left - 8, y);
         }
 
-        const slotW = pw / bars.length;
+        const slotW = pw / Math.max(bars.length, 1);
         const barW = Math.min(46, slotW * 0.54);
 
         bars.forEach((b, idx) => {
@@ -2235,23 +2468,32 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           else ctx.rect(bx, by, barW, bh);
           ctx.fill();
 
-          // Value label above bar
           ctx.fillStyle = tok.textPrimary;
           ctx.font = "600 10.5px 'IBM Plex Mono', monospace";
           ctx.textAlign = 'center';
           ctx.textBaseline = 'bottom';
-          ctx.fillText(`$${b.val.toFixed(0)}`, bx + barW / 2, by - 5);
+          const valText = isCurrency ? `$${b.val.toFixed(b.val % 1 ? 2 : 0)}` : `${b.val}`;
+          ctx.fillText(valText, bx + barW / 2, by - 5);
 
-          // X-axis category label
           ctx.fillStyle = tok.textSecondary;
-          ctx.font = "500 10.5px 'DM Sans', sans-serif";
+          ctx.font = "500 10px 'DM Sans', sans-serif";
           ctx.textBaseline = 'top';
-          ctx.fillText(b.label, bx + barW / 2, pad.top + ph + 10);
+          ctx.fillText(String(b.label).slice(0, 13), bx + barW / 2, pad.top + ph + 10);
 
-          CHART_HIT_BOXES.push({ x: bx, y: by, w: barW, h: bh, title: b.label, detail: `$${b.val.toFixed(2)} (${b.sub})` });
+          const tipDetail = isCurrency ? `$${b.val.toFixed(2)} (${b.sub})` : `${b.val} (${b.sub})`;
+          CHART_HIT_BOXES.push({ x: bx, y: by, w: barW, h: bh, title: b.label, detail: tipDetail });
         });
       } else {
-        document.getElementById('chartSubtitle').textContent = 'Empirical segment count (bars) and parser execution latency in ms (line) per workspace file';
+        if (titleEl) titleEl.textContent = 'Workspace Segment Volume & Parse Latency';
+        if (subEl) subEl.textContent = 'Empirical segment count (bars, active in Indigo) and parser latency in ms (Amber line)';
+        if (readoutEl) readoutEl.textContent = `Active: [${CURRENT_DATASET.meta.tx_type}] ${CURRENT_DATASET.meta.filename}`;
+        if (legendEl) {
+          legendEl.innerHTML = `
+            <span class="legend-item"><span class="legend-swatch" style="background:${PALETTE.indigo}"></span>Selected Stream</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:${PALETTE.teal}"></span>Workspace Peer</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:${PALETTE.amber}"></span>Parse Latency (ms)</span>
+          `;
+        }
         const items = BUNDLE.datasets.map(ds => ({
           label: ds.meta.tx_type,
           segs: (ds.parsed_data.summary || {}).total_segments_count || 0,
@@ -2296,8 +2538,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           else ctx.rect(bx, by, barW, bh);
           ctx.fill();
 
-          ctx.fillStyle = tok.textSecondary;
-          ctx.font = "600 10.5px 'IBM Plex Mono', monospace";
+          ctx.fillStyle = it.active ? tok.textPrimary : tok.textSecondary;
+          ctx.font = `${it.active ? '700' : '600'} 10.5px 'IBM Plex Mono', monospace`;
           ctx.textAlign = 'center';
           ctx.textBaseline = 'top';
           ctx.fillText(it.label, bx + barW / 2, pad.top + ph + 10);
@@ -2307,7 +2549,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           CHART_HIT_BOXES.push({ x: bx, y: pad.top, w: barW, h: ph, title: `${it.file} [${it.label}]`, detail: `${it.segs} segments • ${it.ms.toFixed(2)} ms` });
         });
 
-        // Overlay latency line in Energetic Amber (#D97706)
         ctx.strokeStyle = PALETTE.amber;
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -2379,6 +2620,14 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       });
 
       document.getElementById('heatmapTotalBadge').textContent = `${grandTotal} workspace segments`;
+      const hmSub = document.getElementById('heatmapSubtitle');
+      if (hmSub) {
+        hmSub.textContent = `Highlighted Row: [${CURRENT_DATASET.meta.tx_type}] ${CURRENT_DATASET.meta.filename} — segment density across 5010 loop strata (click cell to inspect)`;
+      }
+      const hmReadout = document.getElementById('heatmapReadoutText');
+      if (hmReadout) {
+        hmReadout.textContent = `Active: [${CURRENT_DATASET.meta.tx_type}] ${CURRENT_DATASET.meta.filename} (${ALL_SEGMENTS.length} segs)`;
+      }
 
       let html = `<table class="heatmap-matrix" aria-label="Loop Stratum Concentration Matrix"><thead><tr><th class="row-hdr">Tx / File</th>`;
       shortLabels.forEach(lbl => { html += `<th>${lbl}</th>`; });
@@ -2387,12 +2636,15 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       BUNDLE.datasets.forEach((ds, dIdx) => {
         const isCurrent = dIdx === ACTIVE_DATASET_IDX;
         const marker = isCurrent ? 'font-weight:700;color:var(--viz-teal)' : '';
-        html += `<tr><th class="row-hdr" style="${marker}">${escapeHtml(ds.meta.tx_type)} <span style="opacity:0.65">${escapeHtml(ds.meta.filename.replace('sample_', '').replace('.x12', ''))}</span></th>`;
+        const prefix = isCurrent ? '&bull; ' : '';
+        const shortFile = ds.meta.filename.replace('sample_', '').replace('.x12', '').slice(0, 18);
+        html += `<tr><th class="row-hdr" style="${marker};cursor:pointer" onclick="selectWorkspaceDataset(${dIdx}, true, false)">${prefix}${escapeHtml(ds.meta.tx_type)} <span style="opacity:0.7">${escapeHtml(shortFile)}</span></th>`;
         strata.forEach(st => {
           const val = (ds.meta.stratum_counts && ds.meta.stratum_counts[st]) || 0;
           const norm = val / maxCell;
           const col = interpolateHeatmapColor(norm, tok.bgSurface);
-          html += `<td class="hm-cell" style="background-color:${col.bg};color:${col.fg}" onclick="onHeatmapCellClick(${dIdx}, '${st}')" title="${escapeHtml(ds.meta.filename)} • ${st}: ${val} segment(s)">${val}</td>`;
+          const cellOutline = isCurrent ? `box-shadow:inset 0 0 0 1px ${PALETTE.teal};` : '';
+          html += `<td class="hm-cell" style="background-color:${col.bg};color:${col.fg};${cellOutline}" onclick="onHeatmapCellClick(${dIdx}, '${st}')" title="${escapeHtml(ds.meta.filename)} • ${st}: ${val} segment(s)">${val}</td>`;
         });
         html += `</tr>`;
       });
@@ -2402,7 +2654,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     function onHeatmapCellClick(dsIdx, stratum) {
-      selectWorkspaceDataset(dsIdx, true);
+      selectWorkspaceDataset(dsIdx, true, true);
       const qInput = document.getElementById('segFilterInput');
       if (qInput) {
         const mapFilter = {
@@ -2585,6 +2837,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       } else if (txType === '271' || txType === '270') {
         const sub = tx.subscriber || {};
         const bens = sub.eligibility_benefits || tx.eligibility_benefits || [];
+        const inqs = (sub.inquiries && sub.inquiries.length ? sub.inquiries : tx.inquiries) || [];
         if (bens.length > 0) {
           bens.slice(0, 4).forEach((b, bi) => {
             const bid = `n_eb_${bi}`;
@@ -2593,8 +2846,13 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             edges.push({ from: ptNodeId, to: bid, color: c });
           });
         } else {
-          nodes.push({ id: 'n_eq_0', col: 3, label: 'EQ*30 / EQ*98', sub: 'Benefit Inquiry', color: PALETTE.teal, segId: 'EQ' });
-          edges.push({ from: provNodeId, to: 'n_eq_0', color: PALETTE.teal });
+          const eqItems = inqs.length ? inqs : ALL_SEGMENTS.filter(s => s.segment_id === 'EQ').map(s => ({ service_type_code: s.elements[0] || '30', service_type_description: 'Service Inquiry' }));
+          (eqItems.length ? eqItems : [{ service_type_code: '30', service_type_description: 'Benefit Inquiry' }]).slice(0, 4).forEach((q, qi) => {
+            const qid = `n_eq_${qi}`;
+            const code = q.service_type_code || q.code || '30';
+            nodes.push({ id: qid, col: 3, label: `EQ*${code}`, sub: String(q.service_type_description || 'Benefit Inquiry').slice(0, 16), color: PALETTE.teal, segId: 'EQ' });
+            edges.push({ from: ptNodeId !== 'n_st' ? ptNodeId : provNodeId, to: qid, color: PALETTE.teal });
+          });
         }
       } else if (txType === '278') {
         (tx.events || []).forEach((ev, ei) => {
@@ -2606,6 +2864,20 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             nodes.push({ id: hid, col: 4, label: `HCR*${rv.action_code}`, sub: rv.review_identification_number || 'Approved', color: PALETTE.emerald, segId: 'HCR' });
             edges.push({ from: eid, to: hid, color: PALETTE.emerald });
           });
+          (ev.services || []).slice(0, 2).forEach((sv, si) => {
+            const sid = `n_sv278_${ei}_${si}`;
+            const code = (sv.procedure && (sv.procedure.procedure_code || sv.procedure.code)) || sv.procedure_code || 'SV1';
+            nodes.push({ id: sid, col: 4, label: `CPT ${code}`, sub: `$${parseFloat(sv.charge_amount || 0).toFixed(0)}`, color: PALETTE.teal, segId: 'SV1' });
+            edges.push({ from: eid, to: sid, color: PALETTE.teal });
+          });
+        });
+      } else {
+        // Generic X12 fallback graph for custom transaction sets
+        const coreSegs = ALL_SEGMENTS.filter(s => !['ISA','GS','ST','SE','GE','IEA','NM1','N1','N3','N4'].includes(s.segment_id)).slice(0, 4);
+        coreSegs.forEach((s, si) => {
+          const gid = `n_gen_${si}`;
+          nodes.push({ id: gid, col: 3, label: `${s.segment_id} #${s.line_number}`, sub: s.loop.slice(0, 16), color: PALETTE.emerald, segId: s.segment_id });
+          edges.push({ from: provNodeId, to: gid, color: PALETTE.emerald });
         });
       }
 
@@ -2619,6 +2891,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         NODE_MAP_STATE.scale = 1;
         NODE_MAP_STATE.tx = 0;
         NODE_MAP_STATE.ty = 0;
+        const ro = document.getElementById('nodeMapSelectionReadout');
+        if (ro) ro.textContent = 'Drag to pan \u2022 Scroll to zoom \u2022 Click node';
       }
 
       const rect = svg.parentElement.getBoundingClientRect();
@@ -2628,6 +2902,10 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
       const tok = getActiveTokens();
       const { nodes, edges } = buildGraphNodesAndEdges(CURRENT_DATA, CURRENT_DATASET.meta);
+      const subEl = document.getElementById('nodeMapSubtitle');
+      if (subEl) {
+        subEl.textContent = `[${CURRENT_DATASET.meta.tx_type}] ${CURRENT_DATASET.meta.filename} — ${nodes.length} structural nodes, ${edges.length} directed edges`;
+      }
 
       // Group nodes by column for deterministic fast DAG placement
       const cols = {};
@@ -2807,7 +3085,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     };
 
     const MOL_STATE = {
-      modelKey: 'lisinopril',
+      modelKey: 'x12_lattice',
       yaw: 0.48,
       pitch: 0.26,
       zoom: 1.0,
@@ -2837,8 +3115,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         const colNum = Number(ck);
         const xCoord = (colNum - 2) * 2.1;
         list.forEach((n, idx) => {
-          const angle = (idx / Math.max(list.length, 1)) * Math.PI * 2;
-          const radius = list.length === 1 ? 0 : 1.55;
+          const angle = (idx / Math.max(list.length, 1)) * Math.PI * 2 + colNum * 0.35;
+          const radius = list.length === 1 ? 0 : 1.65;
           idToIdx[n.id] = atoms.length;
           atoms.push({
             x: xCoord,
@@ -2847,7 +3125,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             elem: n.segId,
             label: `${n.label} (${n.sub})`,
             color: n.color,
-            r: colNum === 0 ? 0.42 : 0.35
+            r: colNum === 0 ? 0.42 : 0.36
           });
         });
       });
@@ -2861,7 +3139,41 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
       MOL_MODELS.x12_lattice.atoms = atoms;
       MOL_MODELS.x12_lattice.bonds = bonds;
-      MOL_MODELS.x12_lattice.title = `X12 ${CURRENT_DATASET.meta.tx_type} Spatial Loop Lattice (${atoms.length} Nodes)`;
+      MOL_MODELS.x12_lattice.title = `[${CURRENT_DATASET.meta.tx_type}] ${CURRENT_DATASET.meta.filename} — 3D Spatial Loop Lattice (${atoms.length} Nodes, ${bonds.length} Links)`;
+    }
+
+    function sync3dLegendAndSubtitle() {
+      const key = MOL_STATE.modelKey || 'x12_lattice';
+      const subEl = document.getElementById('mol3dSubtitle');
+      const legEl = document.getElementById('mol3dLegendBar');
+      const selEl = document.getElementById('molModelSelect');
+      if (selEl && selEl.value !== key) selEl.value = key;
+      if (subEl) {
+        if (key === 'x12_lattice') {
+          subEl.textContent = MOL_MODELS.x12_lattice.title;
+        } else {
+          subEl.textContent = `${MOL_MODELS[key].title} • Active Context: ${CURRENT_DATASET.meta.filename}`;
+        }
+      }
+      if (legEl) {
+        if (key === 'x12_lattice') {
+          legEl.innerHTML = `
+            <span class="legend-item"><span class="legend-swatch" style="background:#0D9488"></span>Envelope/Line</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#4F46E5"></span>Entity/Clinical</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#059669"></span>Claim/Paid</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#D97706"></span>Adjustment</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#E11D48"></span>Alert/Pended</span>
+          `;
+        } else {
+          legEl.innerHTML = `
+            <span class="legend-item"><span class="legend-swatch" style="background:#0D9488"></span>C / Backbone</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#4F46E5"></span>N / Amine</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#E11D48"></span>O / Carbonyl</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#D97706"></span>S / Ring</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#059669"></span>Active Site</span>
+          `;
+        }
+      }
     }
 
     function initWebGL3D() {
@@ -2944,7 +3256,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     function set3dModel(key) {
       MOL_STATE.modelKey = key;
       if (key === 'x12_lattice') buildX12LatticeModel();
-      document.getElementById('mol3dSubtitle').textContent = MOL_MODELS[key].title;
+      sync3dLegendAndSubtitle();
       request3dRender();
     }
 
@@ -3351,6 +3663,12 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       }
     }
 
+    function nonEmptyObj(o) {
+      if (!o || typeof o !== 'object') return null;
+      if (Array.isArray(o)) return o.length > 0 ? o : null;
+      return Object.keys(o).length > 0 ? o : null;
+    }
+
     function findJsonEquivalent(seg) {
       const id = seg.segment_id;
       const firstGroup = (CURRENT_DATA.functional_groups || [])[0] || {};
@@ -3363,32 +3681,40 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       if (id === 'GE') return { path: 'functional_groups[0].functional_group_trailer', subtree: firstGroup.functional_group_trailer || {} };
       if (id === 'ST') return { path: 'transaction_sets[0].transaction_header', subtree: firstTx.transaction_header || {} };
       if (id === 'SE') return { path: 'transaction_sets[0].transaction_trailer', subtree: firstTx.transaction_trailer || {} };
-      if (id === 'BHT') return { path: 'parsed_transaction.beginning_of_hierarchical_transaction', subtree: parsedTx.beginning_of_hierarchical_transaction || {} };
-      if (id === 'BPR') return { path: 'parsed_transaction.financial_information', subtree: parsedTx.financial_information || {} };
-      if (id === 'TRN') return { path: 'parsed_transaction.reassociation_trace', subtree: parsedTx.reassociation_trace || seg.parsed_fields };
-      if (id === 'CLM' || id === 'CLP') return { path: 'parsed_transaction.claims[0]', subtree: (parsedTx.claims && parsedTx.claims[0]) || {} };
-      if (id === 'CAS') return { path: 'parsed_transaction.claims[0].adjustments', subtree: (parsedTx.claims && parsedTx.claims[0] && parsedTx.claims[0].adjustments) || [] };
+      if (id === 'BHT') return { path: 'parsed_transaction.beginning_of_hierarchical_transaction', subtree: nonEmptyObj(parsedTx.beginning_of_hierarchical_transaction) || seg.parsed_fields };
+      if (id === 'BGN') return { path: 'parsed_transaction.beginning_segment', subtree: nonEmptyObj(parsedTx.beginning_segment) || seg.parsed_fields };
+      if (id === 'BPR') return { path: 'parsed_transaction.financial_information', subtree: nonEmptyObj(parsedTx.financial_information) || seg.parsed_fields };
+      if (id === 'TRN') return { path: 'parsed_transaction.reassociation_trace', subtree: nonEmptyObj(parsedTx.reassociation_trace) || seg.parsed_fields };
+      if (id === 'CLM' || id === 'CLP') return { path: 'parsed_transaction.claims[0]', subtree: (parsedTx.claims && parsedTx.claims[0]) || seg.parsed_fields };
+      if (id === 'CAS') return { path: 'parsed_transaction.claims[0].adjustments', subtree: (parsedTx.claims && parsedTx.claims[0] && nonEmptyObj(parsedTx.claims[0].adjustments)) || seg.parsed_fields };
       if (id === 'SV1' || id === 'SV2' || id === 'SVC') {
-        const lines = (parsedTx.claims && parsedTx.claims[0] && parsedTx.claims[0].service_lines) || (parsedTx.events && parsedTx.events[0] && parsedTx.events[0].services);
+        const lines = (parsedTx.claims && parsedTx.claims[0] && nonEmptyObj(parsedTx.claims[0].service_lines)) || (parsedTx.events && parsedTx.events[0] && nonEmptyObj(parsedTx.events[0].services));
         return { path: 'parsed_transaction.service_lines', subtree: lines || seg.parsed_fields };
       }
-      if (id === 'HI') return { path: 'parsed_transaction.claims[0].diagnoses', subtree: (parsedTx.claims && parsedTx.claims[0] && parsedTx.claims[0].diagnoses) || seg.parsed_fields };
+      if (id === 'HI') {
+        const diags = (parsedTx.claims && parsedTx.claims[0] && nonEmptyObj(parsedTx.claims[0].diagnoses)) || (parsedTx.events && parsedTx.events[0] && nonEmptyObj(parsedTx.events[0].diagnoses));
+        return { path: 'parsed_transaction.diagnoses', subtree: diags || seg.parsed_fields };
+      }
       if (id === 'NM1' || id === 'N1') {
         const q = seg.elements[0];
-        if (q === '85') return { path: 'parsed_transaction.billing_provider', subtree: parsedTx.billing_provider || seg.parsed_fields };
-        if (q === 'PR') return { path: 'parsed_transaction.payer', subtree: parsedTx.payer || parsedTx.information_source || parsedTx.utilization_management_organization || seg.parsed_fields };
-        if (q === 'PE') return { path: 'parsed_transaction.payee', subtree: parsedTx.payee || seg.parsed_fields };
-        if (q === 'IL') return { path: 'parsed_transaction.subscriber', subtree: parsedTx.subscriber || parsedTx.subscribers || seg.parsed_fields };
-        if (q === 'QC') return { path: 'parsed_transaction.patient', subtree: parsedTx.patient || seg.parsed_fields };
-        if (q === '41') return { path: 'parsed_transaction.submitter', subtree: parsedTx.submitter || seg.parsed_fields };
+        if (q === '85') return { path: 'parsed_transaction.billing_provider', subtree: nonEmptyObj(parsedTx.billing_provider) || nonEmptyObj(parsedTx.provider) || seg.parsed_fields };
+        if (q === 'PR') return { path: 'parsed_transaction.payer', subtree: nonEmptyObj(parsedTx.payer) || nonEmptyObj(parsedTx.information_source) || nonEmptyObj(parsedTx.utilization_management_organization) || findN1SegmentEntity(parsedTx, 'PR') || seg.parsed_fields };
+        if (q === 'PE') return { path: 'parsed_transaction.payee', subtree: nonEmptyObj(parsedTx.payee) || findN1SegmentEntity(parsedTx, 'PE') || seg.parsed_fields };
+        if (q === 'IL') return { path: 'parsed_transaction.subscriber', subtree: nonEmptyObj(parsedTx.subscriber) || nonEmptyObj(parsedTx.subscribers) || seg.parsed_fields };
+        if (q === 'QC') return { path: 'parsed_transaction.patient', subtree: nonEmptyObj(parsedTx.patient) || nonEmptyObj(parsedTx.subscriber) || seg.parsed_fields };
+        if (q === '41') return { path: 'parsed_transaction.submitter', subtree: nonEmptyObj(parsedTx.submitter) || seg.parsed_fields };
+        if (q === '40') return { path: 'parsed_transaction.receiver', subtree: nonEmptyObj(parsedTx.receiver) || seg.parsed_fields };
+        if (q === '1P' || q === 'FA') return { path: 'parsed_transaction.requester', subtree: nonEmptyObj(parsedTx.requester) || nonEmptyObj(parsedTx.information_receiver) || seg.parsed_fields };
       }
-      if (id === 'STC' || id === 'PWK') return { path: 'parsed_transaction.required_attachments', subtree: parsedTx.required_attachments || [] };
-      if (id === 'BDS' || id === 'BIN') return { path: 'parsed_transaction.attached_clinical_data', subtree: parsedTx.attached_clinical_data || {} };
-      if (id === 'EB') return { path: 'parsed_transaction.subscriber.eligibility_benefits', subtree: (parsedTx.subscriber && parsedTx.subscriber.eligibility_benefits) || parsedTx.eligibility_benefits || [] };
-      if (id === 'EQ') return { path: 'parsed_transaction.inquiries', subtree: parsedTx.inquiries || seg.parsed_fields };
-      if (id === 'UM' || id === 'HCR') return { path: 'parsed_transaction.events', subtree: parsedTx.events || seg.parsed_fields };
+      if (id === 'STC' || id === 'PWK') return { path: 'parsed_transaction.required_attachments', subtree: nonEmptyObj(parsedTx.required_attachments) || seg.parsed_fields };
+      if (id === 'CAT' || id === 'PID') return { path: 'parsed_transaction.attachment_metadata', subtree: nonEmptyObj(parsedTx.attachment_information) || seg.parsed_fields };
+      if (id === 'BDS' || id === 'BIN') return { path: 'parsed_transaction.attached_clinical_data', subtree: nonEmptyObj(parsedTx.attached_clinical_data) || seg.parsed_fields };
+      if (id === 'EB') return { path: 'parsed_transaction.subscriber.eligibility_benefits', subtree: (parsedTx.subscriber && nonEmptyObj(parsedTx.subscriber.eligibility_benefits)) || nonEmptyObj(parsedTx.eligibility_benefits) || seg.parsed_fields };
+      if (id === 'EQ') return { path: 'parsed_transaction.inquiries', subtree: nonEmptyObj(parsedTx.inquiries) || (parsedTx.subscriber && nonEmptyObj(parsedTx.subscriber.inquiries)) || seg.parsed_fields };
+      if (id === 'UM' || id === 'HCR') return { path: 'parsed_transaction.events', subtree: nonEmptyObj(parsedTx.events) || seg.parsed_fields };
+      if (id === 'PLB') return { path: 'parsed_transaction.provider_adjustments', subtree: nonEmptyObj(parsedTx.provider_adjustments) || seg.parsed_fields };
 
-      return { path: `transaction_sets[0].segments[#${seg.line_number}]`, subtree: seg.parsed_fields || { raw: seg.raw_text } };
+      return { path: `transaction_sets[0].segments[#${seg.line_number}]`, subtree: nonEmptyObj(seg.parsed_fields) || { raw: seg.raw_text } };
     }
 
     function filterSegments(skipSelect = false) {
@@ -3419,7 +3745,12 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       const meta = CURRENT_DATASET.meta;
       const badge = document.getElementById('overallValidationBadge');
       badge.className = statusBadgeClass(meta.validation_status);
-      badge.textContent = meta.validation_status;
+      badge.textContent = `${meta.validation_status} (${meta.tx_type})`;
+
+      const valSub = document.getElementById('validationSubtitle');
+      if (valSub) {
+        valSub.textContent = `HIPAA 5010 structural & control number checks for [${meta.tx_type}] ${meta.filename}`;
+      }
 
       const vBody = document.getElementById('validationAuditTbody');
       vBody.innerHTML = (meta.validations || []).map(v => `
@@ -3434,20 +3765,21 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       `).join('') || `<tr><td colspan="6" class="tone-muted">Envelope validated</td></tr>`;
 
       document.getElementById('activeProvenanceCitation').textContent =
-        `Active Source: ${meta.source_path} • SHA-256: ${meta.sha256} • ${meta.byte_size} bytes`;
+        `Active Source: ${meta.source_path} • [${meta.tx_type}] • SHA-256: ${meta.sha256} • ${meta.byte_size.toLocaleString()} bytes`;
 
       const pBody = document.getElementById('provenanceLogTbody');
       pBody.innerHTML = BUNDLE.datasets.map((ds, idx) => {
         const m = ds.meta;
         const segs = (ds.parsed_data.summary || {}).total_segments_count || 0;
-        const activeStyle = idx === ACTIVE_DATASET_IDX ? 'font-weight:600;color:var(--viz-teal)' : '';
+        const isCurrent = idx === ACTIVE_DATASET_IDX;
+        const activeStyle = isCurrent ? 'font-weight:600;color:var(--viz-teal)' : '';
         return `
-          <tr style="cursor:pointer" onclick="selectWorkspaceDataset(${idx}, true)">
-            <td class="mono" style="${activeStyle}">${escapeHtml(m.source_path)}</td>
+          <tr style="cursor:pointer;${isCurrent ? 'background:var(--bg-subtle)' : ''}" onclick="selectWorkspaceDataset(${idx}, true, false)">
+            <td class="mono" style="${activeStyle}">${isCurrent ? '&rarr; ' : ''}${escapeHtml(m.source_path)}</td>
             <td class="mono">${escapeHtml(m.tx_type)}</td>
             <td class="mono">${segs}</td>
             <td class="mono tone-muted">${escapeHtml(m.sha256)}</td>
-            <td class="mono">${m.parse_ms.toFixed(2)} ms</td>
+            <td class="mono">${Number(m.parse_ms || 0).toFixed(2)} ms</td>
             <td><span class="${statusBadgeClass(m.validation_status)}">${escapeHtml(m.validation_status)}</span></td>
           </tr>
         `;
@@ -3462,15 +3794,20 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       const firstTx = (firstGroup.transaction_sets || [])[0] || {};
       const delims = data.delimiters || {};
 
+      const envSub = document.getElementById('envelopeSubtitle');
+      if (envSub) {
+        envSub.textContent = `[${meta.tx_type}] ${meta.filename} • ISA13 #${isa.interchange_control_number || meta.isa_control_number} • ${meta.byte_size.toLocaleString()} bytes`;
+      }
+
       const items = [
         { label: 'Sender ID (ISA06)', val: `${isa.interchange_sender_id_qualifier || 'ZZ'}:${isa.interchange_sender_id || 'N/A'}` },
         { label: 'Receiver ID (ISA08)', val: `${isa.interchange_receiver_id_qualifier || 'ZZ'}:${isa.interchange_receiver_id || 'N/A'}` },
         { label: 'Interchange Control (ISA13)', val: isa.interchange_control_number || meta.isa_control_number },
         { label: 'Interchange Timestamp', val: `${isa.interchange_date || 'N/A'} ${isa.interchange_time || ''}`.trim() },
-        { label: 'Functional Group (GS01/GS06)', val: `${firstGroup.functional_identifier_code || gs.functional_identifier_code || 'HC'} #${firstGroup.group_control_number || '1'}` },
-        { label: 'Implementation Spec (GS08)', val: firstGroup.version || gs.version_release_industry_identifier_code || '005010' },
-        { label: 'Set Control # (ST02)', val: firstTx.transaction_set_control_number || '0001' },
-        { label: 'Detected Delimiters', val: `Elem '${delims.element_separator || '*'}' • Comp '${delims.component_separator || ':'}' • Seg '${delims.segment_terminator || '~'}'` }
+        { label: 'Functional Group (GS01/GS06)', val: `${firstGroup.functional_identifier_code || gs.functional_identifier_code || 'HC'} #${firstGroup.group_control_number || gs.group_control_number || '1'}` },
+        { label: 'Implementation Spec (GS08)', val: firstGroup.version || gs.version_release_industry_identifier_code || meta.gs_version || '005010' },
+        { label: 'Set Control # (ST01/ST02)', val: `ST*${firstTx.transaction_type || meta.tx_type}*${firstTx.transaction_set_control_number || '0001'}` },
+        { label: 'Detected Delimiters', val: `Elem '${delims.element_separator || '*'}' • Comp '${delims.component_separator || ':'}' • Seg '${(delims.segment_terminator || '~') === '\n' ? '\\n' : (delims.segment_terminator || '~')}'` }
       ];
 
       grid.innerHTML = items.map(it => `
@@ -3481,8 +3818,13 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       `).join('');
     }
 
-    function renderEntities(data) {
+    function renderEntities(data, meta) {
       const grid = document.getElementById('entitiesGrid');
+      const entSub = document.getElementById('entitiesSubtitle');
+      if (entSub && meta) {
+        entSub.textContent = `Resolved healthcare entities in [${meta.tx_type}] ${meta.filename}`;
+      }
+
       const fg = (data.functional_groups || [])[0] || {};
       const ts = (fg.transaction_sets || [])[0] || {};
       const tx = ts.parsed_transaction || {};
@@ -3504,7 +3846,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         const idCode = o.identification_code ? `${o.identification_code_qualifier || 'ID'}: ${o.identification_code}` : 'Role Verified';
         const addr = o.address || {};
         const geo = o.geographic_location || {};
-        const loc = addr.address_line_1 ? `${addr.address_line_1}, ${geo.city || ''} ${geo.state || ''} ${geo.postal_code || ''}`.trim() : 'Electronic Interchange Entity';
+        const loc = addr.address_line_1
+          ? `${addr.address_line_1}, ${geo.city || ''} ${geo.state || ''} ${geo.postal_code || ''}`.trim()
+          : (o.date_of_birth ? `DOB: ${o.date_of_birth}${o.gender ? ' • Sex: ' + o.gender : ''}` : `Active in ${meta ? meta.tx_type : 'X12'} Loop`);
         cards.push(`
           <div class="flat-cell">
             <span class="detail-kv-label ${c.tone}">${escapeHtml(c.role)}</span>
@@ -3515,15 +3859,16 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         `);
       });
 
-      grid.innerHTML = cards.slice(0, 3).join('') || `<div class="flat-cell"><span class="tone-muted">No distinct entity loops in stream.</span></div>`;
+      grid.innerHTML = cards.slice(0, 3).join('') || `<div class="flat-cell"><span class="tone-muted">No distinct entity loops in [${escapeHtml(meta ? meta.tx_type : 'X12')}] ${escapeHtml(meta ? meta.filename : '')}.</span></div>`;
     }
 
-    function renderTxSpecific(data) {
+    function renderTxSpecific(data, meta) {
       const panel = document.getElementById('txSpecificPanel');
       const fg = (data.functional_groups || [])[0] || {};
       const ts = (fg.transaction_sets || [])[0] || {};
       const tx = ts.parsed_transaction || {};
-      const txType = ts.transaction_type;
+      const txType = ts.transaction_type || (meta && meta.tx_type) || 'X12';
+      const fileTag = meta ? meta.filename : '';
 
       if (txType === '837') {
         const claims = tx.claims || [];
@@ -3531,8 +3876,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           <section class="bento-pane">
             <div class="pane-header">
               <div class="pane-title-group">
-                <h2 class="pane-title">Submitted Claim ${escapeHtml(c.claim_id || '')} — Service Lines &amp; Diagnoses</h2>
-                <p class="pane-subtitle">ICD-10 Diagnoses: ${(c.diagnoses || []).map(d => `${d.diagnosis_type}:${d.code}`).join(', ') || 'None'}</p>
+                <h2 class="pane-title">Submitted Claim ${escapeHtml(c.claim_id || '')} — Service Lines &amp; Diagnoses (${escapeHtml(fileTag)})</h2>
+                <p class="pane-subtitle">ICD-10 Diagnoses: ${(c.diagnoses || []).map(d => `${d.diagnosis_type || 'DX'}:${d.code}`).join(', ') || 'None'}</p>
               </div>
               <span class="mono tone-teal" style="font-weight:600">$${(parseFloat(c.total_claim_charge_amount) || 0).toFixed(2)}</span>
             </div>
@@ -3540,27 +3885,36 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
               <table class="data-table">
                 <thead><tr><th>Line #</th><th>Procedure / Modifier</th><th>Place of Service</th><th>Units</th><th>Submitted Charge</th></tr></thead>
                 <tbody>
-                  ${(c.service_lines || []).map(sl => `
+                  ${(c.service_lines || []).map((sl, sIdx) => `
                     <tr>
-                      <td class="mono">${escapeHtml(sl.line_number)}</td>
-                      <td class="mono tone-teal" style="font-weight:600">${escapeHtml((sl.procedure && (sl.procedure.raw || sl.procedure.procedure_code || sl.procedure.code)) || 'N/A')}</td>
-                      <td class="mono">${escapeHtml(sl.place_of_service || '11')}</td>
-                      <td class="mono">${escapeHtml(sl.unit_count || 1)}</td>
+                      <td class="mono">${escapeHtml(sl.line_number || (sIdx + 1))}</td>
+                      <td class="mono tone-teal" style="font-weight:600">${escapeHtml((sl.procedure && (sl.procedure.raw || sl.procedure.procedure_code || sl.procedure.code)) || sl.revenue_code || 'N/A')}</td>
+                      <td class="mono">${escapeHtml(sl.place_of_service || c.facility_code || '11')}</td>
+                      <td class="mono">${escapeHtml(sl.unit_count || sl.service_unit_count || 1)}</td>
                       <td class="mono">$${(parseFloat(sl.charge_amount) || 0).toFixed(2)}</td>
                     </tr>
-                  `).join('')}
+                  `).join('') || `<tr><td colspan="5" class="tone-muted">Claim header total: $${(parseFloat(c.total_claim_charge_amount) || 0).toFixed(2)}</td></tr>`}
                 </tbody>
               </table>
             </div>
           </section>
-        `).join('');
+        `).join('') || `<section class="bento-pane"><div class="pane-header"><h2 class="pane-title">837 Claim Stream (${escapeHtml(fileTag)})</h2></div><div style="padding:14px" class="tone-muted">No CLM loops found in active stream.</div></section>`;
       } else if (txType === '835') {
         const claims = tx.claims || [];
-        panel.innerHTML = claims.map(c => `
+        panel.innerHTML = claims.map(c => {
+          const svcRows = (c.service_lines || []).map((sv, idx) => `
+            <tr>
+              <td class="mono">SVC #${idx + 1}</td>
+              <td class="mono tone-teal" style="font-weight:600">${escapeHtml((sv.procedure && (sv.procedure.raw || sv.procedure.procedure_code || sv.procedure.code)) || sv.procedure_code || 'SVC')}</td>
+              <td class="mono">$${(parseFloat(sv.charge_amount || sv.line_item_charge_amount) || 0).toFixed(2)}</td>
+              <td class="mono tone-emerald">$${(parseFloat(sv.payment_amount || sv.line_item_provider_payment_amount) || 0).toFixed(2)}</td>
+            </tr>
+          `).join('');
+          return `
           <section class="bento-pane">
             <div class="pane-header">
               <div class="pane-title-group">
-                <h2 class="pane-title">Remittance Adjudication — Claim ${escapeHtml(c.patient_control_number || '')}</h2>
+                <h2 class="pane-title">Remittance Adjudication — Claim ${escapeHtml(c.patient_control_number || '')} (${escapeHtml(fileTag)})</h2>
                 <p class="pane-subtitle">ICN: ${escapeHtml(c.payer_claim_control_number || 'N/A')} • Status: ${escapeHtml(c.claim_status_description || 'Processed as Primary')}</p>
               </div>
               <span class="mono tone-emerald" style="font-weight:600">Paid $${(parseFloat(c.claim_payment_amount) || 0).toFixed(2)} / Billed $${(parseFloat(c.total_claim_charge_amount) || 0).toFixed(2)}</span>
@@ -3576,20 +3930,28 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                       <td class="mono">${escapeHtml(a.quantity || 1)}</td>
                       <td class="mono">$${(parseFloat(a.adjustment_amount) || 0).toFixed(2)}</td>
                     </tr>
-                  `).join('')}
+                  `).join('') || `<tr><td colspan="4" class="tone-muted">No CAS adjustments recorded on this claim</td></tr>`}
                 </tbody>
               </table>
             </div>
+            ${svcRows ? `
+            <div class="table-scroll" style="border-top:1px solid var(--border)">
+              <table class="data-table">
+                <thead><tr><th>Remittance Line</th><th>Adjudicated Procedure</th><th>Submitted Charge</th><th>Line Paid Amount</th></tr></thead>
+                <tbody>${svcRows}</tbody>
+              </table>
+            </div>` : ''}
           </section>
-        `).join('');
+        `;
+        }).join('');
       } else if (txType === '277') {
         const reqs = tx.required_attachments || [];
         panel.innerHTML = `
           <section class="bento-pane">
             <div class="pane-header">
               <div class="pane-title-group">
-                <h2 class="pane-title">Pended Claim Documentation Requests (277)</h2>
-                <p class="pane-subtitle">Loop 2200D STC &amp; PWK clinical attachment triggers</p>
+                <h2 class="pane-title">Pended Claim Documentation Requests — 277 (${escapeHtml(fileTag)})</h2>
+                <p class="pane-subtitle">Loop 2200D STC &amp; PWK clinical attachment triggers ($${((meta && meta.financials && meta.financials.pended_exposure) || 0).toFixed(2)} pended exposure)</p>
               </div>
               <span class="status-tag status-alert">${reqs.length} Action Required</span>
             </div>
@@ -3599,138 +3961,471 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                 <tbody>
                   ${reqs.map(r => `
                     <tr>
-                      <td class="mono tone-rose" style="font-weight:600">${escapeHtml(r.status_category_code)}</td>
+                      <td class="mono tone-rose" style="font-weight:600">${escapeHtml(r.status_category_code || 'R4')}</td>
                       <td>${escapeHtml(r.action_description || r.action_code || 'Pended')}</td>
-                      <td><span class="mono">${escapeHtml(r.attachment_report_type_code)}</span> — ${escapeHtml(r.attachment_report_type_description || 'Clinical Document')}</td>
+                      <td><span class="mono">${escapeHtml(r.attachment_report_type_code || '09')}</span> — ${escapeHtml(r.attachment_report_type_description || 'Clinical Document')}</td>
                       <td class="mono">${escapeHtml(r.attachment_transmission_code || 'EL')}</td>
                       <td class="mono">${escapeHtml(r.attachment_control_number || 'N/A')}</td>
                     </tr>
-                  `).join('')}
+                  `).join('') || `<tr><td colspan="5" class="tone-muted">No STC/PWK rows detected</td></tr>`}
                 </tbody>
               </table>
             </div>
           </section>
         `;
-      } else if (txType === '271' || txType === '270') {
+      } else if (txType === '271') {
         const sub = tx.subscriber || {};
         const bens = sub.eligibility_benefits || tx.eligibility_benefits || [];
-        if (bens.length > 0) {
-          panel.innerHTML = `
-            <section class="bento-pane">
-              <div class="pane-header"><div class="pane-title-group"><h2 class="pane-title">Eligibility &amp; Benefit Coverage Schedule (271)</h2></div></div>
-              <div class="table-scroll">
-                <table class="data-table">
-                  <thead><tr><th>EB Code</th><th>Benefit Type</th><th>Service Type</th><th>Plan / Terms</th><th>Amount / Percent</th></tr></thead>
-                  <tbody>
-                    ${bens.map(b => `
-                      <tr>
-                        <td class="mono tone-teal" style="font-weight:600">${escapeHtml(b.eligibility_code)}</td>
-                        <td>${escapeHtml(b.eligibility_description || '')}</td>
-                        <td class="mono">${escapeHtml(b.service_type_code || '')}</td>
-                        <td>${escapeHtml(b.plan_coverage_description || b.insurance_type_code || 'In-Network')}</td>
-                        <td class="mono">${b.monetary_amount !== null && b.monetary_amount !== undefined ? '$' + Number(b.monetary_amount).toFixed(2) : (b.percent ? (Number(b.percent) * 100).toFixed(0) + '%' : 'Included')}</td>
-                      </tr>
-                    `).join('')}
-                  </tbody>
-                </table>
+        panel.innerHTML = `
+          <section class="bento-pane">
+            <div class="pane-header">
+              <div class="pane-title-group">
+                <h2 class="pane-title">Eligibility &amp; Benefit Coverage Schedule — 271 (${escapeHtml(fileTag)})</h2>
+                <p class="pane-subtitle">Loop 2110C EB benefit determinations (${bens.length} coverage entries)</p>
               </div>
-            </section>
-          `;
-        } else {
-          panel.innerHTML = '';
-        }
+              <span class="status-tag status-pass">${bens.length} EB Rows</span>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead><tr><th>EB Code</th><th>Benefit Type</th><th>Service Type</th><th>Plan / Terms</th><th>Amount / Percent</th></tr></thead>
+                <tbody>
+                  ${bens.map(b => `
+                    <tr>
+                      <td class="mono tone-teal" style="font-weight:600">${escapeHtml(b.eligibility_code)}</td>
+                      <td>${escapeHtml(b.eligibility_description || 'Coverage Term')}</td>
+                      <td class="mono">${escapeHtml(b.service_type_code || '30')}</td>
+                      <td>${escapeHtml(b.plan_coverage_description || b.insurance_type_code || 'In-Network')}</td>
+                      <td class="mono">${b.monetary_amount !== null && b.monetary_amount !== undefined ? '$' + Number(b.monetary_amount).toFixed(2) : (b.percent !== null && b.percent !== undefined && b.percent !== '' ? (Number(b.percent) <= 1 ? (Number(b.percent) * 100).toFixed(0) : Number(b.percent).toFixed(0)) + '%' : 'Active Coverage')}</td>
+                    </tr>
+                  `).join('') || `<tr><td colspan="5" class="tone-muted">No EB segments in stream</td></tr>`}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        `;
+      } else if (txType === '270') {
+        const eqSegs = ALL_SEGMENTS.filter(s => s.segment_id === 'EQ');
+        const trnSeg = ALL_SEGMENTS.find(s => s.segment_id === 'TRN');
+        const dtpSeg = ALL_SEGMENTS.find(s => s.segment_id === 'DTP');
+        const stcLabels = {
+          '30': 'Health Benefit Plan Coverage',
+          '98': 'Professional (Physician) Office Visit',
+          '35': 'Dental Care',
+          '47': 'Hospital Inpatient / Outpatient',
+          '88': 'Pharmacy Coverage',
+          'AL': 'Vision (Optometry)',
+          'MH': 'Mental Health',
+          'UC': 'Urgent Care'
+        };
+        panel.innerHTML = `
+          <section class="bento-pane">
+            <div class="pane-header">
+              <div class="pane-title-group">
+                <h2 class="pane-title">Real-Time Eligibility &amp; Benefit Inquiries — 270 (${escapeHtml(fileTag)})</h2>
+                <p class="pane-subtitle">Trace: ${escapeHtml((trnSeg && trnSeg.elements[1]) || 'N/A')} • Service Date: ${escapeHtml((dtpSeg && dtpSeg.elements[2]) || 'Current')}</p>
+              </div>
+              <span class="status-tag status-nominal">${eqSegs.length} EQ Inquiries</span>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead><tr><th>Segment Line</th><th>Service Type Code (EQ01)</th><th>Requested Coverage Scope</th><th>Coverage Level (EQ02)</th></tr></thead>
+                <tbody>
+                  ${eqSegs.map(eq => {
+                    const code = eq.elements[0] || '30';
+                    return `
+                      <tr>
+                        <td class="mono">#${eq.line_number}</td>
+                        <td class="mono tone-teal" style="font-weight:600">EQ*${escapeHtml(code)}</td>
+                        <td>${escapeHtml(stcLabels[code] || `Service Type ${code} Eligibility Verification`)}</td>
+                        <td class="mono">${escapeHtml(eq.elements[1] || 'IND / Plan Level')}</td>
+                      </tr>
+                    `;
+                  }).join('') || `<tr><td colspan="4" class="tone-muted">General subscriber eligibility inquiry</td></tr>`}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        `;
+      } else if (txType === '275') {
+        const clin = tx.attached_clinical_data || {};
+        const docMeta = clin.document_metadata || {};
+        const bgnSeg = ALL_SEGMENTS.find(s => s.segment_id === 'BGN');
+        const catSeg = ALL_SEGMENTS.find(s => s.segment_id === 'CAT');
+        const pidSeg = ALL_SEGMENTS.find(s => s.segment_id === 'PID');
+        const bdsSeg = ALL_SEGMENTS.find(s => s.segment_id === 'BDS' || s.segment_id === 'BIN');
+        const bdsLen = bdsSeg ? (parseInt(bdsSeg.elements[1], 10) || (bdsSeg.elements[2] || bdsSeg.elements[0] || '').length) : 0;
+        panel.innerHTML = `
+          <section class="bento-pane">
+            <div class="pane-header">
+              <div class="pane-title-group">
+                <h2 class="pane-title">Patient Information &amp; Clinical Attachment Manifest — 275 (${escapeHtml(fileTag)})</h2>
+                <p class="pane-subtitle">Attachment Ref: ${escapeHtml((bgnSeg && bgnSeg.elements[1]) || docMeta.document_id || 'CCDA-275')} • Report Description: ${escapeHtml((pidSeg && pidSeg.elements[4]) || docMeta.title || 'HL7 C-CDA R2.1')}</p>
+              </div>
+              <span class="status-tag status-pass">${bdsLen.toLocaleString()} XML Octets</span>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead><tr><th>C-CDA / 275 Section</th><th>LOINC / EDI Spec</th><th>Extracted Entries</th><th>Primary Clinical Observation</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td style="font-weight:600">Envelope &amp; Category (CAT/BDS)</td>
+                    <td class="mono">CAT*${escapeHtml((catSeg && catSeg.elements[0]) || 'AE')}*${escapeHtml((catSeg && catSeg.elements[1]) || 'HL')}</td>
+                    <td class="mono">${bdsSeg ? '1 XML Document' : '0'}</td>
+                    <td class="mono">${escapeHtml(docMeta.title || 'Consolidated Clinical Document')}</td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:600">Allergies &amp; Intolerances</td>
+                    <td class="mono">LOINC 48765-2</td>
+                    <td class="mono tone-rose">${(clin.allergies || []).length}</td>
+                    <td class="mono">${escapeHtml((clin.allergies || []).map(a => `${a.substance} (${a.severity || 'alert'})`).join(', ') || 'None')}</td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:600">Medications</td>
+                    <td class="mono">LOINC 10160-0</td>
+                    <td class="mono tone-indigo">${(clin.medications || []).length}</td>
+                    <td class="mono">${escapeHtml((clin.medications || []).map(m => `${m.medication_name} ${m.dose || ''}`.trim()).join(', ') || 'None')}</td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:600">Problems &amp; Diagnoses</td>
+                    <td class="mono">LOINC 11450-4</td>
+                    <td class="mono tone-teal">${(clin.problems_and_diagnoses || []).length}</td>
+                    <td class="mono">${escapeHtml((clin.problems_and_diagnoses || []).map(p => `${p.code}: ${p.problem_name}`).join(', ') || 'None')}</td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight:600">Vital Signs Panel</td>
+                    <td class="mono">LOINC 8716-3</td>
+                    <td class="mono tone-emerald">${(clin.vital_signs || []).length}</td>
+                    <td class="mono">${escapeHtml((clin.vital_signs || []).map(v => `${v.vital_sign || v.measurement}: ${v.value} ${v.unit || ''}`.trim()).join(' • ') || 'None')}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        `;
       } else if (txType === '278') {
         const events = tx.events || [];
         panel.innerHTML = events.map(ev => `
           <section class="bento-pane">
-            <div class="pane-header"><div class="pane-title-group"><h2 class="pane-title">Prior Authorization Services Review (278)</h2></div></div>
+            <div class="pane-header">
+              <div class="pane-title-group">
+                <h2 class="pane-title">Prior Authorization Services Review — 278 (${escapeHtml(fileTag)})</h2>
+                <p class="pane-subtitle">Diagnoses: ${(ev.diagnoses || []).map(d => d.code || d).join(', ') || 'See HI'} • Requested Services: ${(ev.services || []).map(s => (s.procedure && (s.procedure.procedure_code || s.procedure.raw)) || 'SV1').join(', ') || 'Certified'}</p>
+              </div>
+              <span class="status-tag status-pass">${(ev.review_results || []).length} Review Decision</span>
+            </div>
             <div class="table-scroll">
               <table class="data-table">
-                <thead><tr><th>Request Category</th><th>Action Code</th><th>Decision</th><th>Authorization ID</th></tr></thead>
+                <thead><tr><th>Request Category</th><th>Action Code</th><th>Decision</th><th>Authorization ID</th><th>Requested Charge / Units</th></tr></thead>
                 <tbody>
-                  ${(ev.review_results || []).map(r => `
-                    <tr>
-                      <td class="mono">${escapeHtml(ev.request_category_code || 'SC')}</td>
-                      <td class="mono tone-emerald" style="font-weight:600">${escapeHtml(r.action_code)}</td>
-                      <td>${escapeHtml(r.action_description || r.approval_status || 'Certified')}</td>
-                      <td class="mono">${escapeHtml(r.review_identification_number || 'N/A')}</td>
-                    </tr>
-                  `).join('')}
+                  ${(ev.review_results || []).map((r, rIdx) => {
+                    const sv = (ev.services || [])[rIdx] || (ev.services || [])[0] || {};
+                    const chg = parseFloat(sv.charge_amount || 0);
+                    return `
+                      <tr>
+                        <td class="mono">${escapeHtml(ev.request_category_code || 'SC')} (${escapeHtml(ev.certification_type_code || 'I')})</td>
+                        <td class="mono tone-emerald" style="font-weight:600">${escapeHtml(r.action_code)}</td>
+                        <td>${escapeHtml(r.action_description || r.approval_status || 'Certified in Total')}</td>
+                        <td class="mono">${escapeHtml(r.review_identification_number || 'N/A')}</td>
+                        <td class="mono">${chg > 0 ? '$' + chg.toFixed(2) + ' (' + escapeHtml(sv.unit_count || 1) + ' u)' : 'Authorized'}</td>
+                      </tr>
+                    `;
+                  }).join('')}
                 </tbody>
               </table>
             </div>
           </section>
         `).join('');
       } else {
-        panel.innerHTML = '';
+        // Generic X12 fallback table for any custom transaction set
+        const countsBySeg = {};
+        ALL_SEGMENTS.forEach(s => { countsBySeg[s.segment_id] = (countsBySeg[s.segment_id] || 0) + 1; });
+        const segSummaryRows = Object.entries(countsBySeg).map(([segId, cnt]) => {
+          const kb = SEGMENT_KB[segId] || { name: `EDI ${segId} Segment`, loop: 'Transaction Body' };
+          return `
+            <tr>
+              <td class="mono tone-teal" style="font-weight:600">${escapeHtml(segId)}</td>
+              <td>${escapeHtml(kb.name)}</td>
+              <td class="mono">${escapeHtml(kb.loop)}</td>
+              <td class="mono">${cnt}</td>
+            </tr>
+          `;
+        }).join('');
+        panel.innerHTML = `
+          <section class="bento-pane">
+            <div class="pane-header">
+              <div class="pane-title-group">
+                <h2 class="pane-title">Transaction Set ${escapeHtml(txType)} Segment Inventory (${escapeHtml(fileTag)})</h2>
+                <p class="pane-subtitle">Empirical segment breakdown across ${ALL_SEGMENTS.length} parsed segments</p>
+              </div>
+              <span class="status-tag status-nominal">ST*${escapeHtml(txType)}</span>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead><tr><th>Segment ID</th><th>5010 Segment Name</th><th>Loop Context</th><th>Occurrences</th></tr></thead>
+                <tbody>${segSummaryRows}</tbody>
+              </table>
+            </div>
+          </section>
+        `;
       }
     }
 
-    function renderClinicalSection(data) {
-      // Find C-CDA payload in active transaction OR fallback to workspace 275 dataset so clinical tab is always empirical
-      let clin = (((((data.functional_groups || [])[0] || {}).transaction_sets || [])[0] || {}).parsed_transaction || {}).attached_clinical_data;
-      let sourceLabel = 'Active 275 BDS Segment';
-      if (!clin || Object.keys(clin).length === 0) {
-        const ds275 = BUNDLE.datasets.find(d => d.meta.tx_type === '275');
-        if (ds275) {
-          clin = ds275.parsed_data.functional_groups[0].transaction_sets[0].parsed_transaction.attached_clinical_data;
-          sourceLabel = `Linked Episode Record (${ds275.meta.source_path})`;
-        }
-      }
-
+    function renderClinicalSection(data, meta) {
+      const fg = (data.functional_groups || [])[0] || {};
+      const ts = (fg.transaction_sets || [])[0] || {};
+      const tx = ts.parsed_transaction || {};
+      const txType = ts.transaction_type || (meta && meta.tx_type) || 'X12';
+      const clin = tx.attached_clinical_data;
       const grid = document.getElementById('clinicalSectionsGrid');
-      if (!clin || Object.keys(clin).length === 0) {
-        grid.innerHTML = `<div class="flat-cell"><span class="tone-muted">No embedded HL7 C-CDA clinical XML present in this stream.</span></div>`;
+
+      // Case 1: Active stream contains an embedded HL7 C-CDA R2.1 XML document (e.g., 275 stream or custom 275 upload)
+      if (clin && Object.keys(clin).length > 0) {
+        const docMeta = clin.document_metadata || {};
+        const pt = clin.patient_demographics || {};
+        document.getElementById('clinicalDocTitle').textContent =
+          `${docMeta.title || 'Consolidated Clinical Document (C-CDA R2.1)'} — [${txType}] ${meta ? meta.filename : ''}`;
+        document.getElementById('clinicalDocMeta').textContent =
+          `Patient: ${(pt.name && pt.name.full_name) || 'Verified Patient'} • DOB: ${pt.date_of_birth || 'N/A'} • Active Source: ${meta ? meta.source_path : '275 BDS'} (SHA-256 ${meta ? meta.sha256 : ''})`;
+        const tagEl = document.getElementById('clinicalSourceTag');
+        tagEl.className = 'status-tag status-pass';
+        tagEl.textContent = docMeta.document_id || `275 C-CDA (${meta ? meta.filename : 'XML'})`;
+
+        const meds = clin.medications || [];
+        const algs = clin.allergies || [];
+        const probs = clin.problems_and_diagnoses || [];
+        const vitals = clin.vital_signs || [];
+        const notesObj = clin.clinical_notes_and_evaluations || {};
+        const narrative = notesObj.progress_note_medical_necessity_evaluation || notesObj.assessment_and_plan || 'Embedded C-CDA clinical payload parsed from active stream.';
+
+        grid.innerHTML = `
+          <div class="flat-cell">
+            <span class="detail-kv-label tone-rose">Allergies &amp; Adverse Reactions (LOINC 48765-2)</span>
+            ${algs.map(a => `<div class="mono" style="font-size:0.77rem"><strong>${escapeHtml(a.substance)}</strong>${a.rxnorm_code ? ` [RxNorm ${escapeHtml(a.rxnorm_code)}]` : ''} &rarr; <span class="tone-rose">${escapeHtml(a.reaction || 'Adverse reaction')}${a.severity ? ` (${escapeHtml(a.severity)})` : ''}</span></div>`).join('') || '<span class="tone-muted">No allergies recorded in C-CDA section</span>'}
+          </div>
+          <div class="flat-cell">
+            <span class="detail-kv-label tone-indigo">Active Medications (LOINC 10160-0)</span>
+            ${meds.map(m => `<div class="mono" style="font-size:0.77rem"><strong>${escapeHtml(m.medication_name)}</strong>${m.rxnorm_code ? ` [RxNorm ${escapeHtml(m.rxnorm_code)}]` : ''} &bull; ${escapeHtml(m.dose || m.status || 'Active')}</div>`).join('') || '<span class="tone-muted">No medications recorded in C-CDA section</span>'}
+          </div>
+          <div class="flat-cell">
+            <span class="detail-kv-label tone-teal">Problem List &amp; Diagnoses (LOINC 11450-4)</span>
+            ${probs.map(p => `<div class="mono" style="font-size:0.77rem"><span class="tone-teal">${escapeHtml(p.code || 'DX')}</span> — ${escapeHtml(p.problem_name)} (${escapeHtml(p.status || 'active')})</div>`).join('') || '<span class="tone-muted">No problem entries recorded in C-CDA section</span>'}
+          </div>
+          <div class="flat-cell">
+            <span class="detail-kv-label tone-emerald">Vital Signs Panel (LOINC 8716-3)</span>
+            <div style="display:flex;flex-wrap:wrap;gap:10px" class="mono">
+              ${vitals.map(v => `<span style="font-size:0.75rem">${escapeHtml(v.vital_sign || v.measurement || v.code)}: <strong>${escapeHtml(v.value)} ${escapeHtml(v.unit || '')}</strong></span>`).join('') || '<span class="tone-muted">No vital signs recorded in C-CDA section</span>'}
+            </div>
+          </div>
+          <div class="flat-cell" style="grid-column: 1 / -1">
+            <span class="detail-kv-label">Physician Progress Note &amp; Medical Necessity Justification (LOINC 11506-3)</span>
+            <p style="font-size:0.79rem;line-height:1.55;color:var(--text-primary);white-space:pre-line">${escapeHtml(narrative)}</p>
+          </div>
+        `;
         return;
       }
 
-      const meta = clin.document_metadata || {};
-      const pt = clin.patient_demographics || {};
-      document.getElementById('clinicalDocTitle').textContent = meta.title || 'Consolidated Clinical Document (C-CDA R2.1)';
-      document.getElementById('clinicalDocMeta').textContent =
-        `Patient: ${(pt.name && pt.name.full_name) || 'John M Doe'} • DOB: ${pt.date_of_birth || '19750412'} • Source: ${sourceLabel}`;
-      document.getElementById('clinicalSourceTag').textContent = meta.document_id || 'CCDA-R2.1';
+      // Case 2: Non-275 X12 stream — show ONLY clinical, diagnostic, procedure & attachment metadata present in THIS active stream!
+      const partners = resolveTradingPartners(tx);
+      const ptObj = partners.patient || {};
+      const dmgSeg = ALL_SEGMENTS.find(s => s.segment_id === 'DMG');
+      const dob = ptObj.date_of_birth || (dmgSeg && dmgSeg.elements[1]) || 'Not carried in stream';
+      const sex = ptObj.gender || (dmgSeg && dmgSeg.elements[2]) || 'N/A';
+      const ptName = ptObj._displayName || 'No patient loop in stream';
+      const ptId = ptObj.identification_code || 'N/A';
 
-      const meds = clin.medications || [];
-      const algs = clin.allergies || [];
-      const probs = clin.problems_and_diagnoses || [];
-      const vitals = clin.vital_signs || [];
-      const notesObj = clin.clinical_notes_and_evaluations || {};
-      const narrative = notesObj.progress_note_medical_necessity_evaluation || notesObj.assessment_and_plan || '';
+      document.getElementById('clinicalDocTitle').textContent =
+        `Active Stream Clinical & Diagnostic Extract — [${txType}] ${meta ? meta.filename : ''}`;
+      document.getElementById('clinicalDocMeta').textContent =
+        `Patient/Subscriber: ${ptName} (${ptId}) • DOB: ${dob} • Active Source: ${meta ? meta.source_path : txType} (SHA-256 ${meta ? meta.sha256 : ''})`;
+      const tagEl = document.getElementById('clinicalSourceTag');
+      tagEl.className = 'status-tag status-nominal';
+      tagEl.textContent = `EDI ${txType} (NO EMBEDDED XML)`;
+
+      // Extract diagnoses from active stream
+      const diagItems = [];
+      (tx.claims || []).forEach(c => {
+        (c.diagnoses || []).forEach(d => diagItems.push(`${d.diagnosis_type || 'HI'}:${d.code}`));
+      });
+      (tx.events || []).forEach(ev => {
+        (ev.diagnoses || []).forEach(d => diagItems.push(`${d.diagnosis_type || 'HI'}:${d.code || d}`));
+      });
+      if (diagItems.length === 0) {
+        ALL_SEGMENTS.filter(s => s.segment_id === 'HI').forEach(hi => {
+          hi.elements.filter(Boolean).forEach(el => diagItems.push(el));
+        });
+      }
+
+      // Extract clinical procedures / benefit service scopes from active stream
+      const procItems = [];
+      (tx.claims || []).forEach(c => {
+        (c.service_lines || []).forEach(sl => {
+          const pCode = (sl.procedure && (sl.procedure.raw || sl.procedure.procedure_code || sl.procedure.code)) || sl.procedure_code || sl.revenue_code || 'Service Line';
+          const amt = parseFloat(sl.charge_amount || sl.line_item_charge_amount || 0);
+          procItems.push(`${pCode} ($${amt.toFixed(2)}, ${sl.unit_count || 1} unit)`);
+        });
+      });
+      (tx.events || []).forEach(ev => {
+        (ev.services || []).forEach(sv => {
+          const pCode = (sv.procedure && (sv.procedure.raw || sv.procedure.procedure_code)) || 'Auth Service';
+          procItems.push(`${pCode} ($${(parseFloat(sv.charge_amount) || 0).toFixed(2)})`);
+        });
+        (ev.review_results || []).forEach(r => {
+          procItems.push(`Auth Decision ${r.action_code}: ${r.action_description || 'Certified'} (#${r.review_identification_number || 'N/A'})`);
+        });
+      });
+      const bens = (tx.subscriber && tx.subscriber.eligibility_benefits) || tx.eligibility_benefits || [];
+      bens.forEach(b => {
+        procItems.push(`EB*${b.eligibility_code} (STC ${b.service_type_code || '30'}): ${b.eligibility_description || 'Benefit'}`);
+      });
+      ALL_SEGMENTS.filter(s => s.segment_id === 'EQ').forEach(eq => {
+        procItems.push(`EQ*${eq.elements[0] || '30'}: Service Eligibility Inquiry`);
+      });
+
+      // Extract PWK / STC clinical attachment references in active stream
+      const pwkItems = [];
+      (tx.required_attachments || []).forEach(r => {
+        pwkItems.push(`STC ${r.status_category_code || 'R4'} / PWK ${r.attachment_report_type_code || '09'} (${r.attachment_report_type_description || 'Clinical Attachment'}) — Control #${r.attachment_control_number || 'N/A'}`);
+      });
+      if (pwkItems.length === 0) {
+        ALL_SEGMENTS.filter(s => s.segment_id === 'PWK').forEach(pwk => {
+          pwkItems.push(`PWK*${pwk.elements[0] || ''} (${pwk.elements[1] || 'EL'}) — Control #${pwk.elements[5] || 'N/A'}`);
+        });
+      }
+
+      const ds275Idx = BUNDLE.datasets.findIndex(d => d.meta && d.meta.tx_type === '275');
+      const switch275Btn = ds275Idx >= 0
+        ? `<div style="margin-top:8px"><button type="button" class="mini-btn" onclick="selectWorkspaceDataset(${ds275Idx}, true, false)">Switch Active Stream to [275] ${escapeHtml(BUNDLE.datasets[ds275Idx].meta.filename)} to Inspect C-CDA XML</button></div>`
+        : '';
 
       grid.innerHTML = `
         <div class="flat-cell">
-          <span class="detail-kv-label tone-rose">Allergies &amp; Adverse Reactions (LOINC 48765-2)</span>
-          ${algs.map(a => `<div class="mono" style="font-size:0.77rem"><strong>${escapeHtml(a.substance)}</strong> [RxNorm ${escapeHtml(a.rxnorm_code || '')}] &rarr; <span class="tone-rose">${escapeHtml(a.reaction)} (${escapeHtml(a.severity)})</span></div>`).join('') || '<span class="tone-muted">None</span>'}
+          <span class="detail-kv-label tone-indigo">Patient / Subscriber Demographics (${escapeHtml(txType)})</span>
+          <div class="mono" style="font-size:0.78rem"><strong>${escapeHtml(ptName)}</strong> &bull; ID: ${escapeHtml(ptId)}</div>
+          <div class="mono tone-muted" style="font-size:0.75rem">DOB: ${escapeHtml(dob)} &bull; Administrative Sex: ${escapeHtml(sex)}</div>
         </div>
         <div class="flat-cell">
-          <span class="detail-kv-label tone-indigo">Active Medications (LOINC 10160-0)</span>
-          ${meds.map(m => `<div class="mono" style="font-size:0.77rem"><strong>${escapeHtml(m.medication_name)}</strong> [RxNorm ${escapeHtml(m.rxnorm_code || '')}] &bull; ${escapeHtml(m.dose || '20 mg')}</div>`).join('') || '<span class="tone-muted">None</span>'}
+          <span class="detail-kv-label tone-teal">ICD-10-CM Diagnoses in Active Stream (HI)</span>
+          ${diagItems.length > 0
+            ? diagItems.map(d => `<div class="mono" style="font-size:0.77rem"><span class="tone-teal">${escapeHtml(d)}</span></div>`).join('')
+            : `<span class="tone-muted">No HI diagnosis segments present in [${escapeHtml(txType)}] ${escapeHtml(meta ? meta.filename : '')}.</span>`}
         </div>
         <div class="flat-cell">
-          <span class="detail-kv-label tone-teal">Problem List &amp; Diagnoses (LOINC 11450-4)</span>
-          ${probs.map(p => `<div class="mono" style="font-size:0.77rem"><span class="tone-teal">${escapeHtml(p.code)}</span> — ${escapeHtml(p.problem_name)} (${escapeHtml(p.status || 'active')})</div>`).join('') || '<span class="tone-muted">None</span>'}
+          <span class="detail-kv-label tone-emerald">Procedures, Services &amp; Coverage Terms (${escapeHtml(txType)})</span>
+          ${procItems.length > 0
+            ? procItems.slice(0, 6).map(p => `<div class="mono" style="font-size:0.76rem">${escapeHtml(p)}</div>`).join('')
+            : `<span class="tone-muted">No SV1/SVC/EB/EQ service lines in [${escapeHtml(txType)}] ${escapeHtml(meta ? meta.filename : '')}.</span>`}
         </div>
         <div class="flat-cell">
-          <span class="detail-kv-label tone-emerald">Vital Signs Panel (LOINC 8716-3)</span>
-          <div style="display:flex;flex-wrap:wrap;gap:10px" class="mono">
-            ${vitals.map(v => `<span style="font-size:0.75rem">${escapeHtml(v.vital_sign || v.measurement || v.code)}: <strong>${escapeHtml(v.value)} ${escapeHtml(v.unit || '')}</strong></span>`).join('') || '<span class="tone-muted">None</span>'}
-          </div>
+          <span class="detail-kv-label tone-amber">Clinical Attachment Indicators (PWK / STC)</span>
+          ${pwkItems.length > 0
+            ? pwkItems.map(p => `<div class="mono tone-rose" style="font-size:0.76rem">${escapeHtml(p)}</div>`).join('')
+            : `<span class="tone-muted">No PWK paperwork attachment triggers in [${escapeHtml(txType)}] ${escapeHtml(meta ? meta.filename : '')}.</span>`}
         </div>
         <div class="flat-cell" style="grid-column: 1 / -1">
-          <span class="detail-kv-label">Physician Progress Note &amp; Medical Necessity Justification (LOINC 11506-3)</span>
-          <p style="font-size:0.79rem;line-height:1.55;color:var(--text-primary);white-space:pre-line">${escapeHtml(narrative)}</p>
+          <span class="detail-kv-label">HL7 C-CDA R2.1 Binary XML Payload Status (BDS / BIN)</span>
+          <p style="font-size:0.79rem;line-height:1.5;color:var(--text-secondary)">
+            Active stream <strong class="mono" style="color:var(--text-primary)">[${escapeHtml(txType)}] ${escapeHtml(meta ? meta.filename : '')}</strong> is a structured X12 ${escapeHtml(txType)} transaction (${ALL_SEGMENTS.length} segments) and does not embed a <span class="mono">BDS</span>/<span class="mono">BIN</span> HL7 C-CDA XML clinical payload. All clinical codes shown above reflect only the currently selected stream.
+          </p>
+          ${switch275Btn}
         </div>
       `;
     }
 
     function renderRawEdi(raw, meta) {
-      document.getElementById('rawEdiProvenanceSub').textContent = `${meta.source_path} • ${meta.byte_size} bytes • SHA-256 ${meta.sha256}`;
+      document.getElementById('rawEdiProvenanceSub').textContent = `${meta.source_path} • [${meta.tx_type}] • ${meta.byte_size.toLocaleString()} bytes • SHA-256 ${meta.sha256}`;
       document.getElementById('rawEdiDisplay').textContent = raw || '';
     }
 
-    function renderJsonTree(data) {
+    function renderJsonTree(data, meta) {
+      const sub = document.getElementById('jsonProvenanceSub');
+      if (sub && meta) {
+        sub.textContent = `${meta.source_path} • [${meta.tx_type}] • ${ALL_SEGMENTS.length} segments • SHA-256 ${meta.sha256}`;
+      }
       document.getElementById('jsonTreeDisplay').textContent = JSON.stringify(data, null, 2);
+    }
+
+    const CANONICAL_SPEC_ROWS = [
+      { seg: 'ISA / IEA', keys: ['ISA', 'IEA'], path: 'interchange_header / interchange_trailer', loop: 'Envelope', desc: 'Sender/Receiver IDs, ISA13 control number, date/time, and element/segment delimiters.' },
+      { seg: 'GS / GE', keys: ['GS', 'GE'], path: 'functional_groups[].functional_group_header', loop: 'Group Header', desc: 'Functional family (HC, HP, HN, PI, HB, HS, HI) and 5010X222A1–X279A1 version identifier.' },
+      { seg: 'ST / SE', keys: ['ST', 'SE'], path: 'transaction_sets[].transaction_header', loop: 'Set Header', desc: 'Transaction set code (837, 835, 277, 275, 271, 270, 278) and SE01 segment tally.' },
+      { seg: 'BHT / BGN', keys: ['BHT', 'BGN'], path: 'parsed_transaction.beginning_of_hierarchical_transaction', loop: 'Header', desc: 'Transaction purpose code, batch reference identifier, and creation timestamp.' },
+      { seg: 'HL', keys: ['HL'], path: 'parsed_transaction.hierarchy_levels[]', loop: 'Loop 2000A–2000E', desc: 'Parent-child hierarchy levels (Information Source, Receiver, Billing Provider, Subscriber, Event).' },
+      { seg: 'NM1 / N1', keys: ['NM1', 'N1'], path: 'billing_provider / payer / subscriber / patient', loop: 'Loop 1000 / 2010', desc: 'Entity legal/person names, NPI (XX), Payer ID (PI), Member ID (MI), and tax identifiers.' },
+      { seg: 'N3 / N4 / PER', keys: ['N3', 'N4', 'PER'], path: '<entity>.address / geographic_location / contacts', loop: 'Loop 1000 / 2010', desc: 'Physical street address, city/state/ZIP location, and administrative communication contacts.' },
+      { seg: 'SBR / DMG', keys: ['SBR', 'DMG'], path: 'subscriber.payer_responsibility / date_of_birth', loop: 'Loop 2000B / 2010BA', desc: 'Primary/secondary payer sequence, group policy number, birth date (YYYYMMDD), and gender.' },
+      { seg: 'CLM', keys: ['CLM'], path: 'parsed_transaction.claims[]', loop: 'Loop 2300 (837)', desc: 'Patient control number, total submitted claim charge, facility place-of-service, and assignment.' },
+      { seg: 'HI', keys: ['HI'], path: 'claims[].diagnoses[] / events[].diagnoses[]', loop: 'Loop 2300 / 2000E', desc: 'Principal (ABK) and secondary (ABF) ICD-10-CM clinical diagnosis codes.' },
+      { seg: 'LX / SV1 / SV2', keys: ['LX', 'SV1', 'SV2'], path: 'claims[].service_lines[] / events[].services[]', loop: 'Loop 2400 / 2000F', desc: 'CPT/HCPCS procedure code, modifiers, line charge amount, unit count, and diagnosis pointers.' },
+      { seg: 'BPR / TRN', keys: ['BPR', 'TRN'], path: 'financial_information / reassociation_trace', loop: 'Header (835)', desc: 'Net EFT/check settlement amount, ACH routing, payment date, and EFT trace number.' },
+      { seg: 'CLP / CAS / SVC', keys: ['CLP', 'CAS', 'SVC'], path: 'claims[] / adjustments[] / service_lines[]', loop: 'Loop 2100 / 2110 (835)', desc: 'Adjudicated payment status, CO/PR CARC adjustment reason codes, and line-level remittance.' },
+      { seg: 'STC / PWK', keys: ['STC', 'PWK'], path: 'parsed_transaction.required_attachments[]', loop: 'Loop 2200D (277)', desc: 'Pended claim status category (R4), action code, and requested LOINC/PWK clinical report type.' },
+      { seg: 'CAT / PID / BDS', keys: ['CAT', 'PID', 'BDS', 'BIN'], path: 'parsed_transaction.attached_clinical_data', loop: 'Loop 2000 (275)', desc: 'Embedded HL7 C-CDA R2.1 XML clinical payload parsed into allergies, meds, problems, vitals, and notes.' },
+      { seg: 'EQ', keys: ['EQ'], path: 'parsed_transaction.inquiries[]', loop: 'Loop 2110C (270)', desc: 'Real-time subscriber benefit eligibility inquiry by service type code (30, 98, etc.).' },
+      { seg: 'EB', keys: ['EB'], path: 'subscriber.eligibility_benefits[]', loop: 'Loop 2110C (271)', desc: 'Active plan coverage status, copayment, deductible, and coinsurance percentages.' },
+      { seg: 'UM / HCR', keys: ['UM', 'HCR'], path: 'parsed_transaction.events[].review_results[]', loop: 'Loop 2000E/F (278)', desc: 'Prior authorization certification category, decision code (A1), and review authorization number.' }
+    ];
+
+    function renderMappingSpec(data, meta) {
+      const tbody = document.getElementById('specTableTbody');
+      if (!tbody) return;
+      const txType = (meta && meta.tx_type) || 'X12';
+      const fileLabel = (meta && meta.filename) || 'stream.x12';
+
+      const segCounts = {};
+      ALL_SEGMENTS.forEach(s => {
+        segCounts[s.segment_id] = (segCounts[s.segment_id] || 0) + 1;
+      });
+
+      const coveredKeys = new Set();
+      const rowsWithCounts = CANONICAL_SPEC_ROWS.map(row => {
+        let count = 0;
+        row.keys.forEach(k => {
+          coveredKeys.add(k);
+          count += (segCounts[k] || 0);
+        });
+        return { ...row, count };
+      });
+
+      // Append any extra segment IDs observed in the active stream (e.g., DTP, DTM, REF, PRV, PLB, custom segments)
+      Object.entries(segCounts).forEach(([segId, cnt]) => {
+        if (!coveredKeys.has(segId)) {
+          const kb = SEGMENT_KB[segId] || { name: `EDI ${segId} Segment`, loop: 'Transaction Loop', desc: `Parsed dynamically into segments[].fields for ${txType}.` };
+          rowsWithCounts.push({
+            seg: segId,
+            keys: [segId],
+            path: `transaction_sets[0].segments[segment_id="${segId}"]`,
+            loop: kb.loop,
+            desc: kb.desc,
+            count: cnt
+          });
+        }
+      });
+
+      // Sort active stream's observed segments to the top so dataset changes are immediately visible
+      rowsWithCounts.sort((a, b) => (b.count > 0 ? 1 : 0) - (a.count > 0 ? 1 : 0) || b.count - a.count);
+
+      const distinctObserved = Object.keys(segCounts).length;
+      const specSub = document.getElementById('specSubtitle');
+      if (specSub) {
+        specSub.textContent = `Active Stream [${txType}] ${fileLabel}: ${distinctObserved} distinct segment types (${ALL_SEGMENTS.length} total segments) mapped to JSON`;
+      }
+
+      tbody.innerHTML = rowsWithCounts.map(r => {
+        const badgeHtml = r.count > 0
+          ? `<span class="status-tag status-pass">${r.count} seg${r.count === 1 ? '' : 's'} in ${escapeHtml(txType)}</span>`
+          : `<span class="mono tone-muted" style="font-size:0.72rem">0 in ${escapeHtml(txType)}</span>`;
+        return `
+          <tr style="${r.count > 0 ? '' : 'opacity:0.62'}">
+            <td class="mono tone-teal" style="font-weight:600">${escapeHtml(r.seg)}</td>
+            <td>${badgeHtml}</td>
+            <td class="mono">${escapeHtml(r.path)}</td>
+            <td class="mono">${escapeHtml(r.loop)}</td>
+            <td>${escapeHtml(r.desc)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      filterSpecTable();
     }
 
     /* ==========================================================================
@@ -3759,8 +4454,16 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         secExplorer.classList.remove('hidden');
         secOverview.classList.remove('hidden');
         renderFinancialChart();
+        renderHeatmapMatrix();
         renderRelationshipNodeMap(false);
         request3dRender();
+        if (typeof requestAnimationFrame === 'function') {
+          requestAnimationFrame(() => {
+            renderFinancialChart();
+            renderRelationshipNodeMap(false);
+            request3dRender();
+          });
+        }
       } else if (tabId === 'explorer') {
         secExplorer.classList.remove('hidden');
       } else if (tabId === 'overview') {
@@ -3777,7 +4480,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     function filterSpecTable() {
-      const q = (document.getElementById('specFilterInput').value || '').toLowerCase();
+      const input = document.getElementById('specFilterInput');
+      const q = ((input && input.value) || '').toLowerCase();
       document.querySelectorAll('#specTable tbody tr').forEach(r => {
         r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
       });
@@ -3826,77 +4530,517 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     /* ==========================================================================
-       OFFLINE CLIENT-SIDE X12 PARSER FALLBACK + LIVE REST / SSE INTEGRATION
+       OFFLINE CLIENT-SIDE X12 + HL7 C-CDA PARSER & LIVE REST / SSE INTEGRATION
        ========================================================================== */
     function openUploadModal() { document.getElementById('uploadModal').classList.add('open'); }
     function closeUploadModal() { document.getElementById('uploadModal').classList.remove('open'); }
 
-    function clientSideFallbackParse(rawText) {
+    function clearUploadArea() {
+      PENDING_UPLOAD_FILENAME = '';
+      const area = document.getElementById('rawInputArea');
+      if (area) area.value = '';
+      const badge = document.getElementById('uploadedFileBadge');
+      if (badge) badge.textContent = '';
+      const fi = document.getElementById('fileInput');
+      if (fi) fi.value = '';
+    }
+
+    function computeClientHexHash(str) {
+      let h1 = 0x811c9dc5 >>> 0;
+      let h2 = 0x01000193 >>> 0;
+      for (let i = 0; i < str.length; i++) {
+        const c = str.charCodeAt(i);
+        h1 = Math.imul(h1 ^ c, 0x01000193) >>> 0;
+        h2 = Math.imul(h2 ^ (c + (i & 0xff)), 0x85ebca6b) >>> 0;
+      }
+      return h1.toString(16).padStart(8, '0') + h2.toString(16).padStart(8, '0');
+    }
+
+    function parseEmbeddedCcdaXmlClient(rawXmlCandidate) {
+      if (!rawXmlCandidate) return null;
+      let xmlStr = String(rawXmlCandidate).trim();
+      if (!xmlStr.includes('<ClinicalDocument') && !xmlStr.startsWith('<?xml')) {
+        try {
+          const cleaned = xmlStr.replace(/\s+/g, '');
+          if (cleaned.length > 24 && /^[A-Za-z0-9+/=]+$/.test(cleaned)) {
+            const decoded = atob(cleaned);
+            if (decoded.includes('<ClinicalDocument') || decoded.includes('<?xml')) {
+              xmlStr = decoded;
+            }
+          }
+        } catch (_) {}
+      }
+      if (!xmlStr.includes('<ClinicalDocument') && !xmlStr.includes('<section')) return null;
+      if (typeof DOMParser === 'undefined') return null;
+
+      try {
+        const doc = new DOMParser().parseFromString(xmlStr, 'text/xml');
+        const byLocal = (root, tag) => Array.from(root.getElementsByTagName('*')).filter(el => el.localName === tag);
+        const firstLocal = (root, tag) => byLocal(root, tag)[0] || null;
+
+        const titleEl = firstLocal(doc, 'title');
+        const idEl = firstLocal(doc, 'id');
+        const effTimeEl = firstLocal(doc, 'effectiveTime');
+
+        const patientRole = firstLocal(doc, 'patientRole');
+        const patientEl = patientRole ? firstLocal(patientRole, 'patient') : null;
+        let fullName = '';
+        let dob = '';
+        let gender = '';
+        if (patientEl) {
+          const given = byLocal(patientEl, 'given').map(g => (g.textContent || '').trim()).filter(Boolean).join(' ');
+          const familyEl = firstLocal(patientEl, 'family');
+          const family = familyEl ? (familyEl.textContent || '').trim() : '';
+          fullName = `${given} ${family}`.trim();
+          const bt = firstLocal(patientEl, 'birthTime');
+          if (bt) dob = bt.getAttribute('value') || '';
+          const ag = firstLocal(patientEl, 'administrativeGenderCode');
+          if (ag) gender = ag.getAttribute('code') || '';
+        }
+
+        const allergies = [];
+        const medications = [];
+        const problems = [];
+        const vitals = [];
+        let progressNarrative = '';
+
+        byLocal(doc, 'section').forEach(sec => {
+          const codeEl = firstLocal(sec, 'code');
+          const loinc = codeEl ? (codeEl.getAttribute('code') || '') : '';
+          const secTitleEl = firstLocal(sec, 'title');
+          const secTitle = secTitleEl ? (secTitleEl.textContent || '').trim() : '';
+          const textEl = firstLocal(sec, 'text');
+          const secText = textEl ? (textEl.textContent || '').replace(/\s+/g, ' ').trim() : '';
+
+          if (loinc === '48765-2' || /allerg/i.test(secTitle)) {
+            byLocal(sec, 'participantRole').forEach(pr => {
+              const pe = firstLocal(pr, 'playingEntity');
+              const ce = pe ? firstLocal(pe, 'code') : null;
+              if (ce && (ce.getAttribute('displayName') || ce.getAttribute('code'))) {
+                allergies.push({
+                  substance: ce.getAttribute('displayName') || 'Allergen',
+                  rxnorm_code: ce.getAttribute('code') || '',
+                  reaction: secText.slice(0, 80) || 'Documented Reaction',
+                  severity: /severe/i.test(secText) ? 'Severe' : 'Moderate'
+                });
+              }
+            });
+            if (allergies.length === 0 && secText) {
+              allergies.push({ substance: secText.slice(0, 60), rxnorm_code: '', reaction: 'Reported', severity: 'Active' });
+            }
+          } else if (loinc === '10160-0' || /medication/i.test(secTitle)) {
+            byLocal(sec, 'manufacturedMaterial').forEach(mm => {
+              const ce = firstLocal(mm, 'code');
+              if (ce) {
+                medications.push({
+                  medication_name: ce.getAttribute('displayName') || 'Medication',
+                  rxnorm_code: ce.getAttribute('code') || '',
+                  dose: secText.slice(0, 50) || 'Active Regimen'
+                });
+              }
+            });
+            if (medications.length === 0 && secText) {
+              medications.push({ medication_name: secText.slice(0, 60), rxnorm_code: '', dose: 'Active' });
+            }
+          } else if (loinc === '11450-4' || /problem|diagnos/i.test(secTitle)) {
+            byLocal(sec, 'value').forEach(v => {
+              if (v.getAttribute('displayName') || v.getAttribute('code')) {
+                problems.push({
+                  code: v.getAttribute('code') || 'ICD-10',
+                  problem_name: v.getAttribute('displayName') || secText.slice(0, 60),
+                  status: 'active'
+                });
+              }
+            });
+          } else if (loinc === '8716-3' || /vital/i.test(secTitle)) {
+            byLocal(sec, 'observation').forEach(obs => {
+              const c = firstLocal(obs, 'code');
+              const v = firstLocal(obs, 'value');
+              if (c && v && v.getAttribute('value')) {
+                vitals.push({
+                  vital_sign: c.getAttribute('displayName') || c.getAttribute('code') || 'Vital',
+                  code: c.getAttribute('code') || '',
+                  value: v.getAttribute('value') || '',
+                  unit: v.getAttribute('unit') || ''
+                });
+              }
+            });
+          } else if (loinc === '11506-3' || loinc === '51847-2' || /note|assessment|plan|necessity/i.test(secTitle)) {
+            if (secText) progressNarrative = secText;
+          }
+        });
+
+        return {
+          document_metadata: {
+            title: (titleEl && (titleEl.textContent || '').trim()) || 'Consolidated Clinical Document (C-CDA R2.1)',
+            document_id: (idEl && (idEl.getAttribute('extension') || idEl.getAttribute('root'))) || 'CCDA-UPLOAD',
+            effective_time: (effTimeEl && effTimeEl.getAttribute('value')) || ''
+          },
+          patient_demographics: {
+            name: { full_name: fullName || 'Patient Record' },
+            date_of_birth: dob,
+            gender: gender
+          },
+          allergies: allergies,
+          medications: medications,
+          problems_and_diagnoses: problems,
+          vital_signs: vitals,
+          clinical_notes_and_evaluations: {
+            progress_note_medical_necessity_evaluation: progressNarrative || 'Parsed via client-side HL7 C-CDA R2.1 XML DOM inspector.'
+          }
+        };
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function clientSideFallbackParse(rawText, customFilename = '') {
       const t0 = performance.now();
-      const elemSep = rawText.startsWith('ISA') && rawText.length > 3 ? rawText[3] : '*';
-      const segTerm = rawText.includes('~') ? '~' : '\n';
-      const rawSegs = rawText.split(segTerm).map(s => s.trim()).filter(Boolean);
+      const trimmed = rawText.trim();
+      const elemSep = trimmed.startsWith('ISA') && trimmed.length > 3 ? trimmed[3] : '*';
+      let compSep = ':';
+      let segTerm = trimmed.includes('~') ? '~' : '\n';
+      if (trimmed.startsWith('ISA')) {
+        const isaFieldsPreview = trimmed.split(segTerm)[0].split(elemSep);
+        if (isaFieldsPreview.length >= 17 && isaFieldsPreview[16]) {
+          compSep = isaFieldsPreview[16][0] || ':';
+        }
+      }
+
+      const rawSegs = trimmed.split(segTerm).map(s => s.replace(/^[\r\n]+|[\r\n]+$/g, '').trim()).filter(Boolean);
 
       let isaHeader = {}, ieaTrailer = {}, gsHeader = {}, geTrailer = {}, stHeader = {}, seTrailer = {};
-      let txType = 'X12', txCtrl = '0001', gsVer = '005010', isaCtrl = '000000001';
+      let txType = 'X12', txCtrl = '0001', gsCtrl = '1', gsFunc = 'HC', gsVer = '005010', isaCtrl = '000000001';
+      let ieaCtrl = '', geCtrl = '', seCtrl = '', seCount = 0;
       const txSegments = [];
-      const parsedTx = { claims: [], required_attachments: [] };
-      const stratumCounts = { 'Envelope': 0, 'Header': 0, 'Loop 1000/2000': 0, 'Loop 2010 Entities': 0, 'Loop 2300/2100 Core': 0, 'Loop 2400/Clinical': 0 };
+      const parsedTx = {
+        claims: [],
+        required_attachments: [],
+        inquiries: [],
+        eligibility_benefits: [],
+        events: []
+      };
+      const stratumCounts = {
+        'Envelope': 0,
+        'Header': 0,
+        'Loop 1000/2000': 0,
+        'Loop 2010 Entities': 0,
+        'Loop 2300/2100 Core': 0,
+        'Loop 2400/Clinical': 0
+      };
+
+      let lastEntityObj = null;
 
       rawSegs.forEach((s, i) => {
         const p = s.split(elemSep);
-        const id = p[0];
+        const id = (p[0] || '').trim();
         const ln = i + 1;
         if (['ISA','GS','ST','SE','GE','IEA'].includes(id)) stratumCounts['Envelope']++;
-        else if (['BHT','BPR','TRN','BGN','DTM'].includes(id)) stratumCounts['Header']++;
+        else if (['BHT','BPR','TRN','BGN','DTM','CUR'].includes(id)) stratumCounts['Header']++;
         else if (['HL','PRV','SBR','PAT'].includes(id)) stratumCounts['Loop 1000/2000']++;
         else if (['NM1','N1','N3','N4','PER','DMG','REF'].includes(id)) stratumCounts['Loop 2010 Entities']++;
-        else if (['CLM','CLP','HI','DTP','EB','EQ','UM','HCR','STC'].includes(id)) stratumCounts['Loop 2300/2100 Core']++;
+        else if (['CLM','CLP','HI','DTP','EB','EQ','UM','HCR','STC','CAS'].includes(id)) stratumCounts['Loop 2300/2100 Core']++;
         else stratumCounts['Loop 2400/Clinical']++;
 
         if (id === 'ISA') {
           isaCtrl = (p[13] || '000000001').trim();
-          isaHeader = { segment_id: 'ISA', line_number: ln, fields: { interchange_sender_id: (p[6] || '').trim(), interchange_receiver_id: (p[8] || '').trim(), interchange_date: p[9] || '', interchange_time: p[10] || '', interchange_control_number: isaCtrl } };
+          isaHeader = {
+            segment_id: 'ISA',
+            line_number: ln,
+            fields: {
+              interchange_sender_id_qualifier: (p[5] || 'ZZ').trim(),
+              interchange_sender_id: (p[6] || '').trim(),
+              interchange_receiver_id_qualifier: (p[7] || 'ZZ').trim(),
+              interchange_receiver_id: (p[8] || '').trim(),
+              interchange_date: (p[9] || '').trim(),
+              interchange_time: (p[10] || '').trim(),
+              interchange_control_number: isaCtrl
+            }
+          };
         } else if (id === 'IEA') {
-          ieaTrailer = { segment_id: 'IEA', line_number: ln, fields: { number_of_included_functional_groups: p[1] || '1', interchange_control_number: (p[2] || '').trim() } };
+          ieaCtrl = (p[2] || '').trim();
+          ieaTrailer = { segment_id: 'IEA', line_number: ln, fields: { number_of_included_functional_groups: p[1] || '1', interchange_control_number: ieaCtrl } };
         } else if (id === 'GS') {
-          gsVer = p[8] || '005010';
-          gsHeader = { segment_id: 'GS', line_number: ln, fields: { functional_identifier_code: p[1] || '', group_control_number: p[6] || '1', version_release_industry_identifier_code: gsVer } };
+          gsFunc = (p[1] || 'HC').trim();
+          gsCtrl = (p[6] || '1').trim();
+          gsVer = (p[8] || '005010').trim();
+          gsHeader = { segment_id: 'GS', line_number: ln, fields: { functional_identifier_code: gsFunc, application_senders_code: p[2] || '', application_receivers_code: p[3] || '', date: p[4] || '', time: p[5] || '', group_control_number: gsCtrl, version_release_industry_identifier_code: gsVer } };
         } else if (id === 'GE') {
-          geTrailer = { segment_id: 'GE', line_number: ln, fields: { group_control_number: p[2] || '1' } };
+          geCtrl = (p[2] || '').trim();
+          geTrailer = { segment_id: 'GE', line_number: ln, fields: { number_of_transaction_sets_included: p[1] || '1', group_control_number: geCtrl } };
         } else {
           const fObj = {};
           p.slice(1).forEach((v, k) => { fObj[`${id.toLowerCase()}_${String(k + 1).padStart(2, '0')}`] = v; });
           const segObj = { segment_id: id, line_number: ln, fields: fObj };
           txSegments.push(segObj);
-          if (id === 'ST') { txType = p[1] || 'X12'; txCtrl = p[2] || '0001'; stHeader = segObj; }
-          if (id === 'SE') { seTrailer = { segment_id: 'SE', line_number: ln, fields: { number_of_included_segments: p[1] || '', transaction_set_control_number: p[2] || '' } }; }
-          if (id === 'CLM') parsedTx.claims.push({ claim_id: p[1], total_claim_charge_amount: parseFloat(p[2] || 0), diagnoses: [], service_lines: [] });
-          if (id === 'SV1' && parsedTx.claims.length) parsedTx.claims[parsedTx.claims.length - 1].service_lines.push({ line_number: String(parsedTx.claims[parsedTx.claims.length - 1].service_lines.length + 1), procedure: { raw: p[1], procedure_code: (p[1] || '').split(':')[1] || p[1] }, charge_amount: parseFloat(p[2] || 0), unit_count: p[4] || '1' });
-          if (id === 'BPR') parsedTx.financial_information = { total_payment_amount: parseFloat(p[2] || 0), payment_method: p[4] || 'ACH' };
-          if (id === 'CLP') parsedTx.claims.push({ patient_control_number: p[1], total_claim_charge_amount: parseFloat(p[3] || 0), claim_payment_amount: parseFloat(p[4] || 0), patient_responsibility_amount: parseFloat(p[5] || 0), payer_claim_control_number: p[7] || '', adjustments: [] });
-          if (id === 'CAS' && parsedTx.claims.length) parsedTx.claims[parsedTx.claims.length - 1].adjustments.push({ group_code: p[1], reason_code: p[2], adjustment_amount: parseFloat(p[3] || 0) });
-          if (id === 'NM1') {
-            const ent = { entity_identifier_code: p[1], name_last_or_organization: p[3], name_first: p[4] || '', identification_code_qualifier: p[8] || '', identification_code: p[9] || '' };
-            if (p[1] === '85') parsedTx.billing_provider = ent;
-            else if (p[1] === 'PR') parsedTx.payer = ent;
-            else if (p[1] === 'IL') parsedTx.subscriber = ent;
-            else if (p[1] === 'QC') parsedTx.patient = ent;
+
+          if (id === 'ST') {
+            txType = (p[1] || 'X12').trim();
+            txCtrl = (p[2] || '0001').trim();
+            stHeader = segObj;
+          } else if (id === 'SE') {
+            seCount = parseInt(p[1] || '0', 10) || txSegments.length;
+            seCtrl = (p[2] || '').trim();
+            seTrailer = { segment_id: 'SE', line_number: ln, fields: { number_of_included_segments: String(p[1] || ''), transaction_set_control_number: seCtrl } };
+          } else if (id === 'BHT') {
+            parsedTx.beginning_of_hierarchical_transaction = { hierarchical_structure_code: p[1] || '', transaction_set_purpose_code: p[2] || '', reference_identification: p[3] || '', date: p[4] || '', time: p[5] || '' };
+          } else if (id === 'BGN') {
+            parsedTx.beginning_segment = { purpose_code: p[1] || '', reference_identification: p[2] || '', date: p[3] || '' };
+          } else if (id === 'BPR') {
+            parsedTx.financial_information = { transaction_handling_code: p[1] || 'I', total_payment_amount: parseFloat(p[2] || 0) || 0, credit_debit_flag: p[3] || 'C', payment_method: p[4] || 'ACH', payment_effective_date: p[16] || '' };
+          } else if (id === 'TRN') {
+            parsedTx.reassociation_trace = { trace_type_code: p[1] || '1', reference_identification: p[2] || '', originating_company_identifier: p[3] || '' };
+          } else if (id === 'NM1') {
+            const qual = (p[1] || '').trim();
+            const ent = {
+              entity_identifier_code: qual,
+              entity_type_qualifier: p[2] || '1',
+              name_last_or_organization: p[3] || '',
+              name_first: p[4] || '',
+              name_middle: p[5] || '',
+              identification_code_qualifier: p[8] || '',
+              identification_code: p[9] || ''
+            };
+            lastEntityObj = ent;
+            if (qual === '85' || qual === '1P' || qual === 'FA') parsedTx.billing_provider = ent;
+            else if (qual === 'PR' || qual === 'X3') parsedTx.payer = ent;
+            else if (qual === 'PE') parsedTx.payee = ent;
+            else if (qual === 'IL') {
+              ent.eligibility_benefits = parsedTx.eligibility_benefits;
+              parsedTx.subscriber = ent;
+            }
+            else if (qual === 'QC') parsedTx.patient = ent;
+            else if (qual === '41') parsedTx.submitter = ent;
+            else if (qual === '40') parsedTx.receiver = ent;
+          } else if (id === 'N1') {
+            const qual = (p[1] || '').trim();
+            const ent = {
+              entity_identifier_code: qual,
+              name: p[2] || '',
+              name_last_or_organization: p[2] || '',
+              identification_code_qualifier: p[3] || '',
+              identification_code: p[4] || ''
+            };
+            lastEntityObj = ent;
+            if (qual === 'PR') parsedTx.payer = ent;
+            else if (qual === 'PE') parsedTx.payee = ent;
+          } else if (id === 'N3' && lastEntityObj) {
+            lastEntityObj.address = { address_line_1: p[1] || '', address_line_2: p[2] || '' };
+          } else if (id === 'N4' && lastEntityObj) {
+            lastEntityObj.geographic_location = { city: p[1] || '', state: p[2] || '', postal_code: p[3] || '' };
+          } else if (id === 'DMG' && lastEntityObj) {
+            lastEntityObj.date_of_birth = p[2] || '';
+            lastEntityObj.gender = p[3] || '';
+          } else if (id === 'CLM') {
+            const posParts = (p[5] || '').split(compSep);
+            parsedTx.claims.push({
+              claim_id: p[1] || 'CLM-1',
+              total_claim_charge_amount: parseFloat(p[2] || 0) || 0,
+              facility_code: posParts[0] || '11',
+              diagnoses: [],
+              service_lines: []
+            });
+          } else if (id === 'HI') {
+            const diags = p.slice(1).filter(Boolean).map(comp => {
+              const parts = comp.split(compSep);
+              return { diagnosis_type: parts[0] || 'ABK', code: parts[1] || parts[0] || '' };
+            });
+            if (parsedTx.claims.length > 0) {
+              parsedTx.claims[parsedTx.claims.length - 1].diagnoses.push(...diags);
+            } else if (parsedTx.events.length > 0) {
+              parsedTx.events[parsedTx.events.length - 1].diagnoses.push(...diags);
+            }
+          } else if (id === 'SV1' || id === 'SV2') {
+            const procField = id === 'SV1' ? (p[1] || '') : (p[2] || p[1] || '');
+            const procParts = procField.split(compSep);
+            const chargeAmt = parseFloat(id === 'SV1' ? (p[2] || 0) : (p[3] || 0)) || 0;
+            const unitCnt = id === 'SV1' ? (p[4] || '1') : (p[5] || '1');
+            const posCode = id === 'SV1' ? (p[5] || '11') : '21';
+            const lineObj = {
+              line_number: String((parsedTx.claims.length ? parsedTx.claims[parsedTx.claims.length - 1].service_lines.length : 0) + 1),
+              procedure: { raw: procField, qualifier: procParts[0] || 'HC', procedure_code: procParts[1] || procField },
+              charge_amount: chargeAmt,
+              unit_count: unitCnt,
+              place_of_service: posCode
+            };
+            if (parsedTx.claims.length > 0) {
+              parsedTx.claims[parsedTx.claims.length - 1].service_lines.push(lineObj);
+            } else if (parsedTx.events.length > 0) {
+              parsedTx.events[parsedTx.events.length - 1].services.push(lineObj);
+            }
+          } else if (id === 'CLP') {
+            const stMap = { '1': 'Processed as Primary', '2': 'Processed as Secondary', '4': 'Denied', '22': 'Reversal' };
+            parsedTx.claims.push({
+              patient_control_number: p[1] || 'CLP-1',
+              claim_status_code: p[2] || '1',
+              claim_status_description: stMap[p[2]] || `Status ${p[2] || '1'}`,
+              total_claim_charge_amount: parseFloat(p[3] || 0) || 0,
+              claim_payment_amount: parseFloat(p[4] || 0) || 0,
+              patient_responsibility_amount: parseFloat(p[5] || 0) || 0,
+              payer_claim_control_number: p[7] || '',
+              adjustments: [],
+              service_lines: []
+            });
+          } else if (id === 'CAS' && parsedTx.claims.length > 0) {
+            const grp = p[1] || 'CO';
+            const grpNames = { 'CO': 'Contractual Obligations', 'PR': 'Patient Responsibility', 'OA': 'Other Adjustments', 'PI': 'Payer Initiated Reductions' };
+            for (let k = 2; k < p.length; k += 3) {
+              if (!p[k]) break;
+              parsedTx.claims[parsedTx.claims.length - 1].adjustments.push({
+                group_code: grp,
+                group_description: grpNames[grp] || 'Adjustment',
+                reason_code: p[k],
+                adjustment_amount: parseFloat(p[k + 1] || 0) || 0,
+                quantity: p[k + 2] || '1'
+              });
+            }
+          } else if (id === 'SVC' && parsedTx.claims.length > 0) {
+            const procParts = (p[1] || '').split(compSep);
+            parsedTx.claims[parsedTx.claims.length - 1].service_lines.push({
+              procedure: { raw: p[1] || '', procedure_code: procParts[1] || p[1] || 'SVC' },
+              charge_amount: parseFloat(p[2] || 0) || 0,
+              payment_amount: parseFloat(p[3] || 0) || 0,
+              unit_count: p[5] || '1'
+            });
+          } else if (id === 'STC') {
+            const stcParts = (p[1] || '').split(compSep);
+            parsedTx.required_attachments.push({
+              status_category_code: stcParts[0] || 'R4',
+              status_code: stcParts[1] || '',
+              action_code: p[3] || 'A4',
+              action_description: p[3] === 'U' ? 'Rejected' : 'Pended for Clinical Documentation',
+              claim_charge_amount: parseFloat(p[4] || 0) || 0,
+              attachment_report_type_code: '09',
+              attachment_report_type_description: 'Progress Notes / Medical Record',
+              attachment_transmission_code: 'EL',
+              attachment_control_number: ''
+            });
+          } else if (id === 'PWK') {
+            const pwkNames = { '09': 'Progress Notes', 'AS': 'Admission Summary', 'B2': 'Prescription', 'DG': 'Diagnostic Report', 'DS': 'Discharge Summary', 'OB': 'Operative Note', 'OZ': 'Support Data for Claim' };
+            const rptCode = p[1] || '09';
+            if (parsedTx.required_attachments.length > 0 && !parsedTx.required_attachments[parsedTx.required_attachments.length - 1].attachment_control_number) {
+              const lastReq = parsedTx.required_attachments[parsedTx.required_attachments.length - 1];
+              lastReq.attachment_report_type_code = rptCode;
+              lastReq.attachment_report_type_description = pwkNames[rptCode] || `Report ${rptCode}`;
+              lastReq.attachment_transmission_code = p[2] || 'EL';
+              lastReq.attachment_control_number = p[6] || '';
+            } else {
+              parsedTx.required_attachments.push({
+                status_category_code: 'PWK',
+                action_code: 'EL',
+                action_description: 'Supplemental Attachment',
+                claim_charge_amount: 0,
+                attachment_report_type_code: rptCode,
+                attachment_report_type_description: pwkNames[rptCode] || `Report ${rptCode}`,
+                attachment_transmission_code: p[2] || 'EL',
+                attachment_control_number: p[6] || ''
+              });
+            }
+          } else if (id === 'EQ') {
+            parsedTx.inquiries.push({ service_type_code: p[1] || '30', coverage_level_code: p[2] || '' });
+          } else if (id === 'EB') {
+            const ebNames = { '1': 'Active Coverage', 'A': 'Co-Insurance', 'B': 'Co-Payment', 'C': 'Deductible', 'F': 'Limitations', 'G': 'Out of Pocket (Stop Loss)', '6': 'Inactive' };
+            parsedTx.eligibility_benefits.push({
+              eligibility_code: p[1] || '1',
+              eligibility_description: ebNames[p[1]] || `Benefit ${p[1] || '1'}`,
+              coverage_level_code: p[2] || '',
+              service_type_code: p[3] || '30',
+              insurance_type_code: p[4] || '',
+              plan_coverage_description: p[5] || '',
+              time_period_qualifier: p[6] || '',
+              monetary_amount: p[7] !== undefined && p[7] !== '' ? parseFloat(p[7]) : null,
+              percent: p[8] !== undefined && p[8] !== '' ? parseFloat(p[8]) : null
+            });
+            if (parsedTx.subscriber) parsedTx.subscriber.eligibility_benefits = parsedTx.eligibility_benefits;
+          } else if (id === 'UM') {
+            parsedTx.events.push({
+              request_category_code: p[1] || 'SC',
+              certification_type_code: p[2] || 'I',
+              service_type_code: p[3] || '',
+              review_results: [],
+              diagnoses: [],
+              services: []
+            });
+          } else if (id === 'HCR') {
+            if (parsedTx.events.length === 0) {
+              parsedTx.events.push({ request_category_code: 'SC', certification_type_code: 'I', review_results: [], diagnoses: [], services: [] });
+            }
+            const actNames = { 'A1': 'Certified in Total', 'A2': 'Certified - Partial', 'A3': 'Not Certified', 'A4': 'Pended', 'CT': 'Contact Payer' };
+            parsedTx.events[parsedTx.events.length - 1].review_results.push({
+              action_code: p[1] || 'A1',
+              action_description: actNames[p[1]] || `Decision ${p[1] || 'A1'}`,
+              review_identification_number: p[2] || ''
+            });
+          } else if (id === 'BDS' || id === 'BIN') {
+            const payloadCandidate = id === 'BDS' ? p.slice(3).join(elemSep) : p.slice(2).join(elemSep);
+            const parsedCcda = parseEmbeddedCcdaXmlClient(payloadCandidate);
+            if (parsedCcda) {
+              parsedTx.attached_clinical_data = parsedCcda;
+            }
           }
-          if (id === 'STC') parsedTx.required_attachments.push({ status_category_code: (p[1] || '').split(':')[0], action_code: p[3] || 'A4', claim_charge_amount: parseFloat(p[4] || 0) });
         }
       });
 
+      // Compute accurate financial totals
+      let billed = 0, paid = 0, adjustments = 0, patientResp = 0, pendedExposure = 0;
+      parsedTx.claims.forEach(c => {
+        billed += parseFloat(c.total_claim_charge_amount) || 0;
+        paid += parseFloat(c.claim_payment_amount) || 0;
+        patientResp += parseFloat(c.patient_responsibility_amount) || 0;
+        (c.adjustments || []).forEach(a => {
+          adjustments += parseFloat(a.adjustment_amount) || 0;
+        });
+      });
+      if (parsedTx.financial_information && parsedTx.financial_information.total_payment_amount) {
+        paid = parseFloat(parsedTx.financial_information.total_payment_amount) || paid;
+      }
+      parsedTx.required_attachments.forEach(r => {
+        pendedExposure += parseFloat(r.claim_charge_amount) || 0;
+      });
+
+      // Build HIPAA 5010 envelope validation audit rows
+      const validations = [];
+      const isaPass = !ieaCtrl || isaCtrl === ieaCtrl;
+      validations.push({
+        rule_id: 'HIPAA-ISA-IEA',
+        scope: 'Envelope',
+        check: 'ISA13 == IEA02 Control Match',
+        expected: isaCtrl,
+        observed: ieaCtrl || isaCtrl,
+        status: isaPass ? 'PASS' : 'WARN'
+      });
+      const gsPass = !geCtrl || gsCtrl === geCtrl;
+      validations.push({
+        rule_id: 'HIPAA-GS-GE',
+        scope: `Group ${gsFunc}`,
+        check: 'GS06 == GE02 Group Control Match',
+        expected: gsCtrl,
+        observed: geCtrl || gsCtrl,
+        status: gsPass ? 'PASS' : 'WARN'
+      });
+      const sePass = (!seCtrl || txCtrl === seCtrl) && (!seCount || seCount === txSegments.length);
+      validations.push({
+        rule_id: 'HIPAA-ST-SE',
+        scope: `ST*${txType}`,
+        check: 'SE01 Segment Count & ST02/SE02 Match',
+        expected: `${txSegments.length} segs (#${txCtrl})`,
+        observed: `${seCount || txSegments.length} segs (#${seCtrl || txCtrl})`,
+        status: sePass ? 'PASS' : 'WARN'
+      });
+
+      let overallStatus = (isaPass && gsPass && sePass) ? 'PASS' : 'WARN';
+      if (txType === '277' && parsedTx.required_attachments.length > 0) overallStatus = 'ALERT';
+
       const elapsed = Math.max(0.15, performance.now() - t0);
       const parsedData = {
-        delimiters: { element_separator: elemSep, component_separator: ':', segment_terminator: segTerm },
+        delimiters: { element_separator: elemSep, component_separator: compSep, segment_terminator: segTerm },
         interchange_header: isaHeader,
         interchange_trailer: ieaTrailer,
         functional_groups: [{
           functional_group_header: gsHeader,
           functional_group_trailer: geTrailer,
-          functional_identifier_code: (gsHeader.fields && gsHeader.fields.functional_identifier_code) || 'HC',
-          group_control_number: (gsHeader.fields && gsHeader.fields.group_control_number) || '1',
+          functional_identifier_code: gsFunc,
+          group_control_number: gsCtrl,
           version: gsVer,
           transaction_sets: [{
             transaction_type: txType,
@@ -3910,27 +5054,46 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         summary: { total_segments_count: rawSegs.length, total_functional_groups_count: 1, total_transaction_sets_count: 1 }
       };
 
-      const billed = parsedTx.claims.reduce((a, c) => a + (parseFloat(c.total_claim_charge_amount) || 0), 0);
-      const paid = (parsedTx.financial_information && parsedTx.financial_information.total_payment_amount) || 0;
+      const txNames = {
+        '837': 'Health Care Claim (837)',
+        '835': 'Electronic Remittance Advice (835)',
+        '277': 'Health Care Claim Status Request (277)',
+        '275': 'Patient Information & C-CDA Attachment (275)',
+        '271': 'Eligibility & Benefit Response (271)',
+        '270': 'Eligibility & Benefit Inquiry (270)',
+        '278': 'Prior Authorization Review (278)'
+      };
+      const cleanName = customFilename
+        ? customFilename.replace(/^.*[\\/]/, '')
+        : `uploaded_${txType}_stream.x12`;
+      const digest16 = computeClientHexHash(trimmed);
+
       return {
-        id: `custom_${Date.now()}`,
-        raw_x12: rawText,
+        id: `upload_${digest16}`,
+        raw_x12: trimmed,
         parsed_data: parsedData,
         meta: {
-          filename: `custom_${txType}_stream.x12`,
-          source_path: `session/custom_${txType}_stream.x12`,
-          sha256: `local${String(rawText.length).padStart(11, '0')}`,
-          byte_size: rawText.length,
+          filename: cleanName,
+          source_path: `uploaded/${cleanName}`,
+          sha256: digest16,
+          sha256_full: digest16.repeat(4),
+          byte_size: new Blob([trimmed]).size,
           line_count: rawSegs.length,
           parse_ms: Number(elapsed.toFixed(2)),
           tx_type: txType,
-          tx_label: `Custom EDI X12 ${txType}`,
+          tx_label: txNames[txType] || `Custom EDI X12 ${txType}`,
           isa_control_number: isaCtrl,
           gs_version: gsVer,
           stratum_counts: stratumCounts,
-          financials: { billed, paid, adjustments: 0, patient_responsibility: 0, pended_exposure: 0 },
-          validation_status: 'PASS',
-          validations: [{ rule_id: 'CLIENT-5010', scope: `ST*${txType}`, check: 'Client-Side Stream Tokenization', expected: 'Well-Formed', observed: `${rawSegs.length} segs`, status: 'PASS' }]
+          financials: {
+            billed: Number(billed.toFixed(2)),
+            paid: Number(paid.toFixed(2)),
+            adjustments: Number(adjustments.toFixed(2)),
+            patient_responsibility: Number(patientResp.toFixed(2)),
+            pended_exposure: Number(pendedExposure.toFixed(2))
+          },
+          validation_status: overallStatus,
+          validations: validations
         }
       };
     }
@@ -3939,34 +5102,62 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       const rawText = (document.getElementById('rawInputArea').value || '').trim();
       if (!rawText) return;
 
+      const uploadFilename = PENDING_UPLOAD_FILENAME || '';
+      const uploadSource = uploadFilename ? `uploaded/${uploadFilename}` : '';
+
       if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
         try {
-          const resp = await fetch('/v1/parse/x12', {
+          const resp = await fetch('/v1/parse/x12?include_telemetry=1', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ raw_x12: rawText })
+            body: JSON.stringify({
+              raw_x12: rawText,
+              source_path: uploadSource || undefined
+            })
           });
           if (resp.ok) {
-            const parsed = await resp.json();
-            const fallback = clientSideFallbackParse(rawText);
-            fallback.parsed_data = parsed;
-            ingestLiveDataset(fallback);
+            const payload = await resp.json();
+            if (payload && payload.parsed_data && payload.meta) {
+              ingestLiveDataset(payload);
+            } else {
+              const fallback = clientSideFallbackParse(rawText, uploadFilename);
+              fallback.parsed_data = payload;
+              ingestLiveDataset(fallback);
+            }
             closeUploadModal();
             return;
           }
         } catch (_) {}
       }
 
-      const localDs = clientSideFallbackParse(rawText);
+      const localDs = clientSideFallbackParse(rawText, uploadFilename);
       ingestLiveDataset(localDs);
       closeUploadModal();
     }
 
     function ingestLiveDataset(dsRecord) {
+      if (!dsRecord || !dsRecord.parsed_data || !dsRecord.meta) return;
       const scrollY = window.scrollY;
-      BUNDLE.datasets.unshift(dsRecord);
-      populateDatasetSelector();
-      selectWorkspaceDataset(0, true);
+      if (!dsRecord.id) {
+        dsRecord.id = `live_${dsRecord.meta.sha256 || Date.now()}`;
+      }
+
+      // Deduplicate if SSE 'parse_update' and direct HTTP response arrive for the same upload
+      const existingIdx = BUNDLE.datasets.findIndex(d =>
+        (d.id && dsRecord.id && d.id === dsRecord.id) ||
+        (d.id && String(d.id).startsWith('sse_') && d.meta && dsRecord.meta && d.meta.sha256 === dsRecord.meta.sha256 && d.raw_x12 === dsRecord.raw_x12) ||
+        (d.id && String(d.id).startsWith('upload_') && d.meta && dsRecord.meta && d.meta.sha256 === dsRecord.meta.sha256 && d.raw_x12 === dsRecord.raw_x12)
+      );
+
+      if (existingIdx >= 0) {
+        BUNDLE.datasets[existingIdx] = dsRecord;
+        populateDatasetSelector();
+        selectWorkspaceDataset(existingIdx, false, false);
+      } else {
+        BUNDLE.datasets.unshift(dsRecord);
+        populateDatasetSelector();
+        selectWorkspaceDataset(0, false, false);
+      }
       window.scrollTo(0, scrollY);
     }
 
@@ -3976,7 +5167,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       if (payload.parsed_data && payload.meta) {
         ingestLiveDataset(payload);
       } else if (payload.raw_x12) {
-        const ds = clientSideFallbackParse(payload.raw_x12);
+        const ds = clientSideFallbackParse(payload.raw_x12, payload.filename || '');
         if (payload.parsed_data) ds.parsed_data = payload.parsed_data;
         ingestLiveDataset(ds);
       }
@@ -4015,7 +5206,10 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       const fileInput = document.getElementById('fileInput');
       if (!dropZone || !fileInput) return;
 
-      dropZone.addEventListener('click', () => fileInput.click());
+      dropZone.addEventListener('click', () => {
+        fileInput.value = '';
+        fileInput.click();
+      });
       dropZone.addEventListener('dragover', e => { e.preventDefault(); });
       dropZone.addEventListener('drop', e => {
         e.preventDefault();
@@ -4029,6 +5223,11 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     function readUploadedFile(file) {
+      PENDING_UPLOAD_FILENAME = file.name || 'uploaded_stream.x12';
+      const badge = document.getElementById('uploadedFileBadge');
+      if (badge) {
+        badge.textContent = `Loaded File: ${PENDING_UPLOAD_FILENAME} (${file.size.toLocaleString()} bytes)`;
+      }
       const reader = new FileReader();
       reader.onload = ev => {
         document.getElementById('rawInputArea').value = ev.target.result || '';
@@ -4062,15 +5261,21 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       initChartHover();
       initUploadControls();
 
+      autoSelect3dModelForDataset(CURRENT_DATA, CURRENT_DATASET.meta);
       applyThemeMode(savedMode, false);
       refreshAllComponents(false);
-      initSSEConnection();
+      if (document.readyState === 'complete') {
+        setTimeout(initSSEConnection, 40);
+      } else {
+        window.addEventListener('load', () => setTimeout(initSSEConnection, 40), { once: true });
+      }
 
       let resizeTimer = null;
       window.addEventListener('resize', () => {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
           renderFinancialChart();
+          renderHeatmapMatrix();
           renderRelationshipNodeMap(false);
           request3dRender();
         }, 80);

@@ -171,7 +171,9 @@ class X12APIRequestHandler(BaseHTTPRequestHandler):
 
             raw_x12 = ""
             context = ""
+            source_path = "api/live_stream.x12"
             requested_format = "json"
+            include_telemetry = "include_telemetry=1" in query
 
             if "format=html" in query or path in ("/dashboard", "/v1/dashboard/generate"):
                 requested_format = "html"
@@ -183,6 +185,8 @@ class X12APIRequestHandler(BaseHTTPRequestHandler):
                     payload = json.loads(body_bytes.decode("utf-8"))
                     raw_x12 = payload.get("raw_x12", "")
                     context = payload.get("context", "")
+                    if payload.get("source_path"):
+                        source_path = str(payload.get("source_path"))
                     if payload.get("format") == "html" or payload.get("dashboard") is True:
                         requested_format = "html"
                 else:
@@ -206,18 +210,16 @@ class X12APIRequestHandler(BaseHTTPRequestHandler):
                 meta = compute_dataset_telemetry(
                     parsed_result,
                     raw_x12=raw_x12,
-                    source_path="api/live_stream.x12",
+                    source_path=source_path,
                     parse_ms=elapsed_ms,
                 )
-                broadcast_sse_event(
-                    "parse_update",
-                    {
-                        "id": f"sse_{int(time.time() * 1000)}",
-                        "meta": meta,
-                        "parsed_data": parsed_result,
-                        "raw_x12": raw_x12,
-                    },
-                )
+                event_record = {
+                    "id": f"sse_{int(time.time() * 1000)}_{meta['sha256'][:8]}",
+                    "meta": meta,
+                    "parsed_data": parsed_result,
+                    "raw_x12": raw_x12,
+                }
+                broadcast_sse_event("parse_update", event_record)
 
                 if requested_format == "html":
                     html_dashboard = X12Parser.generate_dashboard(
@@ -227,6 +229,9 @@ class X12APIRequestHandler(BaseHTTPRequestHandler):
                     )
                     self._set_headers(200, content_type="text/html")
                     self.wfile.write(html_dashboard.encode("utf-8"))
+                elif include_telemetry:
+                    self._set_headers(200, content_type="application/json")
+                    self.wfile.write(json.dumps(event_record, indent=2, default=str).encode("utf-8"))
                 else:
                     self._set_headers(200, content_type="application/json")
                     self.wfile.write(json.dumps(parsed_result, indent=2, default=str).encode("utf-8"))

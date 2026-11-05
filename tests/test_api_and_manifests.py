@@ -253,6 +253,41 @@ class TestAPIAndManifests(unittest.TestCase):
         self.assertTrue(os.path.exists(script_file))
         self.assertTrue(os.path.exists(example_file))
 
+    def test_server_parse_include_telemetry_and_dynamic_renderers(self):
+        url = f"{self.base_url}/v1/parse/x12?include_telemetry=1"
+        raw_270 = read_sample("sample_270_inquiry.x12")
+        payload = json.dumps({
+            "raw_x12": raw_270,
+            "source_path": "uploaded/custom_270_inquiry.x12",
+        }).encode("utf-8")
+
+        req = urllib.request.Request(
+            url,
+            data=payload,
+            headers={"Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(req) as resp:
+            self.assertEqual(resp.status, 200)
+            record = json.loads(resp.read().decode("utf-8"))
+            self.assertTrue(str(record.get("id", "")).startswith("sse_"))
+            self.assertEqual(record["meta"]["tx_type"], "270")
+            self.assertEqual(record["meta"]["filename"], "custom_270_inquiry.x12")
+            self.assertEqual(record["meta"]["source_path"], "uploaded/custom_270_inquiry.x12")
+            self.assertIn("parsed_data", record)
+            self.assertEqual(record["raw_x12"], raw_270)
+
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        with open(os.path.join(project_root, "dashboard.html"), "r", encoding="utf-8") as f:
+            html = f.read()
+        for symbol in [
+            "buildActiveStreamChartSpec",
+            "autoSelect3dModelForDataset",
+            "renderMappingSpec",
+            "parseEmbeddedCcdaXmlClient",
+            "include_telemetry=1",
+        ]:
+            self.assertIn(symbol, html)
+
 
 if __name__ == "__main__":
     unittest.main()

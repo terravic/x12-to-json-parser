@@ -155,8 +155,61 @@ class TestAPIAndManifests(unittest.TestCase):
             raw = read_sample(sample_name)
             html = X12Parser.generate_dashboard(raw, title=f"Test {sample_name}")
             self.assertIn("<!DOCTYPE html>", html)
-            self.assertIn("tailwindcss", html)
+            self.assertNotIn("cdn.tailwindcss.com", html)
             self.assertIn("CURRENT_DATA", html)
+            self.assertIn('id="theme-btn-light"', html)
+            self.assertIn('id="theme-btn-dark"', html)
+            self.assertIn('id="theme-btn-system"', html)
+
+    def test_design_md_strict_compliance_and_root_dashboard(self):
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        root_dashboard = os.path.join(project_root, "dashboard.html")
+        self.assertTrue(os.path.exists(root_dashboard))
+
+        with open(root_dashboard, "r", encoding="utf-8") as f:
+            html = f.read()
+
+        # Typography rules: DM Sans, Instrument Serif, IBM Plex Mono; no Inter or Roboto
+        self.assertIn("DM Sans", html)
+        self.assertIn("Instrument Serif", html)
+        self.assertIn("IBM Plex Mono", html)
+        self.assertIn("tabular-nums", html)
+        self.assertNotIn("Roboto", html)
+        self.assertNotIn("'Inter'", html)
+
+        # Exact Light & Dark Mode hex tokens (DESIGN.md Section 3)
+        for token in [
+            "#FAFAF9", "#FFFFFF", "#E7E5E4", "#1C1917", "#787774",
+            "#0D0E11", "#16171D", "#292A30", "#ECE8E2", "#9A9895",
+        ]:
+            self.assertIn(token, html)
+
+        # Three-icon theme switcher attributes
+        self.assertIn('data-theme-mode="light"', html)
+        self.assertIn('data-theme-mode="dark"', html)
+        self.assertIn('data-theme-mode="system"', html)
+        self.assertIn('aria-label="Light Theme"', html)
+        self.assertIn('aria-label="Dark Theme"', html)
+        self.assertIn('aria-label="System Theme"', html)
+        self.assertIn("prefers-color-scheme: dark", html)
+        self.assertIn('"system_theme"', html)
+
+        # Data Visualization Palette (DESIGN.md Section 5) & Components
+        for viz_color in ["#0D9488", "#D97706", "#4F46E5", "#059669", "#E11D48"]:
+            self.assertIn(viz_color, html)
+        self.assertIn("Interactive Relationship Node Map", html)
+        self.assertIn("Structural Data Diagram", html)
+        self.assertIn("Software Projection Fallback", html)
+
+    def test_server_sse_events_endpoint(self):
+        url = f"{self.base_url}/v1/events?once=1"
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req) as resp:
+            self.assertEqual(resp.status, 200)
+            self.assertIn("text/event-stream", resp.headers.get("Content-Type", ""))
+            payload = resp.read().decode("utf-8")
+            self.assertIn("event: status", payload)
+            self.assertIn("connected", payload)
 
     def test_server_parse_and_build_html_dashboard(self):
         url = f"{self.base_url}/v1/parse/x12"
@@ -179,7 +232,7 @@ class TestAPIAndManifests(unittest.TestCase):
         from x12_parser import X12Parser
         raw_837 = read_sample("sample_837_claim.x12")
         html = X12Parser.generate_dashboard(raw_837, title="Test 837 Visual Dashboard")
-        self.assertIn("Interactive X12 & JSON Explorer", html)
+        self.assertIn("Interactive X12 &amp; JSON Explorer", html)
         self.assertIn("segmentListContainer", html)
         self.assertIn("activeJsonSubtreeDisplay", html)
         self.assertIn("activeSegElementsTable", html)

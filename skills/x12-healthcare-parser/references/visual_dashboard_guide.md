@@ -1,138 +1,64 @@
 # Visual Dashboard Architecture & Developer Guide
 
-This guide explains how the interactive Visual Dashboard operates and details how to build rich, responsive, interactive HTML/JS/CSS dashboards for healthcare transactions.
+This guide documents how the standalone interactive HTML5 Visual Dashboard (`dashboard.html`) operates in strict alignment with `DESIGN.md`.
 
 ---
 
-## 1. Visual Dashboard Execution Environment
+## 1. Runtime & Execution Environment
 
-The Visual Dashboard provides an interactive, visual runtime for exploring healthcare transactions alongside structured data output.
-
-### Key Characteristics:
-- **Sandboxed `<iframe>` & Browser Container**: Renders self-contained HTML/CSS/JS documents inside a secure, isolated container.
-- **Full Web Standards Support**: Supports HTML5, modern ES6+ JavaScript, CSS grid/flexbox, SVG graphics, and web fonts.
-- **Zero Build Step / CDN Integration**: Uses standalone single-file distribution with Tailwind CSS without requiring node_modules bundling.
-- **Bi-Directional Interactivity**: Allows clickable elements, stateful tab switching, live search filters, modal popups, clipboard operations, and client-side data parsing.
+- **Self-Contained Zero-Dependency Execution**: Renders inside standard browsers, offline `file://` contexts, and sandboxed webviews using pure HTML5, Vanilla CSS custom properties, and Vanilla ES6+ JavaScript (no external JS/CSS framework CDNs).
+- **Live Server-Sent Events (SSE) & Incremental Updates**: Connects to `/v1/events` when served over HTTP (`python3 -m x12_parser.api.server`) and exposes `window.updateDashboardData(payload)` to ingest live parsed streams without resetting scroll position, active tab, or 3D/SVG camera state.
+- **Empirical Data & Provenance**: Embeds SHA-256 source digests, parse execution timings, HIPAA 5010 envelope parity audits, and HL7 C-CDA R2.1 clinical payloads.
 
 ---
 
-## 2. Styling & CSS Theme Variables
+## 2. Typography & Theme Token System
 
-Dashboards adapt automatically to host workspace themes (Light, Dark, High Contrast) using CSS custom properties.
+### Typography (`DESIGN.md` Section 1)
+- **UI Sans-Serif**: `DM Sans`
+- **Display Serif**: `Instrument Serif`
+- **Tabular Monospace**: `IBM Plex Mono` (`font-variant-numeric: tabular-nums`)
 
-### Tailwind CSS CDN:
-```html
-<script src="https://cdn.tailwindcss.com"></script>
-```
+### Surface, Border & Text Tokens (`DESIGN.md` Section 3)
+- **Light Mode** (`html[data-theme="light"]`):
+  - `--bg-page: #FAFAF9`
+  - `--bg-surface: #FFFFFF`
+  - `--border: #E7E5E4` (`1px solid`, `6px`–`8px` radius)
+  - `--text-primary: #1C1917`
+  - `--text-secondary: #787774`
+- **Dark Mode** (`html[data-theme="dark"]`):
+  - `--bg-page: #0D0E11`
+  - `--bg-surface: #16171D`
+  - `--border: #292A30` (`1px solid`, `6px`–`8px` radius)
+  - `--text-primary: #ECE8E2`
+  - `--text-secondary: #9A9895`
 
-### Standard Theme Variables:
-```css
-:root {
-  --app-background: #0f172a;
-  --app-foreground: #f8fafc;
-  --app-card: #1e293b;
-  --app-card-border: #334155;
-  --app-card-foreground: #f8fafc;
-  --app-border: #334155;
-  --app-primary: #3b82f6;
-  --app-primary-foreground: #ffffff;
-  --app-muted: #334155;
-  --app-muted-foreground: #94a3b8;
-  --vscode-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
-
-html.light {
-  --app-background: #f8fafc;
-  --app-foreground: #0f172a;
-  --app-card: #ffffff;
-  --app-card-border: #e2e8f0;
-  --app-card-foreground: #0f172a;
-  --app-border: #e2e8f0;
-  --app-primary: #2563eb;
-  --app-primary-foreground: #ffffff;
-  --app-muted: #f1f5f9;
-  --app-muted-foreground: #64748b;
-}
-
-body {
-  background-color: var(--app-background);
-  color: var(--app-foreground);
-  font-family: var(--vscode-font-family);
-}
-```
-
-### Automatic Theme Detection & Manual Toggle:
-```javascript
-// Detect OS / Host Theme
-if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-  document.documentElement.classList.remove('dark');
-  document.documentElement.classList.add('light');
-}
-
-// User-clickable toggle
-function toggleTheme() {
-  const html = document.documentElement;
-  if (html.classList.contains('light')) {
-    html.classList.remove('light');
-    html.classList.add('dark');
-  } else {
-    html.classList.remove('dark');
-    html.classList.add('light');
-  }
-}
-```
+### Three-Icon Theme Selector
+- `#theme-btn-light` (`data-theme-mode="light"`, Sun SVG)
+- `#theme-btn-dark` (`data-theme-mode="dark"`, Crescent Moon SVG)
+- `#theme-btn-system` (`data-theme-mode="system"`, Computer Monitor SVG)
+- Tracks OS appearance via `window.matchMedia('(prefers-color-scheme: dark)')` with host OS fallback (`system_theme`) and `localStorage` persistence.
 
 ---
 
-## 3. Core Visual Dashboard Components for X12 Healthcare
+## 3. Data Visualization & Single-Level Bento Components
 
-The X12 Visual Dashboard is organized into modular components:
+All visualizations use the semantic palette (`#0D9488` Vibrant Teal, `#D97706` Energetic Amber, `#4F46E5` Vivid Indigo, `#059669` Functional Emerald, `#E11D48` Deep Rose):
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ 1. Header & KPI Metrics Bar (Tx Type, Billed/Paid Total, Claims, C-CDA)     │
-├─────────────────────────────────────────────────────────────────────────────┤
-│ 2. Navigation Tabs                                                          │
-│    [Interactive Explorer] [Details] [C-CDA] [Raw X12] [JSON]                 │
-├─────────────────────────────────────────────────────────────────────────────┤
-│ 3. Main Display Panel (Dynamic depending on active tab):                    │
-│                                                                             │
-│  ┌─────────────────────────┬──────────────────────┬──────────────────────┐  │
-│  │ Left: Clickable X12     │ Middle: Segment Spec │ Right: Structured    │  │
-│  │ Segment List with Loop  │ & Business Meaning   │ JSON Tree with Auto  │  │
-│  │ & Tag Badges            │ Element Breakdown    │ Highlight & Sync     │  │
-│  └─────────────────────────┴──────────────────────┴──────────────────────┘  │
-├─────────────────────────────────────────────────────────────────────────────┤
-│ 4. Client-side Drag-and-Drop Parser & Quick Sample Switcher Modal           │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-### 1. Synchronized Segment-to-JSON Inspector
-- **Left Column**: Interactive list of all raw X12 segments (`ISA`, `GS`, `ST`, `CLM`, `NM1`, `SV1`, `CLP`, `CAS`, `STC`, `BDS`, etc.).
-- **Middle Column**: Segment Deep-Dive Card showing segment name, healthcare workflow explanation, EDI 5010 loop name, target JSON key path, and element-by-element table.
-- **Right Column**: Structured JSON viewer highlighting the exact JSON object/property corresponding to the clicked segment.
-
-### 2. Dedicated Full Raw X12 Viewer
-- Line numbering, syntax highlighting, search/filter input, copy-to-clipboard, and `.x12` file download.
-
-### 3. Dedicated Full JSON File Viewer
-- Complete formatted hierarchical JSON output, search filter, copy-to-clipboard, and `.json` file download.
-
-### 4. Consolidated Clinical Document (C-CDA) Viewer
-- Dedicated visual section for 275 transactions rendering Patient Demographics, Allergies, Active Medications, Problem List / Diagnoses, Vital Signs, and Clinical Notes.
+1. **Financial Adjudication & Parse Telemetry Plot**: 2D quantitative coordinate chart with transparent plot background and subtle axis gridlines (`#E7E5E4` light / `#292A30` dark).
+2. **Loop Stratum Concentration Matrix**: Interactive heatmap smoothly transitioning from surface background through Vibrant Teal (`#0D9488`) and Vivid Indigo (`#4F46E5`) to Deep Rose (`#E11D48`).
+3. **Interactive Relationship Node Map**: Deterministic SVG DAG with pan/zoom and semantic edge coloring.
+4. **Structural Data Diagram**: Interactive 3D conformer viewer (`Lisinopril RxNorm 314076`, `Penicillin G RxNorm 70618`, and `X12 Spatial Loop Lattice`) using hardware WebGL shaders with automatic 2D Canvas software projection fallback.
+5. **Synchronized X12-to-JSON Inspector**: Flat 3-column split pane with `1px` cell dividers mapping raw X12 segments to element tables and JSON subtrees.
 
 ---
 
-## 4. Workflow & Execution
+## 4. Generating `dashboard.html`
 
-When the user requests parsing or inspecting an EDI X12 transaction:
+```bash
+# Build full empirical workspace dashboard at project root
+python3 -m x12_parser.ui.dashboard_generator dashboard.html
 
-1. **Parse Input & Generate Dashboard**:
-   ```bash
-   python3 skills/x12-healthcare-parser/scripts/generate_visual_dashboard.py sample_data/sample_837_claim.x12 -o docs/x12_dashboard.html
-   ```
-2. **Review Output**:
-   The script outputs both the structured JSON data and the standalone HTML dashboard.
-3. **Open Dashboard**:
-   Open the generated HTML dashboard in your browser:
-   `docs/x12_dashboard.html`
+# Or generate for a specific X12 file
+python3 skills/x12-healthcare-parser/scripts/generate_visual_dashboard.py sample_data/sample_837_claim.x12 -o dashboard.html
+```

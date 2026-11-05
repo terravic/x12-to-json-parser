@@ -14,13 +14,10 @@ This skill enables autonomous agents and users to parse raw EDI X12 healthcare t
 Enterprise AI environments render custom visual UI widgets using a sandboxed `<iframe>` container.
 
 ### How Dashboard Rendering Works
-1. **Sandboxed HTML/JS/CSS Execution**: Renders self-contained single-page dashboards with full DOM interactivity and zero external node dependencies.
-2. **Tailwind CSS Styling**:
-   ```html
-   <script src="https://cdn.tailwindcss.com"></script>
-   ```
-3. **Workspace Theme Adaptation**: Uses CSS variables (`--app-background`, `--app-foreground`, `--app-card`, `--app-border`, `--app-primary`, `--app-muted`, etc.) to match host workspace color palettes.
-4. **Light & Dark Theme Toggle**: Adapts seamlessly to system preferences via `html.light` / `html.dark` classes with a built-in user theme switch button.
+1. **Self-Contained Vanilla HTML5/CSS/JS Execution**: Renders standalone single-page dashboards (`dashboard.html`) offline (`file://`) and over HTTP with zero external framework CDNs.
+2. **Dual-Mode Clinical Palette (`DESIGN.md`)**: Warm alabaster (`#FAFAF9`) and pure white (`#FFFFFF`) surfaces in Light Mode; carbon slate (`#0D0E11`) and obsidian (`#16171D`) surfaces in Dark Mode, paired with `DM Sans`, `Instrument Serif`, and tabular `IBM Plex Mono`.
+3. **Three-Icon Segmented Theme Selector**: Adapts to Light (`#theme-btn-light`), Dark (`#theme-btn-dark`), and System (`#theme-btn-system`) preferences via `localStorage`, real-time `matchMedia('(prefers-color-scheme: dark)')`, and host OS backend detection.
+4. **Live SSE Telemetry & Multi-Modal Visualization**: Includes 2D revenue waterfall canvas, segment concentration heatmap, SVG `"Interactive Relationship Node Map"`, WebGL + 2D software-fallback `"Structural Data Diagram"`, and `/v1/events` SSE streaming.
 
 For architecture and sandbox details, see the [Visual Dashboard Guide](skills/x12-healthcare-parser/references/visual_dashboard_guide.md).
 

@@ -1,22 +1,47 @@
 """
-Production HTTP REST API Server for X12 Healthcare Parser.
+Production HTTP REST API & SSE Streaming Server for X12 Healthcare Parser.
 
 Zero-dependency implementation using standard library http.server,
-providing full OpenAPI 3.1 compliance and standard REST plugin endpoints.
+providing full OpenAPI 3.1 compliance, Server-Sent Events (/v1/events),
+and standalone dashboard serving.
 """
 
 import json
 import os
+import queue
 import sys
-from http.server import HTTPServer, BaseHTTPRequestHandler
+import threading
+import time
+from http.server import ThreadingHTTPServer, HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse
-from typing import Dict, Any
+from typing import Any, List
 
 from ..engine.base_parser import X12Parser
+from ..ui.dashboard_generator import compute_dataset_telemetry, generate_html_dashboard
+
+
+_SSE_CLIENTS_LOCK = threading.Lock()
+_SSE_CLIENTS: List["queue.Queue[str]"] = []
+
+
+def broadcast_sse_event(event_name: str, payload: Any) -> None:
+    """Broadcast a JSON event payload to all connected SSE subscribers."""
+    serialized = json.dumps(payload, default=str)
+    msg = f"event: {event_name}\ndata: {serialized}\n\n"
+    with _SSE_CLIENTS_LOCK:
+        stale = []
+        for q in _SSE_CLIENTS:
+            try:
+                q.put_nowait(msg)
+            except queue.Full:
+                stale.append(q)
+        for s in stale:
+            if s in _SSE_CLIENTS:
+                _SSE_CLIENTS.remove(s)
 
 
 class X12APIRequestHandler(BaseHTTPRequestHandler):
-    """Handles HTTP requests for X12 parsing API and plugin manifests."""
+    """Handles HTTP requests for X12 parsing API, SSE telemetry, and plugin manifests."""
 
     def _set_headers(self, status_code: int = 200, content_type: str = "application/json") -> None:
         self.send_response(status_code)
@@ -37,6 +62,44 @@ class X12APIRequestHandler(BaseHTTPRequestHandler):
             self._set_headers(200)
             res = {"status": "healthy", "version": "1.0.0", "service": "X12_Healthcare_Parser"}
             self.wfile.write(json.dumps(res, indent=2).encode("utf-8"))
+
+        elif path in ("/v1/events", "/events"):
+            is_once = "once=1" in parsed_url.query
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream; charset=utf-8")
+            self.send_header("Cache-Control", "no-cache")
+            self.send_header("Connection", "close" if is_once else "keep-alive")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+
+            client_queue: "queue.Queue[str]" = queue.Queue(maxsize=32)
+            with _SSE_CLIENTS_LOCK:
+                _SSE_CLIENTS.append(client_queue)
+
+            try:
+                init_msg = json.dumps({"status": "connected", "service": "X12_Healthcare_Parser"})
+                self.wfile.write(f"event: status\ndata: {init_msg}\n\n".encode("utf-8"))
+                self.wfile.flush()
+
+                # Support non-blocking single-shot check in tests via ?once=1
+                if "once=1" in parsed_url.query:
+                    return
+
+                while True:
+                    try:
+                        msg = client_queue.get(timeout=15.0)
+                        self.wfile.write(msg.encode("utf-8"))
+                        self.wfile.flush()
+                    except queue.Empty:
+                        self.wfile.write(b": keepalive\n\n")
+                        self.wfile.flush()
+            except (BrokenPipeError, ConnectionResetError, OSError):
+                pass
+            finally:
+                self.close_connection = True
+                with _SSE_CLIENTS_LOCK:
+                    if client_queue in _SSE_CLIENTS:
+                        _SSE_CLIENTS.remove(client_queue)
 
         elif path in ("/openapi.json", "/v1/openapi.json"):
             openapi_path = os.path.join(os.path.dirname(__file__), "openapi.json")
@@ -68,17 +131,25 @@ class X12APIRequestHandler(BaseHTTPRequestHandler):
             else:
                 self._send_error_json(404, "Skill manifest not found")
 
-        elif path in ("/dashboard", "/ui", "/v1/dashboard"):
-            dashboard_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "ui", "x12_mapping_dashboard.html")
-            if not os.path.exists(dashboard_path):
-                dashboard_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "docs", "x12_mapping_dashboard.html")
-            if os.path.exists(dashboard_path):
-                with open(dashboard_path, "r", encoding="utf-8") as f:
-                    content = f.read()
+        elif path in ("/", "/dashboard", "/dashboard.html", "/ui", "/v1/dashboard"):
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+            candidates = [
+                os.path.join(project_root, "dashboard.html"),
+                os.path.join(os.path.dirname(os.path.dirname(__file__)), "ui", "x12_mapping_dashboard.html"),
+            ]
+            served = False
+            for cpath in candidates:
+                if os.path.exists(cpath):
+                    with open(cpath, "r", encoding="utf-8") as f:
+                        content = f.read()
+                    self._set_headers(200, content_type="text/html")
+                    self.wfile.write(content.encode("utf-8"))
+                    served = True
+                    break
+            if not served:
+                html_content = generate_html_dashboard(title="EDI X12 Semantic Mapping Engine")
                 self._set_headers(200, content_type="text/html")
-                self.wfile.write(content.encode("utf-8"))
-            else:
-                self._send_error_json(404, "Visual dashboard HTML not found")
+                self.wfile.write(html_content.encode("utf-8"))
 
         else:
             self._send_error_json(404, f"Endpoint not found: {path}")
@@ -125,15 +196,34 @@ class X12APIRequestHandler(BaseHTTPRequestHandler):
                 return
 
             try:
+                t0 = time.perf_counter()
                 parsed_result = X12Parser.parse(raw_x12)
+                elapsed_ms = (time.perf_counter() - t0) * 1000.0
                 if context:
                     parsed_result["request_context"] = context
+
+                # Broadcast live incremental update to any connected SSE dashboard clients
+                meta = compute_dataset_telemetry(
+                    parsed_result,
+                    raw_x12=raw_x12,
+                    source_path="api/live_stream.x12",
+                    parse_ms=elapsed_ms,
+                )
+                broadcast_sse_event(
+                    "parse_update",
+                    {
+                        "id": f"sse_{int(time.time() * 1000)}",
+                        "meta": meta,
+                        "parsed_data": parsed_result,
+                        "raw_x12": raw_x12,
+                    },
+                )
 
                 if requested_format == "html":
                     html_dashboard = X12Parser.generate_dashboard(
                         parsed_result,
                         raw_x12=raw_x12,
-                        title="EDI X12 Parsed Transaction Dashboard"
+                        title="EDI X12 Semantic Mapping Engine",
                     )
                     self._set_headers(200, content_type="text/html")
                     self.wfile.write(html_dashboard.encode("utf-8"))
@@ -156,16 +246,17 @@ class X12APIRequestHandler(BaseHTTPRequestHandler):
 
 
 def run_server(host: str = "0.0.0.0", port: int = 8000) -> None:
-    """Start the HTTP API server."""
+    """Start the multi-threaded HTTP & SSE API server."""
     server_address = (host, port)
-    httpd = HTTPServer(server_address, X12APIRequestHandler)
-    print(f"==================================================")
-    print(f"X12 Healthcare Parser API Server running at http://{host}:{port}")
+    server_cls = ThreadingHTTPServer if hasattr(sys.modules[__name__], "ThreadingHTTPServer") else HTTPServer
+    httpd = server_cls(server_address, X12APIRequestHandler)
+    print("==================================================")
+    print(f"X12 Healthcare Parser API & SSE Server at http://{host}:{port}")
+    print(f"  - Dashboard UI:    http://{host}:{port}/dashboard")
+    print(f"  - SSE Live Stream: http://{host}:{port}/v1/events")
     print(f"  - Health Check:    http://{host}:{port}/v1/health")
     print(f"  - Parse Endpoint:  POST http://{host}:{port}/v1/parse/x12")
-    print(f"  - OpenAPI Spec:    http://{host}:{port}/openapi.json")
-    print(f"  - Plugin Manifest: http://{host}:{port}/.well-known/ai-plugin.json")
-    print(f"==================================================")
+    print("==================================================")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

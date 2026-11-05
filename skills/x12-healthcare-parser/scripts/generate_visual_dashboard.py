@@ -28,7 +28,7 @@ def main():
         description="Generate interactive visual dashboard from EDI X12 healthcare transaction."
     )
     parser.add_argument("input_file", nargs="?", help="Path to input X12 EDI raw file (or '-' for stdin)")
-    parser.add_argument("-o", "--output", default="docs/x12_dashboard.html", help="Path to save generated HTML dashboard (default: docs/x12_dashboard.html)")
+    parser.add_argument("-o", "--output", default="dashboard.html", help="Path to save generated HTML dashboard (default: dashboard.html)")
     parser.add_argument("-j", "--json-output", help="Optional path to save structured JSON output")
     parser.add_argument("-t", "--title", help="Custom title for the dashboard")
     parser.add_argument("-s", "--summary", action="store_true", help="Print summary of parsed transaction sets to stdout")
